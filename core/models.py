@@ -5,19 +5,26 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 class UserManager(BaseUserManager):
     """Custom user manager."""
 
-    def create_user(self, crm, password=None, **extra_fields):
+    def create_user(self, crm, name, password=None, **extra_fields):
         """Create and return a new user."""
         if not crm:
             raise ValueError('Users must have a crm number')
-        user = self.model(crm=crm, **extra_fields)
+        if not name:
+            raise ValueError('Users must have a name')
+        
+        normalized_name = ' '.join([n.capitalize() for n in name.split()])
+
+        user = self.model(crm=crm, name=normalized_name, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
 
         return user
 
-    def create_superuser(self, crm, password):
+    def create_superuser(self, crm, name, password):
         """Create and return a new superuser."""
-        user = self.create_user(crm, password)
+        user = self.create_user(crm=crm,
+                                name=name,
+                                password=password)
         user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
@@ -28,7 +35,12 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     """Custom user model that supports using crm instead of email."""
     crm = models.CharField(max_length=255, unique=True)
+    rqe = models.CharField(max_length=255, blank=True, default='')
     name = models.CharField(max_length=255)
+    email = models.EmailField(max_length=255, default='test@example.com')
+
+    is_invisible = models.BooleanField(default=False)
+    is_manager = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
