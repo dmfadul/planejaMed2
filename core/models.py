@@ -34,15 +34,19 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     """Custom user model that supports using crm instead of email."""
+
+    name = models.CharField(max_length=255)
     crm = models.CharField(max_length=255, unique=True)
     rqe = models.CharField(max_length=255, blank=True, default='')
-    name = models.CharField(max_length=255)
+
     email = models.EmailField(max_length=255, default='test@example.com')
+    phone = models.CharField(max_length=255, blank=True, default='')
 
     is_invisible = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    # is_active = models.BooleanField(default=True)
+    # is_staff = models.BooleanField(default=False)
+    # is_superuser = models.BooleanField(default=False)
 
     objects = UserManager()
 
