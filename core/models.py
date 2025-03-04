@@ -20,10 +20,10 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, crm, name, password):
+    def create_superuser(self, crm, password):
         """Create and return a new superuser."""
         user = self.create_user(crm=crm,
-                                name=name,
+                                name="Admin",
                                 password=password)
         user.is_staff = True
         user.is_superuser = True
@@ -44,8 +44,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     is_invisible = models.BooleanField(default=False)
     is_manager = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
     # is_active = models.BooleanField(default=True)
-    # is_staff = models.BooleanField(default=False)
     # is_superuser = models.BooleanField(default=False)
 
     objects = UserManager()

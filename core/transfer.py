@@ -3,11 +3,11 @@ import django
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from django.conf import settings
-from .models import User
+from core.models import User
 from django.db import transaction
 
 # Setup Django environment
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "planejamed2.settings")  # Adjust project name
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "planejaMed2.settings")  # Adjust project name
 django.setup()
 
 # MySQL connection settings (adjust as needed)
@@ -21,22 +21,27 @@ metadata = MetaData()
 metadata.reflect(bind=engine)
 
 # Define the MySQL table (adjust as needed)
-old_table = Table("old_mysql_table", metadata, autoload_with=engine)
+old_table = Table("users", metadata, autoload_with=engine)
 
 # Fetch all records
 with session.begin():
     records = session.execute(old_table.select()).fetchall()
-    for record in records:
-        print(record)
 
-# # Data transformation function
-# def transform_data(old_record):
-#     """Convert MySQL record to match Django model."""
-#     return {
-#         "name": f"{old_record.first_name} {old_record.middle_name or ''} {old_record.last_name}".strip(),
-#         "email": old_record.email,
-#         "phone": old_record.phone_number,  # Adjust as necessary
-#     }
+# Data transformation function
+def transform_data(old_record):
+    """Convert MySQL record to match Django model."""
+
+    print(old_record.first_name)
+    return 0
+    # return {
+    #     "name": f"{old_record.first_name} {old_record.middle_name or ''} {old_record.last_name}".strip(),
+    #     "email": old_record.email,
+    #     "phone": old_record.phone_number,  # Adjust as necessary
+    # }
+
+
+for record in records:
+    transform_data(record)
 
 # # Insert into SQLite3 Django DB
 # with transaction.atomic():
