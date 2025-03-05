@@ -42,11 +42,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, default='test@example.com')
     phone = models.CharField(max_length=255, blank=True, default='')
 
+    is_active = models.BooleanField(default=True)
     is_invisible = models.BooleanField(default=False)
+    
     is_manager = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
+
+    compliant_since = models.DateField(null=True, blank=True)
 
     objects = UserManager()
 

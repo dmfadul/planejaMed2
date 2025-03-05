@@ -31,21 +31,32 @@ with session.begin():
 def transform_data(old_record):
     """Convert MySQL record to match Django model."""
 
-    print(old_record.first_name)
-    return 0
-    # return {
-    #     "name": f"{old_record.first_name} {old_record.middle_name or ''} {old_record.last_name}".strip(),
-    #     "email": old_record.email,
-    #     "phone": old_record.phone_number,  # Adjust as necessary
-    # }
+    return {
+        "name": f"{old_record.first_name} {old_record.middle_name or ''} {old_record.last_name}".strip(),
+        "crm": old_record.crm,
+        "rqe": old_record.rqe,
+
+        "email": old_record.email,
+        "phone": old_record.phone,  # Adjust as necessary
+
+        "is_active": old_record.is_active,
+        "is_invisible": not old_record.is_visible,
+
+        "is_manager": old_record.pre_approved_vacation,
+        "is_staff": old_record.is_root,
+        "is_superuser": old_record.is_root,
+
+        "date_joined": old_record.date_joined,
+        "compliant_since": old_record.compliant_since,
+    }
 
 
 for record in records:
-    transform_data(record)
+    print(transform_data(record))
 
-# # Insert into SQLite3 Django DB
-# with transaction.atomic():
-#     new_objects = [User(**transform_data(row)) for row in records]
-#     User.objects.bulk_create(new_objects)
+# Insert into SQLite3 Django DB
+with transaction.atomic():
+    new_objects = [User(**transform_data(row)) for row in records]
+    User.objects.bulk_create(new_objects)
 
-# print(f"Successfully transferred {len(new_objects)} records from MySQL to SQLite3.")
+print(f"Successfully transferred {len(new_objects)} records from MySQL to SQLite3.")
