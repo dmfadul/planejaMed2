@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker
 from django.conf import settings
 from core.models import User
 from django.db import transaction
+from django.contrib.auth.hashers import make_password
+
 
 # Setup Django environment
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "planejaMed2.settings")  # Adjust project name
@@ -31,8 +33,13 @@ with session.begin():
 def transform_data(old_record):
     """Convert MySQL record to match Django model."""
 
+    if old_record.middle_name == "":
+        name = f"{old_record.first_name.strip()} {old_record.last_name.strip()}".strip()
+    else:
+        name = f"{old_record.first_name.strip()} {old_record.middle_name.strip()} {old_record.last_name.strip()}".strip()
+
     return {
-        "name": f"{old_record.first_name} {old_record.middle_name or ''} {old_record.last_name}".strip(),
+        "name": name,
         "crm": old_record.crm,
         "rqe": old_record.rqe,
 
@@ -48,15 +55,13 @@ def transform_data(old_record):
 
         "date_joined": old_record.date_joined,
         "compliant_since": old_record.compliant_since,
+
+        "password": make_password("123456"),
     }
-
-
-for record in records:
-    print(transform_data(record))
 
 # Insert into SQLite3 Django DB
 with transaction.atomic():
-    new_objects = [User(**transform_data(row)) for row in records]
+    new_objects = [User(**transform_data(row)) for row in records if (row.crm != 10000 and row.crm != 0)]
     User.objects.bulk_create(new_objects)
 
 print(f"Successfully transferred {len(new_objects)} records from MySQL to SQLite3.")
