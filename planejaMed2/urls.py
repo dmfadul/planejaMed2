@@ -16,9 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from shifts.views import dashboard
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     path('shifts/', include('shifts.urls')),
+    path('', dashboard, name='home'),
 ]
