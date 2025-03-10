@@ -8,5 +8,10 @@
 <body>
     <h1>Welcome to the Dashboard</h1>
     <p>This is a test page for the dashboard.</p>
+    <form action="{% url 'users:logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+    
 </body>
 </html>
