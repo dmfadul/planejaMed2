@@ -1,75 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-    body { background: #f5f7fa; color: #333; }
+{% extends 'base.html' %}
 
-    .sidebar {
-      background: #1e293b;
-      color: #fff;
-      height: 100vh;
-      width: 240px;
-      position: fixed;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      transition: width 0.3s;
-    }
-    .sidebar h2 { margin-bottom: 30px; font-size: 1.5rem; }
-    .sidebar a {
-      color: #cbd5e1;
-      text-decoration: none;
-      margin: 15px 0;
-      display: block;
-      transition: color 0.3s;
-    }
-    .sidebar a:hover { color: #fff; }
+{% block title %}Dashboard{% endblock %}
 
-    .main {
-      margin-left: 240px;
-      padding: 20px;
-      transition: margin-left 0.3s;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-    }
-    .card h3 { margin-bottom: 10px; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .toggle-btn {
-      background: #1e293b;
-      color: #fff;
-      padding: 10px 20px;
-      border: none;
-      cursor: pointer;
-      position: fixed;
-      top: 20px;
-      left: 250px;
-      display: none;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar { width: 0; overflow: hidden; }
-      .main { margin-left: 0; }
-      .toggle-btn { display: block; }
-    }
-  </style>
-</head>
-<body>
+{% block content %}
   <div class="sidebar" id="sidebar">
     <h2>Dashboard</h2>
     <a href="#">Home</a>
@@ -77,13 +10,12 @@
     <a href="#">Analytics</a>
     <a href="#">Settings</a>
     <form action="{% url 'users:logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Logout</button>
     </form>
-    
   </div>
 
-  <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu</button>
+  <button class="toggle-btn btn btn-primary" onclick="toggleSidebar()">☰ Menu</button>
 
   <div class="main">
     <h1>Welcome Back</h1>
@@ -106,12 +38,13 @@
       </div>
     </div>
   </div>
+{% endblock %}
 
-  <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.style.width = sidebar.style.width === '240px' ? '0' : '240px';
-    }
-  </script>
-</body>
-</html>
+{% block scripts %}
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.style.width = (sidebar.style.width === '0px' || sidebar.style.width === '') ? '240px' : '0';
+  }
+</script>
+{% endblock %}
