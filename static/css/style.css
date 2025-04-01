@@ -5,11 +5,22 @@ body{
 
 .container.signin-container{
     margin-top: 15%;
-
 }
 
 .card.signin-card{
-    padding: 40px 10px 20px;
+    padding: 40px 0px 20px;
     background-color: #f4f4f4;
     box-shadow: 0px 0px 10px 0px #dcdcdc;
+}
+
+img.signin-img{
+    padding: 0 2rem 2rem;
+    margin: auto;
+    display: block;
+    width: 40%;
+}
+
+form.signin-form{
+    max-width: 150px;
+    margin: auto;
 }
