@@ -1,0 +1,15 @@
+body{
+    background-color: #f8f9fa;
+    font-family: 'Roboto', sans-serif;
+}
+
+.container.signin-container{
+    margin-top: 15%;
+
+}
+
+.card.signin-card{
+    padding: 40px 10px 20px;
+    background-color: #f4f4f4;
+    box-shadow: 0px 0px 10px 0px #dcdcdc;
+}
