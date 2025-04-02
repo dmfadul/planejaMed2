@@ -3,16 +3,14 @@
 
 {% block title %}Login{% endblock %}
 
-
 {% block content %}
 
 <div class="container signin-container">
-    <div class="row">
-        <div class="col"></div>
-        <div class="col-8">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
             <div class="card signin-card">
-                <div class="card-block">
-                    <img src="{% static 'assets/logo.png' %}" class="img-fluid signin-img">
+                <div class="card-body text-center">
+                    <img src="{% static 'assets/logo.png' %}" class="img-fluid signin-img mb-4">
                     <form class="signin-form" method="post">
                         {% csrf_token %}
                         {% if form.non_field_errors %}
@@ -20,24 +18,25 @@
                                 {{ form.non_field_errors }}
                             </div>
                         {% endif %}
-                        
-                        <div class="form-group">
-                            <input type="text" name="username" class="form-control" placeholder="CRM" required>
+
+                        <div class="form-group mb-3">
+                            <input type="text" name="username" maxlength="5" class="form-control text-center" placeholder="CRM" required>
                             {{ form.username.errors }}
                         </div>
-
-                        <div class="form-group">
-                            <input type="password" name="password" class="form-control" placeholder="Senha" required>
+                        
+                        <div class="form-group mb-4 position-relative">
+                            <input type="password" id="passwordInput" name="password" class="form-control text-center" placeholder="Senha" required>
+                            <span id="togglePassword" class="toggle-password" title="Mostrar/ocultar senha">
+                                👁️
+                            </span>
                             {{ form.password.errors }}
                         </div>
 
-                        <button type="submit">Login</button>
+                        <button type="submit" class="btn signin-btn btn-lg">Entrar</button>
                     </form>
                 </div>
             </div>
         </div>
-        <div class="col"></div>
-
     </div>
 </div>
 
