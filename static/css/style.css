@@ -73,13 +73,13 @@ button.signin-btn:hover {
     top: 50%;
     right: 15px;
     transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
     cursor: pointer;
-    font-size: 1.2rem;
-    color: #aaa;
-    user-select: none;
-    transition: color 0.3s ease;
+    transition: filter 0.3s ease;
 }
 
 .toggle-password:hover {
-    color: #ffffff;
+    filter: brightness(1.3);
+    transform: translateY(-50%) scale(1.2);
 }

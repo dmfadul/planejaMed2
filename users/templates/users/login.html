@@ -23,12 +23,10 @@
                             <input type="text" name="username" maxlength="5" class="form-control text-center" placeholder="CRM" required>
                             {{ form.username.errors }}
                         </div>
-                        
-                        <div class="form-group mb-4 position-relative">
+
+                       <div class="form-group mb-4 position-relative">
                             <input type="password" id="passwordInput" name="password" class="form-control text-center" placeholder="Senha" required>
-                            <span id="togglePassword" class="toggle-password" title="Mostrar/ocultar senha">
-                                👁️
-                            </span>
+                            <img id="togglePassword" src="{% static 'assets/eye.svg' %}" class="toggle-password" alt="toggle password" title="Mostrar/ocultar senha">
                             {{ form.password.errors }}
                         </div>
 
@@ -39,5 +37,17 @@
         </div>
     </div>
 </div>
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('passwordInput');
+
+    togglePassword.addEventListener('click', () => {
+        const isPassword = passwordInput.getAttribute('type') === 'password';
+        passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+        togglePassword.src = isPassword 
+            ? "{% static 'assets/eye-slash.svg' %}" 
+            : "{% static 'assets/eye.svg' %}";
+    });
+</script>
 
 {% endblock %}
