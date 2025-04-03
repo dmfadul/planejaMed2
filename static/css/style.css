@@ -21,12 +21,10 @@ img.signin-img{
     margin: 0 auto;
 }
 
-
 form.signin-form{
     max-width: 220px;
     margin: auto;
 }
-
 
 input.form-control{
     background-color: #1e1e2f;
@@ -39,11 +37,9 @@ input.form-control{
     width: 100%;
 }
 
-
 input.form-control::placeholder{
     color: #e0e0e0;
 }
-
 
 input.form-control:focus{
     border-color: #007bff;
@@ -52,6 +48,17 @@ input.form-control:focus{
     color: white;
 }
 
+input:-webkit-autofill {
+    background-color: #1e1e2f !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1e1e2f inset;
+    -webkit-text-fill-color: #e0e0e0;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #2b2b40 inset;
+    -webkit-text-fill-color: #ffffff;
+}
 
 button.signin-btn{
     color: white;
