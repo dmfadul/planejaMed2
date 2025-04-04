@@ -4,6 +4,18 @@
 
 <div id="hours_table">
     <table>
+        <thead>
+            <tr>
+                {% for day in header1 %}
+                    <th>{{ day }}</th>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for index in header2 %}
+                    <th>{{ index }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
         <tbody>
 
         </tbody>

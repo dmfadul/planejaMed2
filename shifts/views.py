@@ -3,7 +3,12 @@ from django.shortcuts import render
 
 
 def basetable(request):
-    return render(request, "shifts/table.html")
+    context = {
+        "header1": [""] + ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"] * 5,
+        "header2": [""] + [str(i) * 7 for i in range(1, 6)],                           
+    }
+
+    return render(request, "shifts/table.html", context)
 
 
 @login_required
