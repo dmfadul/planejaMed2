@@ -95,3 +95,24 @@ button.signin-btn:hover {
         width: 18px;
     }
 }
+
+/* Base Styles for Table */
+table {
+    border-collapse: collapse;
+    width: 90%;
+    cursor: default;
+    font-size: 14px;
+}
+
+th, td {
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    text-align: center; /* Center text in all cells */
+    /*min-width: 10px;*/
+}
+
+/* Table Header Styles */
+th {
+    background-color: #333; /* Dark grey to match header */
+    color: white; /* White text for contrast */
+}
