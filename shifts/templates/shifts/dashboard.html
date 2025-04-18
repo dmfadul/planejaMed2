@@ -9,7 +9,7 @@
     <a href="#">Profile</a>
     <a href="#">Analytics</a>
     <a href="#">Settings</a>
-    <form action="{% url 'users:logout' %}" method="post">
+    <form action="{% url 'core:logout' %}" method="post">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">Logout</button>
     </form>

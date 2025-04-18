@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
-    'users',
+    # 'users',
     'shifts',
 ]
 
@@ -131,7 +131,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.User'
 
-LOGIN_URL = "users:login"
+LOGIN_URL = "core:login"
 LOGIN_REDIRECT_URL = "home"  # Adjust to your main page
-LOGOUT_REDIRECT_URL = "users:login"
+LOGOUT_REDIRECT_URL = "core:login"
 

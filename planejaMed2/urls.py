@@ -21,7 +21,7 @@ from shifts.views import dashboard
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('users/', include('users.urls')),
+    path('core/', include('core.urls')),
     path('shifts/', include('shifts.urls')),
     path('', dashboard, name='home'),
 ]
