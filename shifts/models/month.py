@@ -10,6 +10,6 @@ class Month(models.Model):
     is_locked = models.BooleanField(default=True)
 
 
-# class Holiday(models.Model):
-#     month = models.ForeignKey(Month, on_delete=models.CASCADE, related_name='holidays')
-#     day = models.IntegerField()
+class Holiday(models.Model):
+    month = models.ForeignKey(Month, on_delete=models.CASCADE, related_name='holidays')
+    day = models.IntegerField()

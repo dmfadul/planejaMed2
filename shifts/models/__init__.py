@@ -1,2 +1,2 @@
-from .month import Month
+from .month import Month, Holiday
 from .center import Center
