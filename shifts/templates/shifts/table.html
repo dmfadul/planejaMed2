@@ -17,6 +17,13 @@
             </tr>
         </thead>
         <tbody>
+            {% for line in table %}
+            <tr>
+                {% for cell in line %}
+                <th>{{ cell }}</th>
+                {% endfor %}
+            </tr>
+            {% endfor %}
 
         </tbody>
     </table>
