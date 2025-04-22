@@ -5,8 +5,8 @@ from shifts.models.month import Month
 
 class AbstractShiftSnapshot(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.IntegerField()
+    end_time = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

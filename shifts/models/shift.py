@@ -6,8 +6,8 @@ from shifts.models.month import Month
 class AbstractShift(models.Model):
     """Class will be inherited by shift and BaseShift."""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.IntegerField()
+    end_time = models.IntegerField()
 
     class Meta:
         abstract = True
