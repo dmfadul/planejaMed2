@@ -3,7 +3,8 @@ from django.shortcuts import render
 import math
 
 
-def basetable(request):
+def basetable(request, center):
+    print(center)
     header = [""] + [str(i) * 7 for i in range(1, 6)],
     print(header)
     context = {
