@@ -14,6 +14,10 @@
 
 </head>
 <body>
+    {% block navbar %}
+        {% include "partials/navbar.html" %}
+    {% endblock %}
+    
     {% block content %}{% endblock %}
 
     <script src="{% static 'js/jquery.min.js' %}"></script>
