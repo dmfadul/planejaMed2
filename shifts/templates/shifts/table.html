@@ -17,11 +17,14 @@
             </tr>
         </thead>
         <tbody>
-            {% for line in table %}
+            {% for doctor in doctors %}
             <tr>
-                {% for cell in line %}
-                <th>{{ cell }}</th>
+                <td class="first-col">{{ doctor.name }}</td>
+
+                {% for shift in doctor.shifts%}
+                <td>{{ shift }}</td>
                 {% endfor %}
+
             </tr>
             {% endfor %}
 

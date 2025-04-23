@@ -59,3 +59,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.name
     
+
+    @property
+    def first_name(self):
+        return self.name.split()[0]
