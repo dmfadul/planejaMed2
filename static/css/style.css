@@ -146,3 +146,19 @@ tbody tr:nth-child(odd) {
     background-color: #c0c0c0d5;
     color: black;
 }
+
+.navbar {
+    background-color: #1c1c2b !important;
+}
+
+.navbar-brand {
+    font-size: 1.2rem;
+    color: #ffffff !important;
+}
+
+.navbar input[type="search"] {
+    background-color: #2c2c3e !important;
+    color: #fff;
+    border-radius: 5px;
+    padding: 0.4rem 0.6rem;
+}
