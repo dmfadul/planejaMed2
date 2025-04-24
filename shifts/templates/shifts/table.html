@@ -1,35 +1,39 @@
 {% extends "base.html" %}
 
-{% block content%}
+{% block content %}
 
-<div id="hours_table">
-    <table>
-        <thead>
-            <tr>
-                {% for day in header1 %}
-                    <th>{{ day }}</th>
+<div class="container mt-4">
+    <div class="mb-3 px-3 py-2 bg-dark text-white rounded shadow-sm">
+        <strong>Centro:</strong> {{ center }} &nbsp; | &nbsp;
+        <strong>Tipo de Tabela:</strong> {{ table_type }}
+    </div>
+
+    <div id="hours_table">
+        <table>
+            <thead>
+                <tr>
+                    {% for day in header1 %}
+                        <th>{{ day }}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for index in header2 %}
+                        <th>{{ index }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for doctor in doctors %}
+                <tr>
+                    <td class="first-col">{{ doctor.name }}</td>
+                    {% for shift in doctor.shifts %}
+                        <td>{{ shift }}</td>
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            </tr>
-            <tr>
-                {% for index in header2 %}
-                    <th>{{ index }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for doctor in doctors %}
-            <tr>
-                <td class="first-col">{{ doctor.name }}</td>
-
-                {% for shift in doctor.shifts%}
-                <td>{{ shift }}</td>
-                {% endfor %}
-
-            </tr>
-            {% endfor %}
-
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 {% endblock %}

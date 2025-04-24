@@ -8,7 +8,8 @@ def basetable(request, center):
     weekdays = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"]
     indexes = [math.ceil(int(x)/7) for x in range(1, 36)]
     context = {
-        
+        "center": "CCG",
+        "table_type": "BASE",
         "header1": [""] + weekdays * 5,
         "header2": [""] + indexes,
         "doctors": []
