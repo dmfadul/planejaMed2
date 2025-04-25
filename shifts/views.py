@@ -17,7 +17,7 @@ def basetable(request, center):
 
     users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
     for user in users:
-        context["doctors"].append({"name": user.first_name,
+        context["doctors"].append({"name": user.name,
                                    "shifts": [""] * 35,})
 
     return render(request, "shifts/table.html", context)

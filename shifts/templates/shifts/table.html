@@ -3,36 +3,39 @@
 {% block content %}
 
 <div class="container mt-4">
-    <div class="mb-3 px-3 py-2 bg-dark text-white rounded shadow-sm">
-        <strong>Centro:</strong> {{ center }} &nbsp; | &nbsp;
-        <strong>Tipo de Tabela:</strong> {{ table_type }}
+    <div class="mb-3 px-3 py-2 bg-dark text-white rounded shadow-sm text-center"
+    style="position: sticky; top: 0; z-index: 1020;">
+        <strong>{{ center }}</strong>  &nbsp; | &nbsp; <strong>{{ table_type }}</strong>
     </div>
 
-    <div id="hours_table">
-        <table>
-            <thead>
-                <tr>
-                    {% for day in header1 %}
-                        <th>{{ day }}</th>
+
+    <div id="hours_table" class="d-flex justify-content-center">
+        <div style="overflow-x: auto;">
+            <table class="table table-bordered table-striped" style="min-width: 600px;">
+                <thead>
+                    <tr>
+                        {% for day in header1 %}
+                            <th class="header">{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {% for index in header2 %}
+                            <th>{{ index }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doctor in doctors %}
+                    <tr>
+                        <td class="first-col">{{ doctor.name }}</td>
+                        {% for shift in doctor.shifts %}
+                            <td>{{ shift }}</td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                </tr>
-                <tr>
-                    {% for index in header2 %}
-                        <th>{{ index }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for doctor in doctors %}
-                <tr>
-                    <td class="first-col">{{ doctor.name }}</td>
-                    {% for shift in doctor.shifts %}
-                        <td>{{ shift }}</td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
