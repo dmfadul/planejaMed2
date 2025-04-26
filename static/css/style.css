@@ -1,5 +1,5 @@
 body{
-    background-color: #1e1e2f;
+    background-color: #7d7d99;
     font-family: 'Roboto', sans-serif;
     color: #e0e0e0;
 }
@@ -96,14 +96,58 @@ button.signin-btn:hover {
     }
 }
 
-td.first-col {
+
+
+
+
+.table-wrapper {
+    max-height: 700px;
+    overflow-y: auto;
+    overflow-x: auto;
+    position: relative;
+}
+
+.table {
+    table-layout: fixed;
+}
+
+thead th {
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+/* First header row */
+thead tr:nth-child(1) th {
+    position: sticky;
+    top: 0;          /* Sticks to the top of the scrolling container */
+    z-index: 10;      /* Ensures it stays above table content */
+}
+
+/* Second header row */
+thead tr:nth-child(2) th {
+    position: sticky;
+    top: 40px;       /* Sticks 40px below the top; adjust based on first row height */
+    z-index: 10;      /* Same z-index as first row, since they won’t overlap */
+}
+
+th.first-col, td.first-col {
     position: sticky;
     left: 0;
-    z-index: 1; /* keeps it below the headers */
-    text-align: left;
-    padding-left: 8px;
-    width: 200px;
-    min-width: 300px;
-    max-width: 300px;
-    border: black;
+    background-color: #e9ecef;
+    z-index: 5;
+    width: 250px;
+}
+
+th.normal-col, td.normal-col {
+    width: 50px;
+}
+
+#corner1, #corner2 {
+    z-index: 15;
+}
+
+.sticky-div-1, .sticky-div-2 {
+    position: sticky;
+    top: 0;
+    z-index: 4;
 }
