@@ -99,7 +99,7 @@ button.signin-btn:hover {
 
 
 
-
+/* table css */
 .table-wrapper {
     max-height: 700px;
     overflow-y: auto;
@@ -150,4 +150,21 @@ th.normal-col, td.normal-col {
     position: sticky;
     top: 0;
     z-index: 4;
+}
+
+.crm-info {
+    font-size: 0.8em;
+    color: #007bff;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.first-col  a {
+    text-decoration: none;
+    color: inherit; /* Matches the color of the surrounding text */
+}
+
+.first-col a:hover {
+    text-decoration: underline;
+    color: #007bff; /* A blue color on hover to show it’s clickable */
 }
