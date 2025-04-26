@@ -3,9 +3,10 @@
         <strong>{{ center }}</strong> &nbsp; | &nbsp; <strong>{{ table_type }}</strong>
     </div>
     <div class="ms-3">
-        {% if request.user.is_ad%}
-        <button type="button" class="btn btn-outline-light btn-sm me-2">Edit</button>
-        <button type="button" class="btn btn-outline-light btn-sm me-2">Add Hours</button>
-        <button type="button" class="btn btn-outline-light btn-sm">Print</button>
+        {% if request.user.is_staff %}
+        <button type="button" class="btn btn-outline-light btn-sm me-2">Editar</button>
+        <button type="button" class="btn btn-outline-light btn-sm me-2">Somar Horas</button>
+        {% endif %}
+        <button type="button" class="btn btn-outline-light btn-sm">Imprimir</button>
     </div>
 </div>
