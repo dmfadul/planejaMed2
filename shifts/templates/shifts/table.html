@@ -3,9 +3,7 @@
 {% block content %}
 
 <div class="container mt-4">
-    <div class="mb-3 px-3 py-2 bg-dark text-white rounded shadow-sm text-center sticky-div-1">
-        <strong>{{ center }}</strong> &nbsp; | &nbsp; <strong>{{ table_type }}</strong>
-    </div>
+    {% include "shifts/partials/control-panel.html" %}
 
     <div class="table-wrapper">
         <table class="table table-bordered table-striped">
