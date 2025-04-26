@@ -36,6 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     """Custom user model that supports using crm instead of email."""
 
     name = models.CharField(max_length=255)
+    alias = models.CharField(max_length=30, blank=True, default='')
     crm = models.CharField(max_length=255, unique=True)
     rqe = models.CharField(max_length=255, blank=True, default='')
 
@@ -61,5 +62,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     
 
     @property
-    def first_name(self):
-        return self.name.split()[0]
+    def abbr_name(self):
+        if self.alias:
+            return self.alias
+        
+        return f"{self.name.split()[0]} {self.name.split()[-1]}"

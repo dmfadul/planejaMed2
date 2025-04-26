@@ -135,7 +135,7 @@ th.first-col, td.first-col {
     left: 0;
     background-color: #e9ecef;
     z-index: 5;
-    width: 250px;
+    width: 255px;
 }
 
 th.normal-col, td.normal-col {

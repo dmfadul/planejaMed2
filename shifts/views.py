@@ -20,6 +20,7 @@ def basetable(request, center):
     users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
     for user in users:
         context["doctors"].append({"name": user.name,
+                                   "abbr_name": user.abbr_name,
                                    "crm": user.crm,
                                    "shifts": [""] * 35,})
 

@@ -23,7 +23,7 @@
                 {% for doctor in doctors %}
                 <tr>
                     <td class="first-col">
-                        <a href="{% url 'shifts:doctor_basetable' center=center crm=doctor.crm %}" title="CRM: {{ doctor.crm }}">{{ doctor.name }}</a>
+                        <a href="{% url 'shifts:doctor_basetable' center=center crm=doctor.crm %}" title="{{ doctor.name }} - {{ doctor.crm }}">{{ doctor.abbr_name }}</a>
                     </td>
     
                     {% for shift in doctor.shifts %}
