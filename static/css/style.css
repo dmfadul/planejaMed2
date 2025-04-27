@@ -164,7 +164,6 @@ th.normal-col, td.normal-col {
     color: inherit; /* Matches the color of the surrounding text */
 }
 
-.first-col a:hover {
-    text-decoration: underline;
-    color: #007bff; /* A blue color on hover to show it’s clickable */
+.name-col:hover {
+    background-color: #424141;
 }

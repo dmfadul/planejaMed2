@@ -14,7 +14,8 @@ def basetable(request, center):
         "table_type": "BASE",
         "header1": [""] + weekdays * 5,
         "header2": [""] + indexes,
-        "doctors": []
+        "doctors": [],
+        "template": "basetable"
     }
 
     users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
@@ -27,6 +28,7 @@ def basetable(request, center):
     return render(request, "shifts/table.html", context)
 
 def doctor_basetable(request, center, crm):
+    print(center, crm)
     return HttpResponse("Hello, world. You're at the doctor basetable page.")
 
 @login_required
