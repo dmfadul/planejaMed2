@@ -1,7 +1,5 @@
-let editing = false;
-
 let state = {
-    mode: null, // 'edit' or null
+    editing: false,
     action: null, // 'add', 'remove' or null
     center: null,
     month: null,
@@ -10,35 +8,30 @@ let state = {
 };
 
 function toggleEditing() {
-    editing = !editing;
+    state.editing = !state.editing;
 
     const editButton = document.getElementById('edit-button');
     const defaultButtons = document.getElementById('default-buttons');
     const editButtons = document.getElementById('edit-buttons');
 
-    if (editing) {
+    if (state.editing) {
         editButton.textContent = "Finalizar";
         editButton.classList.add("editing-active");
         defaultButtons.style.display = "none";
         editButtons.style.display = "flex"; // flex or block, depending on layout
-        startEditing();
+
+        state.center = centerValue;
+        state.month = monthValue;
+        state.year = yearValue;
+        state.selectedCells = []; // Clear selected cells when starting editing
+
     } else {
         editButton.textContent = "Editar";
         editButton.classList.remove("editing-active");
         defaultButtons.style.display = "flex";
         editButtons.style.display = "none";
-        exitEditing();
+
+
+        state.action = null; // Reset action when editing is finished
     }
-}
-
-function startEditing() {
-    console.log("Editing started");
-    state.mode = "edit";
-    console.log(state);
-}
-
-function exitEditing(){
-    console.log("Editing exited");
-    state.mode = null;
-    console.log(state);
 }
