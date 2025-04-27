@@ -18,13 +18,23 @@
     <div class="ms-3">
         {% if request.user.is_staff %}
         <button type="button" id="edit-button" class="btn btn-outline-light btn-sm me-2"
-                onclick="startEditing()">
+                onclick="toggleEditing()">
             Editar
         </button>
-        <button type="button" class="btn btn-outline-light btn-sm me-2">Somar Horas</button>
+        {% endif %}
+    </div>
+
+    <div class="ms-3" id="default-buttons">
+        {% if request.user.is_staff %}
+        <button type="button" class="btn btn-outline-light btn-sm me-2">Somar</button>
         {% endif %}
         {% if template == "basetable" %}
         <button type="button" class="btn btn-outline-light btn-sm">Imprimir</button>
         {% endif %}
+    </div>
+
+    <div class="ms-3" id="edit-buttons" style="display: none;">
+        <button type="button" class="btn btn-outline-light btn-sm me-2 editing-active">Adicionar</button>
+        <button type="button" class="btn btn-outline-light btn-sm editing-active">Remover</button>
     </div>
 </div>

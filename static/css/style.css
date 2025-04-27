@@ -167,3 +167,9 @@ th.normal-col, td.normal-col {
 .name-col:hover {
     background-color: #424141;
 }
+
+.editing-active {
+    background-color: #0d6efd; /* Bootstrap primary blue */
+    color: white;
+    border-color: #0d6efd;
+}
