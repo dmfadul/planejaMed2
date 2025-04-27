@@ -1,5 +1,6 @@
 let state = {
     editing: false,
+    tableType: null, // 'BASE', 'MONTH' or null
     action: null, // 'add', 'remove' or null
     center: null,
     month: null,
@@ -9,6 +10,7 @@ let state = {
 
 function toggleEditing() {
     state.editing = !state.editing;
+    state.tableType = tableType;
 
     const editButton = document.getElementById('edit-button');
     const defaultButtons = document.getElementById('default-buttons');
@@ -19,19 +21,113 @@ function toggleEditing() {
         editButton.classList.add("editing-active");
         defaultButtons.style.display = "none";
         editButtons.style.display = "flex"; // flex or block, depending on layout
-
-        state.center = centerValue;
-        state.month = monthValue;
-        state.year = yearValue;
-        state.selectedCells = []; // Clear selected cells when starting editing
-
+        
+        state.selectedCells = []; // empty selected cells, no need to clear them as they should be empty
     } else {
         editButton.textContent = "Editar";
         editButton.classList.remove("editing-active");
         defaultButtons.style.display = "flex";
         editButtons.style.display = "none";
 
-
         state.action = null; // Reset action when editing is finished
+        clearSelectedCells();
     }
 }
+
+
+function clickCell(cell) {
+    if (!state.editing) return;
+
+    let currentlySelected = cell.classList.contains("selected");
+    if (currentlySelected) {
+        cell.classList.remove("selected");
+        cell.style.backgroundColor = ""; // Reset background color
+    } else {
+        cell.classList.add("selected");
+        cell.style.backgroundColor = "gray"; // Highlight selected cell
+    }
+}
+
+
+function clearSelectedCells() {
+    document.querySelectorAll('.selected').forEach(cell => {
+        cell.classList.remove('selsected');
+        cell.style.backgroundColor = ""; // Reset background color
+    });
+}
+
+
+function getData() {
+    document.querySelectorAll('.selected').forEach(cell => {
+        getCellData(cell);
+    });
+
+    // get table data
+    state.center = centerValue;
+    state.month = monthValue;
+    state.year = yearValue;
+}
+
+
+function getCellData(cell) {
+    // collect data from the cell
+    let doctorCRM = cell.closest("tr").querySelector("td").getAttribute("id");
+    let weekDay = cell.closest("table").querySelectorAll("tr")[0].cells[cell.cellIndex].textContent;
+    let monthDay = cell.closest("table").querySelectorAll("tr")[1].cells[cell.cellIndex].textContent;
+
+
+    // add cell data to state.selectedCells
+    state.selectedCells.push({
+        weekDay: weekDay,
+        monthDay: monthDay,
+        doctorCRM: doctorCRM,
+        hourValue: cell.textContent,
+    });
+}
+
+
+function executeEdit(action) {
+    if (!state.editing) return;
+    state.action = action;
+    
+    document.querySelectorAll('.selected').forEach(cell => {
+        cell.style.backgroundColor = state.action === 'add' ? "green" : "red"; // Highlight selected cells based on action
+    });
+    
+    getData();
+    sendData();
+}
+
+
+function sendData() {
+    console.log(state);
+    console.log(state.selectedCells);
+    clearSelectedCells();
+}
+
+
+// Event listeners
+const cells = document.querySelectorAll('.cell-col');
+const names = document.querySelectorAll('.name-col');
+const headers = document.querySelectorAll('.header');
+const corners = document.querySelectorAll('.corner');
+
+const addButton = document.getElementById('edit-add-button');
+const remButton = document.getElementById('edit-rem-button');
+
+
+cells.forEach(cell => {
+    cell.addEventListener('click', () => {
+        clickCell(cell);
+    })
+});
+
+
+addButton.addEventListener('click', () => {
+    executeEdit('add');
+});
+
+
+remButton.addEventListener('click', () => {
+    executeEdit('remove');
+});
