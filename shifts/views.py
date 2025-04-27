@@ -6,6 +6,7 @@ import math
 from django.http import HttpResponse 
 
 
+@login_required
 def basetable(request, center):    
     weekdays = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"]
     indexes = [math.ceil(int(x)/7) for x in range(1, 36)]
@@ -28,6 +29,7 @@ def basetable(request, center):
     return render(request, "shifts/table.html", context)
 
 
+@login_required
 def doctor_basetable(request, center, crm):
     weekdays = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"]
 
