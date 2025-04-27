@@ -8,3 +8,6 @@ class Center(models.Model):
     hospital = models.CharField(max_length=100, default='Evangélico')
     is_active = models.BooleanField(default=True)
     
+    def __str__(self):
+        return self.abbreviation
+    
