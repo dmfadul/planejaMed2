@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 from django.shortcuts import render
 from core.models import User
 import math
-
-from django.http import HttpResponse 
+import json
 
 
 @login_required
@@ -58,5 +59,16 @@ def doctor_basetable(request, center, crm):
 
 
 @login_required
-def update():
-    pass
+@require_POST
+def update(request):
+    try:
+        state = json.loads(request.body)
+        updates = []
+
+        print(state)
+        # process info and update database
+        # create updates to be send to the frontend
+
+        return JsonResponse({"updates": updates})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)

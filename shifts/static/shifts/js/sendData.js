@@ -1,11 +1,9 @@
-function sendData() {
-    confirmData()
-        .then(() => {
-            return fetch("/shifts/update", {});
-        })
+async function sendData() {
+    
 
-    clearSelectedCells();
 }
+
+
 
 function confirmData() {
     return Promise.resolve()
