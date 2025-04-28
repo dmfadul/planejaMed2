@@ -55,3 +55,8 @@ def doctor_basetable(request, center, crm):
     }
 
     return render(request, "shifts/doctor_basetable.html", context)
+
+
+@login_required
+def update():
+    pass

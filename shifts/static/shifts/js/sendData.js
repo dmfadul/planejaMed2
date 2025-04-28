@@ -1,6 +1,12 @@
 function sendData() {
-    console.log(state);
-    console.log(state.selectedCells);
+    confirmData()
+        .then(() => {
+            return fetch("/shifts/update", {});
+        })
+
     clearSelectedCells();
-    console.log("Data sent to server");
+}
+
+function confirmData() {
+    return Promise.resolve()
 }
