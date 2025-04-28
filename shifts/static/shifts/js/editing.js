@@ -22,7 +22,7 @@ function toggleEditing() {
         defaultButtons.style.display = "none";
         editButtons.style.display = "flex"; // flex or block, depending on layout
         
-        state.selectedCells = []; // empty selected cells, no need to clear them as they should be empty
+        // state.selectedCells = []; // empty selected cells, no need to clear them as they should be empty
     } else {
         editButton.textContent = "Editar";
         editButton.classList.remove("editing-active");
@@ -57,7 +57,22 @@ function clearSelectedCells() {
 }
 
 
+function executeEdit(action) {
+    if (!state.editing) return;
+    state.action = action;
+    
+    document.querySelectorAll('.selected').forEach(cell => {
+        cell.style.backgroundColor = state.action === 'add' ? "green" : "red"; // Highlight selected cells based on action
+    });
+    
+    getData();
+    sendData();
+}
+
+
 function getData() {
+    state.selectedCells = []; // empty selected cells, no need to clear them as they should be empty
+
     document.querySelectorAll('.selected').forEach(cell => {
         getCellData(cell);
     });
@@ -82,18 +97,6 @@ function getCellData(cell) {
         monthDay: monthDay,
         doctorCRM: doctorCRM,
         hourValue: cell.textContent,
+        cellID: cell.id,
     });
-}
-
-
-function executeEdit(action) {
-    if (!state.editing) return;
-    state.action = action;
-    
-    document.querySelectorAll('.selected').forEach(cell => {
-        cell.style.backgroundColor = state.action === 'add' ? "green" : "red"; // Highlight selected cells based on action
-    });
-    
-    getData();
-    sendData();
 }
