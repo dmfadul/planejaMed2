@@ -30,7 +30,7 @@
                     </td>
     
                     {% for shift in doctor.shifts %}
-                        <td class="normal-col cell-col">{{ shift }}</td>
+                        <td id="cell-{{doctor.crm}}-{{forloop.counter}}" class="normal-col cell-col">{{ shift }}</td>
                     {% endfor %}
                 </tr>
                 {% endfor %}
