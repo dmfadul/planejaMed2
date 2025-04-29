@@ -1,7 +1,5 @@
 async function sendData() {
     try {
-        await confirmData();
-
         const response = await fetch('/shifts/update', {
             method: 'POST',
             headers: {
@@ -15,31 +13,26 @@ async function sendData() {
             throw new Error(`Server responded with status ${response.status}`);
         }
 
-        const data = await response.json(); // Expecting { updates: [{ cellId, newValue }, ...] }
-        
+        const data = await response.json(); // Expecting { updates: [{ cellID, newValue }, ...] }
+
         data.updates.forEach(update => {
             const cell = document.getElementById(update.cellID);
             if (cell) {
                 cell.textContent = update.newValue;
 
                 cell.style.transition = "background-color 1s";
-                cell.style.backgroundColor = state.action === 'add' ? "green" : "red"; // Highlight selected cells based on action
+                cell.style.backgroundColor = state.action === 'add' ? "green" : "red";
                 setTimeout(() => {
-                    cell.style.backgroundColor = ""; // Reset background color after 2 seconds
+                    cell.style.backgroundColor = "";
                 }, 1000);
             }
         });
 
-        console.log("Appointments updated succefully!");
+        console.log("Appointments updated successfully!");
 
     } catch (error) {
-        if (error !== "User cancelled the operation") {
-            console.error('Error:', error);
-            alert('An error ocurred while updating appointments. Please Try Again.')
-        } else {
-            console.log('Operation Cacelled by the user.');
-        }
-
+        console.error('Error:', error);
+        alert('An error occurred while updating appointments. Please try again.');
     } finally {
         clearSelectedCells();
     }
