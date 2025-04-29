@@ -62,7 +62,7 @@ function executeEdit(action) {
     state.action = action;
     
     getData();
-    sendData();
+    openModalAdd(state.selectedCells);
 }
 
 

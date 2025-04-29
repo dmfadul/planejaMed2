@@ -1,13 +1,3 @@
-function confirmData() {
-    state.selectedCells.forEach(cell => {
-        delete cell.weekDay;
-        delete cell.monthDay;
-        delete cell.doctorCRM;
-    });
-    return Promise.resolve()
-}
-
-
 async function sendData() {
     try {
         await confirmData();

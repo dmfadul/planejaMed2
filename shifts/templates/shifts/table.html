@@ -40,7 +40,10 @@
 </div>
 {% endblock %}
 
+{% block modal %}{% include "shifts/partials/modals/modal_add.html"%}{% endblock %}
+
 {% block script %}
+<script src="{% static 'shifts/js/modals.js' %}"></script>
 <script src="{% static 'shifts/js/editing.js' %}"></script>
 <script src="{% static 'shifts/js/sendData.js' %}"></script>
 <script src="{% static 'shifts/js/addListeners.js' %}"></script>
