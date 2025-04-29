@@ -61,10 +61,6 @@ function executeEdit(action) {
     if (!state.editing) return;
     state.action = action;
     
-    document.querySelectorAll('.selected').forEach(cell => {
-        cell.style.backgroundColor = state.action === 'add' ? "green" : "red"; // Highlight selected cells based on action
-    });
-    
     getData();
     sendData();
 }

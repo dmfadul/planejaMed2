@@ -1,3 +1,13 @@
+function confirmData() {
+    state.selectedCells.forEach(cell => {
+        delete cell.weekDay;
+        delete cell.monthDay;
+        delete cell.doctorCRM;
+    });
+    return Promise.resolve()
+}
+
+
 async function sendData() {
     try {
         await confirmData();
@@ -16,7 +26,19 @@ async function sendData() {
         }
 
         const data = await response.json(); // Expecting { updates: [{ cellId, newValue }, ...] }
-        //apply updates
+        
+        data.updates.forEach(update => {
+            const cell = document.getElementById(update.cellID);
+            if (cell) {
+                cell.textContent = update.newValue;
+
+                cell.style.transition = "background-color 1s";
+                cell.style.backgroundColor = state.action === 'add' ? "green" : "red"; // Highlight selected cells based on action
+                setTimeout(() => {
+                    cell.style.backgroundColor = ""; // Reset background color after 2 seconds
+                }, 1000);
+            }
+        });
 
         console.log("Appointments updated succefully!");
 
@@ -31,10 +53,4 @@ async function sendData() {
     } finally {
         clearSelectedCells();
     }
-}
-
-
-
-function confirmData() {
-    return Promise.resolve()
 }
