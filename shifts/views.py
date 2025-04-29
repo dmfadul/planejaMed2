@@ -65,8 +65,9 @@ def update(request):
         state = json.loads(request.body)
         updates = []
 
-        for cell in state.get("selectedCells"):
-            updates.append({"cellID": cell.get("cellID"), "newValue": 'd'})
+        print(state)
+        # for cell in state.get("selectedCells"):
+        #     updates.append({"cellID": cell.get("cellID"), "newValue": 'd'})
 
         # process info and update database
         # create updates to be send to the frontend
