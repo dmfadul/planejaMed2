@@ -49,5 +49,5 @@ function submitModalAdd() {
 
 
 function createDropdown() {
-    console.log("Creating dropdown");
+    console.log("Creating dropdown", shiftCodes);
 }

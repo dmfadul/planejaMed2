@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from core.constants import DIAS_SEMANA, SHIFTS_MAP    
 from django.http import JsonResponse
 from django.shortcuts import render
 from core.models import User
@@ -7,19 +8,20 @@ import math
 import json
 
 
+WEEKDAYS = [d[:3] for d in DIAS_SEMANA]
+SHIFT_CODES = list(SHIFTS_MAP.keys())
+
 @login_required
 def basetable(request, center):
-    from core.constants import DIAS_SEMANA    
-    
-    weekdays = [d[:3] for d in DIAS_SEMANA]
     indexes = [math.ceil(int(x)/7) for x in range(1, 36)]
     context = {
         "center": "CCG",
         "table_type": "BASE",
         "template": "basetable",
-        "header1": [""] + weekdays * 5,
+        "header1": [""] + WEEKDAYS * 5,
         "header2": [""] + indexes,
         "doctors": [],
+        "shift_codes": json.dumps(SHIFT_CODES),
     }
 
     users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
@@ -33,20 +35,16 @@ def basetable(request, center):
 
 
 @login_required
-def doctor_basetable(request, center, crm):
-    from core.constants import DIAS_SEMANA
-    
-    weekdays = [d[:3] for d in DIAS_SEMANA]
-
+def doctor_basetable(request, center, crm):    
     user = User.objects.get(crm=crm)
     shifts = {
-        weekdays[0]: [""] * 5,
-        weekdays[1]: [""] * 5,
-        weekdays[2]: [""] * 5,
-        weekdays[3]: [""] * 5,
-        weekdays[4]: [""] * 5,
-        weekdays[5]: [""] * 5,
-        weekdays[6]: [""] * 5,
+        WEEKDAYS[0]: [""] * 5,
+        WEEKDAYS[1]: [""] * 5,
+        WEEKDAYS[2]: [""] * 5,
+        WEEKDAYS[3]: [""] * 5,
+        WEEKDAYS[4]: [""] * 5,
+        WEEKDAYS[5]: [""] * 5,
+        WEEKDAYS[6]: [""] * 5,
     }
 
     context = {
@@ -54,7 +52,7 @@ def doctor_basetable(request, center, crm):
     "table_type": "BASE",
     "template": "doctor_basetable",
     "header1": [""] + [i for i in range(1, 6)],
-    "weekdays": weekdays,
+    "weekdays": WEEKDAYS,
     "doctor": user,
     "shifts": shifts.items(),
     }
