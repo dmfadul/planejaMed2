@@ -8,8 +8,10 @@ import json
 
 
 @login_required
-def basetable(request, center):    
-    weekdays = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"]
+def basetable(request, center):
+    from core.constants import DIAS_SEMANA    
+    
+    weekdays = [d[:3] for d in DIAS_SEMANA]
     indexes = [math.ceil(int(x)/7) for x in range(1, 36)]
     context = {
         "center": "CCG",
@@ -32,7 +34,9 @@ def basetable(request, center):
 
 @login_required
 def doctor_basetable(request, center, crm):
-    weekdays = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"]
+    from core.constants import DIAS_SEMANA
+    
+    weekdays = [d[:3] for d in DIAS_SEMANA]
 
     user = User.objects.get(crm=crm)
     shifts = {
