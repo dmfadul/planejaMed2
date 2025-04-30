@@ -6,6 +6,7 @@ function openModalAdd(cells) {
        const inputGroup = document.createElement('div');
        inputGroup.className = 'row align-items-center mb-2';
        
+       createDropdown();
        inputGroup.innerHTML = `
             <div class="col-7">
                 <label for="${cell.cellID}" class="form-label fw-bold fs-6">
@@ -44,4 +45,9 @@ function submitModalAdd() {
     bootstrap.Modal.getInstance(document.getElementById('modal_add')).hide();
 
     sendData();
+}
+
+
+function createDropdown() {
+    console.log("Creating dropdown");
 }
