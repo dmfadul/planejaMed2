@@ -5,7 +5,7 @@ VAMPIRE_START, VAMPIRE_END = 1, 6
 
 HOUR_RANGE = [x for x in range(MORNING_START, 24)] + [x for x in range(0, VAMPIRE_END + 1)]
 
-SHIFT_CODES = ['d', 'm', 't', 'n', 'c', 'v']
+SHIFT_CODES = ['dn', 'd', 'm', 't', 'n', 'c', 'v']
 SHIFTS_MAP = {
     'dn': (MORNING_START, VAMPIRE_END),
     'dc': (MORNING_START, CINDERELLA_END),

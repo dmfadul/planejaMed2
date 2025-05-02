@@ -14,11 +14,9 @@ class AbstractShift(models.Model):
         abstract = True
 
     @staticmethod
-    def convert_to_time(code:str) -> tuple:
+    def convert_to_hours(code:str) -> tuple:
         """Convert hour string to tuple of integers."""
-        
-        print(SHIFTS_MAP)
-        return 1, 2
+        return SHIFTS_MAP.get(code, (0, 0))
 
 
 class TemplateShift(AbstractShift):

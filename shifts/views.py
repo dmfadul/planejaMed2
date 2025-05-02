@@ -93,7 +93,7 @@ def update(request):
             end_time = value.get("endTime")
 
             if not shift_code == "-":
-                start_time, end_time = TemplateShift.convert_to_time(shift_code)
+                start_time, end_time = TemplateShift.convert_to_hours(shift_code)
             
             print(start_time, end_time)
 
