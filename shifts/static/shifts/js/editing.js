@@ -22,7 +22,6 @@ function toggleEditing() {
         defaultButtons.style.display = "none";
         editButtons.style.display = "flex"; // flex or block, depending on layout
         
-        // state.selectedCells = []; // empty selected cells, no need to clear them as they should be empty
     } else {
         editButton.textContent = "Editar";
         editButton.classList.remove("editing-active");
@@ -50,8 +49,10 @@ function clickCell(cell) {
 
 
 function clearSelectedCells() {
+    console.log("ok");
     document.querySelectorAll('.selected').forEach(cell => {
-        cell.classList.remove('selsected');
+        console.log(cell.id);
+        cell.classList.remove('selected');
         cell.style.backgroundColor = ""; // Reset background color
     });
 }
