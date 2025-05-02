@@ -34,6 +34,7 @@ async function sendData() {
         console.error('Error:', error);
         alert('An error occurred while updating appointments. Please try again.');
     } finally {
+        state['selectedCells'] = []; // clear selected cells
         clearSelectedCells();
     }
 }

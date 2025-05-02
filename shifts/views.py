@@ -11,14 +11,12 @@ import json
 WEEKDAYS = [d[:3] for d in DIAS_SEMANA]
 
 
-def gen_context(center, table_type, template, indexes):
+def gen_context(center, table_type, template):
     return {
         "center": center,
         "table_type": table_type,
         "template": template,
         "header1": [""] + WEEKDAYS * 5,
-        "header2": [""] + indexes,
-        # "doctors": [],
         "shift_codes": json.dumps(["-"] + SHIFT_CODES),
         "hour_range": json.dumps(HOUR_RANGE),
     }
@@ -27,7 +25,8 @@ def gen_context(center, table_type, template, indexes):
 @login_required
 def basetable(request, center):
     indexes = [math.ceil(int(x)/7) for x in range(1, 36)]
-    context = gen_context(center, "BASE", "basetable", indexes)
+    context = gen_context(center, "BASE", "basetable")
+    context["header2"] = [""] + indexes
     context["doctors"] = []
 
     users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")

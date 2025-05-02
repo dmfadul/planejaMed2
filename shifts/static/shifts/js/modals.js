@@ -2,8 +2,8 @@ function openModalAdd(cells) {
     const dynamicInputs = document.getElementById('dynamicInputs');
     dynamicInputs.innerHTML = ''; // clear
     
-    cells.forEach((cell, index) => {
-        let message = `${cell.doctorCRM} – Dia ${cell.monthDay} (${cell.weekDay})`;
+    cells.forEach(cell => {
+        let message = `${cell.doctorName} – ${cell.monthDay}º ${cell.weekDay} do Mês: `;
 
         const inputGroup = document.createElement('div');
         inputGroup.className = 'row align-items-center mb-2';
@@ -12,9 +12,9 @@ function openModalAdd(cells) {
         message_div.className = 'col-5';
         message_div.innerHTML = `<label for="${cell.cellID}" class="form-label fw-bold fs-6">${message}</label>`;
 
-        dropdown1 = createDropdown(`dp1_${index}`, shiftCodes);
-        dropdown2 = createDropdown(`dp2_${index}`, hourRange);
-        dropdown3 = createDropdown(`dp3_${index}`, hourRange);
+        const dropdown1 = createDropdown(`${cell.cellID}_shift`, shiftCodes);
+        const dropdown2 = createDropdown(`${cell.cellID}_start`, hourRange);
+        const dropdown3 = createDropdown(`${cell.cellID}_end`, hourRange);
         
         let div1 = document.createElement('div');
         let div2 = document.createElement('div');
@@ -47,7 +47,11 @@ function submitModalAdd() {
 
     const newValues = {};
     state.selectedCells.forEach(cell => {
-        newValues[cell.cellID] = formData.get(cell.cellID);
+        newValues[cell.cellID] = {
+            shiftCode: formData.get(`${cell.cellID}_shift`),
+            startTime: formData.get(`${cell.cellID}_start`),
+            endTime: formData.get(`${cell.cellID}_end`)
+        };
     });
 
     state['newValues'] = newValues;
@@ -61,6 +65,7 @@ function createDropdown(id, options) {
     let dropdown = document.createElement('select');
     dropdown.classList.add('form-select');
     dropdown.id = id;
+    dropdown.name = id;
 
     options.forEach(option => {
         let opt = document.createElement('option');
