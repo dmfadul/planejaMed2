@@ -3,7 +3,7 @@ AFTERNOON_START, AFTERNOON_END = 13, 18
 CINDERELLA_START, CINDERELLA_END = 19, 0
 VAMPIRE_START, VAMPIRE_END = 1, 6
 
-HOUR_RANGE = [x for x in range(MORNING_START, 25)] + [x for x in range(0, VAMPIRE_END + 1)]
+HOUR_RANGE = [x for x in range(MORNING_START, 24)] + [x for x in range(0, VAMPIRE_END + 1)]
 
 SHIFT_CODES = ['d', 'm', 't', 'n', 'c', 'v']
 SHIFTS_MAP = {

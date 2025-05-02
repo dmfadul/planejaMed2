@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from core.constants import DIAS_SEMANA, SHIFT_CODES
+from core.constants import DIAS_SEMANA, SHIFT_CODES, HOUR_RANGE
 from django.http import JsonResponse
 from django.shortcuts import render
 from core.models import User
@@ -28,6 +28,8 @@ def basetable(request, center):
     indexes = [math.ceil(int(x)/7) for x in range(1, 36)]
     context = gen_context(center, "BASE", "basetable", indexes)
     context["doctors"] = []
+
+    print(HOUR_RANGE)
 
     users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
     for user in users:
