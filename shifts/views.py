@@ -18,7 +18,7 @@ def gen_context(center, table_type, template):
         "template": template,
         "header1": [""] + WEEKDAYS * 5,
         "shift_codes": json.dumps(["-"] + SHIFT_CODES),
-        "hour_range": json.dumps(HOUR_RANGE),
+        "hour_range": json.dumps([f"{x:02d}:00" for x in HOUR_RANGE]),
     }
 
 
