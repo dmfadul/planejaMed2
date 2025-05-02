@@ -88,13 +88,17 @@ function handleDropdownChange(dropdown1, dropdown2, dropdown3) {
     if (dropdown1.value !== '-') {
         dropdown2.disabled = true;
         dropdown3.disabled = true;
-        dropdown2.style.backgroundColor = "#e9e9e9"; // Gray out the dropdown
-        dropdown3.style.backgroundColor = "#e9e9e9"; // Gray out the dropdown
+        dropdown2.style.backgroundColor = "#a0a0a0"; // Gray out the dropdown
+        dropdown3.style.backgroundColor = "#a0a0a0"; // Gray out the dropdown
+        dropdown2.selectedIndex = -1;
+        dropdown3.selectedIndex = -1;
     } else {
         dropdown2.disabled = false;
         dropdown3.disabled = false;
         dropdown2.style.backgroundColor = ""; // Reset background color
         dropdown3.style.backgroundColor = ""; // Reset background color
+        dropdown2.selectedIndex = 0;
+        dropdown3.selectedIndex = 1;
 
         const selectedIndex = dropdown2.selectedIndex;
 
