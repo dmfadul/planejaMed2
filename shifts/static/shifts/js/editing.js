@@ -49,9 +49,7 @@ function clickCell(cell) {
 
 
 function clearSelectedCells() {
-    console.log("ok");
     document.querySelectorAll('.selected').forEach(cell => {
-        console.log(cell.id);
         cell.classList.remove('selected');
         cell.style.backgroundColor = ""; // Reset background color
     });
