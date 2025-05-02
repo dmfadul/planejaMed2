@@ -11,17 +11,16 @@ function openModalAdd(cells) {
         let message_div = document.createElement('div');
         message_div.className = 'col-5';
         message_div.innerHTML = `<label for="${cell.cellID}" class="form-label fw-bold fs-6">${message}</label>`;
-
-        const hourRangeNoStart = hourRange.slice(0, -1);
-        const hourRangeNoEnd = hourRange.slice(1);
-
+        
+        let hourRangeNoEnd = hourRange.slice(0, -1);
 
         const dropdown1 = createDropdown(`${cell.cellID}_shift`, shiftCodes);
-        const dropdown2 = createDropdown(`${cell.cellID}_start`, hourRangeNoStart);
-        const dropdown3 = createDropdown(`${cell.cellID}_end`, hourRangeNoEnd);
+        const dropdown2 = createDropdown(`${cell.cellID}_start`, hourRangeNoEnd);
+        const dropdown3 = createDropdown(`${cell.cellID}_end`, hourRange);
 
         dropdown1.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));
-        
+        dropdown2.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));
+
         let div1 = document.createElement('div');
         let div2 = document.createElement('div');
         let div3 = document.createElement('div');
@@ -40,6 +39,7 @@ function openModalAdd(cells) {
         inputGroup.appendChild(div3);
 
         dynamicInputs.appendChild(inputGroup);
+        handleDropdownChange(dropdown1, dropdown2, dropdown3);
     });
 
     let modal = new bootstrap.Modal(document.getElementById('modal_add'));
@@ -95,5 +95,16 @@ function handleDropdownChange(dropdown1, dropdown2, dropdown3) {
         dropdown3.disabled = false;
         dropdown2.style.backgroundColor = ""; // Reset background color
         dropdown3.style.backgroundColor = ""; // Reset background color
+
+        const selectedIndex = dropdown2.selectedIndex;
+
+        Array.from(dropdown3.options).forEach((option, index) => {
+            if (index <= selectedIndex) {
+                option.style.display = "none"; // Hide options in dropdown3 that are less than or equal to selectedIndex
+            } else {
+                option.style.display = "block"; // Show options in dropdown3 that are greater than selectedIndex
+            }
+        });
+        dropdown3.selectedIndex = selectedIndex + 1; // Select the next option in dropdown3
     }
 }
