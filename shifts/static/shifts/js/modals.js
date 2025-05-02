@@ -3,7 +3,7 @@ function openModalAdd(cells) {
     dynamicInputs.innerHTML = ''; // clear
     
     cells.forEach(cell => {
-        let message = `${cell.doctorName} – ${cell.monthDay}º ${cell.weekDay} do Mês: `;
+        let message = `${cell.doctorName}&nbsp;&nbsp; –&nbsp;&nbsp; ${cell.monthDay}º ${cell.weekDay} do Mês: `;
 
         const inputGroup = document.createElement('div');
         inputGroup.className = 'row align-items-center mb-2';
@@ -19,6 +19,8 @@ function openModalAdd(cells) {
         const dropdown1 = createDropdown(`${cell.cellID}_shift`, shiftCodes);
         const dropdown2 = createDropdown(`${cell.cellID}_start`, hourRangeNoStart);
         const dropdown3 = createDropdown(`${cell.cellID}_end`, hourRangeNoEnd);
+
+        dropdown1.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));
         
         let div1 = document.createElement('div');
         let div2 = document.createElement('div');
@@ -79,4 +81,19 @@ function createDropdown(id, options) {
     });
 
     return dropdown;
+}
+
+
+function handleDropdownChange(dropdown1, dropdown2, dropdown3) {
+    if (dropdown1.value !== '-') {
+        dropdown2.disabled = true;
+        dropdown3.disabled = true;
+        dropdown2.style.backgroundColor = "#e9e9e9"; // Gray out the dropdown
+        dropdown3.style.backgroundColor = "#e9e9e9"; // Gray out the dropdown
+    } else {
+        dropdown2.disabled = false;
+        dropdown3.disabled = false;
+        dropdown2.style.backgroundColor = ""; // Reset background color
+        dropdown3.style.backgroundColor = ""; // Reset background color
+    }
 }
