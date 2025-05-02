@@ -60,11 +60,9 @@ function executeEdit(action) {
     if (!state.editing) return;
     
     state.action = action;
-    
     getData();
     
     if (state.selectedCells.length === 0) return;
-
     openModalAdd(state.selectedCells);
 }
 

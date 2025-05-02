@@ -18,6 +18,15 @@ class AbstractShift(models.Model):
         """Convert hour string to tuple of integers."""
         return SHIFTS_MAP.get(code, (0, 0))
 
+    @staticmethod
+    def convert_to_code(start:int, end:int) -> str:
+        # add logic to deal with custom times (that are not in SHIFTS_MAP)
+        """Convert start and end time to code."""
+        for code, (s, e) in SHIFTS_MAP.items():
+            if s == start and e == end:
+                return code
+        return -1
+
 
 class TemplateShift(AbstractShift):
     center = models.ForeignKey('Center', on_delete=models.CASCADE, related_name='base_shifts')

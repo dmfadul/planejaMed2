@@ -71,7 +71,6 @@ def doctor_basetable(request, center, crm):
 def update(request):
     try:
         state = json.loads(request.body)
-        updates = []
 
         table_type = state.get("tableType")
         action = state.get("action")
@@ -79,26 +78,24 @@ def update(request):
         month = state.get("month")
         year = state.get("year")
 
+        updates = []
         new_values = state.get("newValues")
-
-        print(table_type)
-        print(action)
-        print(center)
-        print(month)
-        print(year)
-
         for cell_id, value in new_values.items():
             shift_code = value.get("shiftCode")
             start_time = value.get("startTime")
             end_time = value.get("endTime")
 
-            if not shift_code == "-":
+            if shift_code == "-":
+                shift_code = TemplateShift.convert_to_code(start_time, end_time)
+            else:
                 start_time, end_time = TemplateShift.convert_to_hours(shift_code)
-            
-            print(start_time, end_time)
 
-        # process info and update database
-        # create updates to be send to the frontend
+            updates.append({
+                "cellID": cell_id,
+                "newValue": shift_code,
+            })
+            
+            # pass to model
 
         return JsonResponse({"updates": updates})
     except Exception as e:
