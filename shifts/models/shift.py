@@ -1,6 +1,7 @@
 from django.db import models
 from core.models import User
 from shifts.models.month import Month
+from core.constants import SHIFTS_MAP
 
 
 class AbstractShift(models.Model):
@@ -11,6 +12,13 @@ class AbstractShift(models.Model):
 
     class Meta:
         abstract = True
+
+    @staticmethod
+    def convert_to_time(code:str) -> tuple:
+        """Convert hour string to tuple of integers."""
+        
+        print(SHIFTS_MAP)
+        return 1, 2
 
 
 class TemplateShift(AbstractShift):

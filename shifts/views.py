@@ -4,6 +4,7 @@ from core.constants import DIAS_SEMANA, SHIFT_CODES, HOUR_RANGE
 from django.http import JsonResponse
 from django.shortcuts import render
 from core.models import User
+from shifts.models import TemplateShift, Shift
 import math
 import json
 
@@ -87,7 +88,14 @@ def update(request):
         print(year)
 
         for cell_id, value in new_values.items():
-            print(cell_id, value)
+            shift_code = value.get("shiftCode")
+            start_time = value.get("startTime")
+            end_time = value.get("endTime")
+
+            if not shift_code == "-":
+                start_time, end_time = TemplateShift.convert_to_time(shift_code)
+            
+            print(start_time, end_time)
 
         # process info and update database
         # create updates to be send to the frontend
