@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from core.constants import DIAS_SEMANA, SHIFTS_MAP    
+from core.constants import DIAS_SEMANA, SHIFT_CODES
 from django.http import JsonResponse
 from django.shortcuts import render
 from core.models import User
@@ -9,20 +9,25 @@ import json
 
 
 WEEKDAYS = [d[:3] for d in DIAS_SEMANA]
-SHIFT_CODES = list(SHIFTS_MAP.keys())
+
+
+def gen_context(center, table_type, template, indexes):
+    return {
+        "center": center,
+        "table_type": table_type,
+        "template": template,
+        "header1": [""] + WEEKDAYS * 5,
+        "header2": [""] + indexes,
+        # "doctors": [],
+        "shift_codes": json.dumps(["-"] + SHIFT_CODES),  
+    }
+
 
 @login_required
 def basetable(request, center):
     indexes = [math.ceil(int(x)/7) for x in range(1, 36)]
-    context = {
-        "center": "CCG",
-        "table_type": "BASE",
-        "template": "basetable",
-        "header1": [""] + WEEKDAYS * 5,
-        "header2": [""] + indexes,
-        "doctors": [],
-        "shift_codes": json.dumps(SHIFT_CODES),
-    }
+    context = gen_context(center, "BASE", "basetable", indexes)
+    context["doctors"] = []
 
     users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
     for user in users:
@@ -48,13 +53,13 @@ def doctor_basetable(request, center, crm):
     }
 
     context = {
-    "center": center,
-    "table_type": "BASE",
-    "template": "doctor_basetable",
-    "header1": [""] + [i for i in range(1, 6)],
-    "weekdays": WEEKDAYS,
-    "doctor": user,
-    "shifts": shifts.items(),
+        "center": center,
+        "table_type": "BASE",
+        "template": "doctor_basetable",
+        "header1": [""] + [i for i in range(1, 6)],
+        "weekdays": WEEKDAYS,
+        "doctor": user,
+        "shifts": shifts.items(),
     }
 
     return render(request, "shifts/doctor_basetable.html", context)
