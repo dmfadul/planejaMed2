@@ -4,7 +4,7 @@ from core.constants import DIAS_SEMANA, SHIFT_CODES, HOUR_RANGE
 from django.http import JsonResponse
 from django.shortcuts import render
 from core.models import User
-from shifts.models import TemplateShift, Shift
+from shifts.models import TemplateShift, Shift, Center
 import math
 import json
 
@@ -17,7 +17,6 @@ def gen_context(center, table_type, template):
         "center": center,
         "table_type": table_type,
         "template": template,
-        "header1": [""] + WEEKDAYS * 5,
         "shift_codes": json.dumps(["-"] + SHIFT_CODES),
         "hour_range": json.dumps([f"{x:02d}:00" for x in HOUR_RANGE]),
     }
@@ -25,9 +24,10 @@ def gen_context(center, table_type, template):
 
 @login_required
 def basetable(request, center):
-    indexes = [math.ceil(int(x)/7) for x in range(1, 36)]
+    header1, header2 = TemplateShift.gen_headers()
     context = gen_context(center, "BASE", "basetable")
-    context["header2"] = [""] + indexes
+    context["header1"] = header1
+    context["header2"] = header2
     context["doctors"] = []
 
     users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
@@ -74,13 +74,20 @@ def update(request):
 
         table_type = state.get("tableType")
         action = state.get("action")
-        center = state.get("center")
+        
         month = state.get("month")
         year = state.get("year")
+        center = Center.objects.get(abbreviation="CCG")
+        if not center:
+            return JsonResponse({"error": "Center not found"}, status=404)
+
 
         updates = []
         new_values = state.get("newValues")
         for cell_id, value in new_values.items():
+            _, crm, idx = cell_id.split("-")
+
+            doctor = User.objects.get(crm=int(crm))
             shift_code = value.get("shiftCode")
             start_time = value.get("startTime")
             end_time = value.get("endTime")
@@ -90,12 +97,19 @@ def update(request):
             else:
                 start_time, end_time = TemplateShift.convert_to_hours(shift_code)
 
+            if action == "add" and table_type == "BASE":
+                TemplateShift.add_shift(doctor=doctor,
+                                        center=center,
+                                        idx=int(idx),
+                                        start_time=start_time,
+                                        end_time=end_time)
+
+
             updates.append({
                 "cellID": cell_id,
                 "newValue": shift_code,
             })
             
-            # pass to model
 
         return JsonResponse({"updates": updates})
     except Exception as e:
