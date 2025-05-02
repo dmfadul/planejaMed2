@@ -19,7 +19,8 @@ def gen_context(center, table_type, template, indexes):
         "header1": [""] + WEEKDAYS * 5,
         "header2": [""] + indexes,
         # "doctors": [],
-        "shift_codes": json.dumps(["-"] + SHIFT_CODES),  
+        "shift_codes": json.dumps(["-"] + SHIFT_CODES),
+        "hour_range": json.dumps(HOUR_RANGE),
     }
 
 
@@ -28,8 +29,6 @@ def basetable(request, center):
     indexes = [math.ceil(int(x)/7) for x in range(1, 36)]
     context = gen_context(center, "BASE", "basetable", indexes)
     context["doctors"] = []
-
-    print(HOUR_RANGE)
 
     users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
     for user in users:

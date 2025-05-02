@@ -83,6 +83,7 @@ function getData() {
 function getCellData(cell) {
     // collect data from the cell
     let doctorCRM = cell.closest("tr").querySelector("td").getAttribute("id");
+    let doctorName = cell.closest("tr").querySelector("td").textContent.trim();
     let weekDay = cell.closest("table").querySelectorAll("tr")[0].cells[cell.cellIndex].textContent;
     let monthDay = cell.closest("table").querySelectorAll("tr")[1].cells[cell.cellIndex].textContent;
 
@@ -92,6 +93,7 @@ function getCellData(cell) {
         weekDay: weekDay,
         monthDay: monthDay,
         doctorCRM: doctorCRM,
+        doctorName: doctorName,
         hourValue: cell.textContent,
         cellID: cell.id,
     });

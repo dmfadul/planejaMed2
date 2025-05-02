@@ -8,19 +8,30 @@ function openModalAdd(cells) {
         const inputGroup = document.createElement('div');
         inputGroup.className = 'row align-items-center mb-2';
 
-        let div = document.createElement('div');
-        div.className = 'col-7';
-        div.innerHTML = `<label for="${cell.cellID}" class="form-label fw-bold fs-6">${message}</label>`;
+        let message_div = document.createElement('div');
+        message_div.className = 'col-5';
+        message_div.innerHTML = `<label for="${cell.cellID}" class="form-label fw-bold fs-6">${message}</label>`;
 
-        dropdown1 = createDropdown(cell.id, shiftCodes);
+        dropdown1 = createDropdown(`dp1_${index}`, shiftCodes);
+        dropdown2 = createDropdown(`dp2_${index}`, hourRange);
+        dropdown3 = createDropdown(`dp3_${index}`, hourRange);
         
+        let div1 = document.createElement('div');
         let div2 = document.createElement('div');
-        div2.className = 'col-5';
+        let div3 = document.createElement('div');
+
+        div1.className = 'col-2';
+        div2.className = 'col-2';
+        div3.className = 'col-2';
+                
+        div1.appendChild(dropdown1);
+        div2.appendChild(dropdown2);
+        div3.appendChild(dropdown3);
         
-        div2.appendChild(dropdown1);
-        
-        inputGroup.appendChild(div);
+        inputGroup.appendChild(message_div);
+        inputGroup.appendChild(div1);
         inputGroup.appendChild(div2);
+        inputGroup.appendChild(div3);
 
         dynamicInputs.appendChild(inputGroup);
     });
