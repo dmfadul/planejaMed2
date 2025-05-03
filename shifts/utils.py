@@ -1,5 +1,6 @@
 from core.constants import SHIFT_CODES, HOUR_RANGE
 from .models import TemplateShift
+from core.models import User
 import json
 
 
@@ -15,6 +16,12 @@ def build_table_data(center, table_type, template):
     table_data["header1"] = header1
     table_data["header2"] = header2
     table_data["doctors"] = []
+
+    users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
+    for user in users:
+        table_data["doctors"].append({"name": user.name,
+                                      "abbr_name": user.abbr_name,
+                                      "crm": user.crm})
     
     return table_data 
     
