@@ -13,8 +13,12 @@ WEEKDAYS = [d[:3] for d in DIAS_SEMANA]
 
 
 @login_required
-def basetable(request, center):
+def basetable(request, center_abbr):
+    center = Center.objects.filter(abbreviation=center_abbr).first()
+    doctor = User.objects.get(crm=26704)
     table_data = build_table_data(center, "BASE", "basetable")
+
+    TemplateShift.build_doctor_shifts(doctor=doctor, center=center)
 
     return render(request, "shifts/table.html", table_data)
 

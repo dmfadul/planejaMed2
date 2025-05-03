@@ -36,6 +36,19 @@ class TemplateShift(AbstractShift):
 
 
     @classmethod
+    def build_doctor_shifts(cls, doctor, center):
+        """Build the shifts for a doctor."""
+        shifts = cls.objects.filter(user=doctor, center=center).all()
+        if not shifts:
+            return {}
+        
+        for shift in shifts:
+            print(shift)
+
+
+        return shifts
+
+    @classmethod
     def check_conflicts(cls, doctor, center, week_day, week_index, start_time, end_time):
         """Check if the shift conflicts with existing shifts."""
         existing_shifts = cls.objects.filter(

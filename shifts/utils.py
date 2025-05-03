@@ -6,7 +6,7 @@ import json
 
 def build_table_data(center, table_type, template):
     table_data = {
-        "center": center,
+        "center": center.abbreviation,
         "table_type": table_type,
         "template": template,
         "shift_codes": json.dumps(["-"] + SHIFT_CODES),

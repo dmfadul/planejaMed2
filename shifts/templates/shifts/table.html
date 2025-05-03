@@ -23,8 +23,8 @@
             <tbody>
                 {% for doctor in doctors %}
                 <tr>
-                    <td id="{{ doctor.crm }}" class="first-col name-col" onclick="window.location.href='{% url 'shifts:doctor_basetable' center=center crm=doctor.crm %}'" style="cursor: pointer;">
-                        <a href="{% url 'shifts:doctor_basetable' center=center crm=doctor.crm %}" title="{{ doctor.name }} - {{ doctor.crm }}">
+                    <td id="{{ doctor.crm }}" class="first-col name-col" onclick="window.location.href='{% url 'shifts:doctor_basetable' center_abbr=center crm=doctor.crm %}'" style="cursor: pointer;">
+                        <a href="{% url 'shifts:doctor_basetable' center_abbr=center crm=doctor.crm %}" title="{{ doctor.name }} - {{ doctor.crm }}">
                             {{ doctor.abbr_name }}
                         </a>
                     </td>
