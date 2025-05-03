@@ -7,42 +7,19 @@
     {% include "shifts/partials/control-panel.html" %}
 
     <div class="table-wrapper">
-        <table class="table table-bordered table-striped">
-            <thead class="bg-light">
-                <tr>
-                    {% for cell in header1 %}
-                        <th id="{{ cell.cellID }}" {% if forloop.first %}class="first-col corner"{% else %}class="normal-col header"{% endif %}>{{ cell.label }}</th>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    {% for cell in header2 %}
-                        <th id="{{ cell.cellID }}" {% if forloop.first %}class="first-col corner"{% else %}class="normal-col header"{% endif %}>{{ cell.label }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for doctor in doctors %}
-                <tr>
-                    <td id="{{ doctor.crm }}" class="first-col name-col" onclick="window.location.href='{% url 'shifts:doctor_basetable' center_abbr=center crm=doctor.crm %}'" style="cursor: pointer;">
-                        <a href="{% url 'shifts:doctor_basetable' center_abbr=center crm=doctor.crm %}" title="{{ doctor.name }} - {{ doctor.crm }}">
-                            {{ doctor.abbr_name }}
-                        </a>
-                    </td>
-    
-                    {% for cell in header1|slice:"1:" %}
-                        <td id="cell-{{ doctor.crm }}-{{ cell.cellID }}" class="normal-col cell-col"></td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Table shell: kept for styling and JS targeting -->
+        <table id="shift-table" class="table table-bordered table-striped"></table>
     </div>
 </div>
+
 {% endblock %}
 
-{% block modal %}{% include "shifts/partials/modals/modal_add.html"%}{% endblock %}
+{% block modal %}
+    {% include "shifts/partials/modals/modal_add.html"%}
+{% endblock %}
 
 {% block script %}
+<script src="{% static 'shifts/js/renderTable.js' %}"></script>
 <script src="{% static 'shifts/js/modals.js' %}"></script>
 <script src="{% static 'shifts/js/editing.js' %}"></script>
 <script src="{% static 'shifts/js/sendData.js' %}"></script>
@@ -55,5 +32,8 @@
     let yearValue = null;
     let shiftCodes = {{ shift_codes|safe }};
     let hourRange = {{ hour_range|safe }};
+    let doctors = {{ doctors|safe }};
+
+    renderTable();
 </script>
 {% endblock %}
