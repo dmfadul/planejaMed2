@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from core.constants import DIAS_SEMANA
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from core.models import User
 from .utils import build_table_data
 from shifts.models import TemplateShift, Shift, Center
@@ -14,11 +14,8 @@ WEEKDAYS = [d[:3] for d in DIAS_SEMANA]
 
 @login_required
 def basetable(request, center_abbr):
-    center = Center.objects.filter(abbreviation=center_abbr).first()
-    doctor = User.objects.get(crm=26704)
+    center = get_object_or_404(Center, abbreviation=center_abbr)
     table_data = build_table_data(center, "BASE", "basetable")
-
-    TemplateShift.build_doctor_shifts(doctor=doctor, center=center)
 
     return render(request, "shifts/table.html", table_data)
 

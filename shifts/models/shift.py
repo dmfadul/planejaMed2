@@ -42,11 +42,12 @@ class TemplateShift(AbstractShift):
         if not shifts:
             return {}
         
+        output = {}
         for shift in shifts:
-            print(shift)
+            output[(shift.weekday, shift.index)] = (shift.start_time, shift.end_time)
 
+        return output
 
-        return shifts
 
     @classmethod
     def check_conflicts(cls, doctor, center, week_day, week_index, start_time, end_time):
