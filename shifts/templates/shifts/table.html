@@ -10,13 +10,13 @@
         <table class="table table-bordered table-striped">
             <thead class="bg-light">
                 <tr>
-                    {% for day in header1 %}
-                        <th {% if forloop.first %}id="corner1" class="first-col corner"{% else %}class="normal-col header"{% endif %}>{{ day }}</th>
+                    {% for cell in header1 %}
+                        <th id="{{ cell.cellID }}" {% if forloop.first %}class="first-col corner"{% else %}class="normal-col header"{% endif %}>{{ cell.label }}</th>
                     {% endfor %}
                 </tr>
                 <tr>
-                    {% for index in header2 %}
-                        <th {% if forloop.first %}id="corner2" class="first-col corner"{% else %}class="normal-col header"{% endif %}>{{ index }}</th>
+                    {% for cell in header2 %}
+                        <th id="{{ cell.cellID }}" {% if forloop.first %}class="first-col corner"{% else %}class="normal-col header"{% endif %}>{{ cell.label }}</th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -29,8 +29,8 @@
                         </a>
                     </td>
     
-                    {% for shift in doctor.shifts %}
-                        <td id="cell-{{doctor.crm}}-{{forloop.counter}}" class="normal-col cell-col">{{ shift }}</td>
+                    {% for cell in header1|slice:"1:" %}
+                        <td id="cell-{{ doctor.crm }}-{{ cell.cellID }}" class="normal-col cell-col"></td>
                     {% endfor %}
                 </tr>
                 {% endfor %}
