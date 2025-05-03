@@ -59,17 +59,16 @@ class TemplateShift(AbstractShift):
             weekday=week_day,
             index=week_index,
             start_time=start_time,
-            end_time=end_time
         )
         new_shift.save()
-        
+
         return new_shift
 
     @staticmethod
     def gen_headers():
         """Generate headers for the table."""
         header1 = [""] + [x[:3] for x in DIAS_SEMANA] * 5
-        header2 = [""] + [math.ceil(int(x)/7) for x in range(1, 36)]
+        header2 = [""] + [((x - 1) // 7) + 1 for x in range(1, 36)]
         return header1, header2
     
 
