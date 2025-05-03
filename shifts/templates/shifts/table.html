@@ -26,14 +26,8 @@
 <script src="{% static 'shifts/js/addListeners.js' %}"></script>
 
 <script>
-    let tableType = "{{ table_type }}";
-    let centerValue = "{{ center }}";
-    let monthValue = null;
-    let yearValue = null;
-    let shiftCodes = {{ shift_codes|safe }};
-    let hourRange = {{ hour_range|safe }};
-    let doctors = {{ doctors|safe }};
+    let tableData = {{ table_data|safe }}
 
-    renderTable();
+    renderTable(tableData);
 </script>
 {% endblock %}

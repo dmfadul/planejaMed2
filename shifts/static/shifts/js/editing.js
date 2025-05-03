@@ -10,7 +10,7 @@ let state = {
 
 function toggleEditing() {
     state.editing = !state.editing;
-    state.tableType = tableType;
+    state.tableType = tableData["tableType"];
 
     const editButton = document.getElementById('edit-button');
     const defaultButtons = document.getElementById('default-buttons');
