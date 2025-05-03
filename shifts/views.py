@@ -17,8 +17,6 @@ def basetable(request, center_abbr):
     table_data = build_table_data(center, "BASE", "basetable")
     context = {"table_data": table_data}
 
-    print(table_data["doctors"])
-
     return render(request, "shifts/table.html", context)
 
 

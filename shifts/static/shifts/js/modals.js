@@ -97,7 +97,6 @@ function handleDropdownChange(dropdown1, dropdown2, dropdown3) {
         dropdown3.disabled = false;
         dropdown2.style.backgroundColor = ""; // Reset background color
         dropdown3.style.backgroundColor = ""; // Reset background color
-        dropdown2.selectedIndex = 0;
         dropdown3.selectedIndex = 1;
 
         const selectedIndex = dropdown2.selectedIndex;
