@@ -10,7 +10,7 @@ let state = {
 
 function toggleEditing() {
     state.editing = !state.editing;
-    state.tableType = tableData["tableType"];
+    state.tableType = tableData["table_type"];
 
     const editButton = document.getElementById('edit-button');
     const defaultButtons = document.getElementById('default-buttons');
@@ -75,9 +75,9 @@ function getData() {
     });
 
     // get table data
-    state.center = centerValue;
-    state.month = monthValue;
-    state.year = yearValue;
+    state.center = tableData["center"];
+    state.month = tableData["month"];
+    state.year = tableData["year"];
 }
 
 

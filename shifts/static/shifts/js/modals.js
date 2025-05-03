@@ -12,11 +12,11 @@ function openModalAdd(cells) {
         message_div.className = 'col-5';
         message_div.innerHTML = `<label for="${cell.cellID}" class="form-label fw-bold fs-6">${message}</label>`;
         
-        let hourRangeNoEnd = dataTable["hourRange"].slice(0, -1);
+        let hourRangeNoEnd = tableData["hour_range"].slice(0, -1);
 
-        const dropdown1 = createDropdown(`${cell.cellID}_shift`, dataTable["shiftCodes"]);
+        const dropdown1 = createDropdown(`${cell.cellID}_shift`, tableData["shift_codes"]);
         const dropdown2 = createDropdown(`${cell.cellID}_start`, hourRangeNoEnd);
-        const dropdown3 = createDropdown(`${cell.cellID}_end`, hourRange);
+        const dropdown3 = createDropdown(`${cell.cellID}_end`, tableData["hour_range"]);
 
         dropdown1.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));
         dropdown2.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));

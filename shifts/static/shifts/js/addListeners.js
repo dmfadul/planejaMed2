@@ -1,25 +1,21 @@
-// Event listeners
-const cells = document.querySelectorAll('.cell-col');
-const names = document.querySelectorAll('.name-col');
-const headers = document.querySelectorAll('.header');
-const corners = document.querySelectorAll('.corner');
+function addListeners() {
+    const cells = document.querySelectorAll('.cell-col');
+    const addButton = document.getElementById('edit-add-button');
+    const remButton = document.getElementById('edit-rem-button');
 
-const addButton = document.getElementById('edit-add-button');
-const remButton = document.getElementById('edit-rem-button');
+    console.log("✅ addListeners running after table render. Found:", cells.length);
 
+    cells.forEach(cell => {
+        cell.addEventListener('click', () => {
+            clickCell(cell);
+        });
+    });
 
-cells.forEach(cell => {
-    cell.addEventListener('click', () => {
-        clickCell(cell);
-    })
-});
+    if (addButton) {
+        addButton.addEventListener('click', () => executeEdit('add'));
+    }
 
-
-addButton.addEventListener('click', () => {
-    executeEdit('add');
-});
-
-
-remButton.addEventListener('click', () => {
-    executeEdit('remove');
-});
+    if (remButton) {
+        remButton.addEventListener('click', () => executeEdit('remove'));
+    }
+}

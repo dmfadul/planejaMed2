@@ -11,19 +11,13 @@ import json
 
 WEEKDAYS = [d[:3] for d in DIAS_SEMANA]
 
-    # let tableType = "{{ table_type }}";
-    # let centerValue = "{{ center }}";
-    # let monthValue = null;
-    # let yearValue = null;
-    # let shiftCodes = {{ shift_codes|safe }};
-    # let hourRange = {{ hour_range|safe }};
-    # let doctors = {{ doctors|safe }};
-
 @login_required
 def basetable(request, center_abbr):
     center = get_object_or_404(Center, abbreviation=center_abbr)
     table_data = build_table_data(center, "BASE", "basetable")
     context = {"table_data": table_data}
+
+    print(table_data["doctors"])
 
     return render(request, "shifts/table.html", context)
 
