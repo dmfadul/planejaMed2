@@ -51,22 +51,18 @@ def doctor_basetable(request, center, crm):
 def update(request):
     try:
         state = json.loads(request.body)
-
         table_type = state.get("tableType")
-        action = state.get("action")
-        
+        action = state.get("action")       
         month = state.get("month")
         year = state.get("year")
-        center = Center.objects.get(abbreviation="CCG")
-        if not center:
-            return JsonResponse({"error": "Center not found"}, status=404)
-
+        center = get_object_or_404(Center, abbreviation=state.get("center"))
 
         updates = []
         new_values = state.get("newValues")
         for cell_id, value in new_values.items():
-            _, crm, idx = cell_id.split("-")
+            _, crm, weekday, idx = cell_id.split("-")
 
+            print("tesa", crm, weekday, idx)
             doctor = User.objects.get(crm=int(crm))
             shift_code = value.get("shiftCode")
             start_time = value.get("startTime")
@@ -78,11 +74,12 @@ def update(request):
                 start_time, end_time = TemplateShift.convert_to_hours(shift_code)
 
             if action == "add" and table_type == "BASE":
-                TemplateShift.add_shift(doctor=doctor,
-                                        center=center,
-                                        idx=int(idx),
-                                        start_time=start_time,
-                                        end_time=end_time)
+                TemplateShift.add(doctor=doctor,
+                                  center=center,
+                                  week_day=int(weekday),
+                                  week_index=int(idx),
+                                  start_time=start_time,
+                                  end_time=end_time)
 
 
             updates.append({

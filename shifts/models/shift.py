@@ -61,10 +61,8 @@ class TemplateShift(AbstractShift):
         print(existing_shifts)
     
     @classmethod
-    def add_shift(cls, doctor, center, idx, start_time, end_time):
-        week_day = (idx - 1 ) % 7
-        week_index = math.ceil(idx / 7)
-        
+    def add(cls, doctor, center, week_day, week_index, start_time, end_time):
+     
         cls.check_conflicts(doctor, center, week_day, week_index, start_time, end_time)
 
         new_shift = cls(
@@ -73,6 +71,7 @@ class TemplateShift(AbstractShift):
             weekday=week_day,
             index=week_index,
             start_time=start_time,
+            end_time=end_time
         )
         new_shift.save()
 

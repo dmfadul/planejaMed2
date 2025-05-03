@@ -47,7 +47,6 @@ function renderTable(data) {
 
         data.header1.slice(1).forEach(cell => {
             const cellId = `cell-${doctor.crm}-${cell.cellID}`;
-            console.log(cellId);
             const td = document.createElement('td');
             td.id = cellId;
             td.className = 'normal-col cell-col';
