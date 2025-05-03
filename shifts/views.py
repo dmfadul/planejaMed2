@@ -14,12 +14,7 @@ WEEKDAYS = [d[:3] for d in DIAS_SEMANA]
 
 @login_required
 def basetable(request, center):
-    header1, header2 = TemplateShift.gen_headers()
     table_data = build_table_data(center, "BASE", "basetable")
-    table_data["header1"] = header1
-    table_data["header2"] = header2
-    table_data["doctors"] = []
-
     users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
     for user in users:
         table_data["doctors"].append({"name": user.name,
