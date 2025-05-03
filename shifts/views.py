@@ -1,31 +1,21 @@
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from core.constants import DIAS_SEMANA, SHIFT_CODES, HOUR_RANGE
+from core.constants import DIAS_SEMANA
 from django.http import JsonResponse
 from django.shortcuts import render
 from core.models import User
+from .utils import build_table_data
 from shifts.models import TemplateShift, Shift, Center
-import math
 import json
 
 
 WEEKDAYS = [d[:3] for d in DIAS_SEMANA]
 
 
-def gen_context(center, table_type, template):
-    return {
-        "center": center,
-        "table_type": table_type,
-        "template": template,
-        "shift_codes": json.dumps(["-"] + SHIFT_CODES),
-        "hour_range": json.dumps([f"{x:02d}:00" for x in HOUR_RANGE]),
-    }
-
-
 @login_required
 def basetable(request, center):
     header1, header2 = TemplateShift.gen_headers()
-    context = gen_context(center, "BASE", "basetable")
+    context = build_table_data(center, "BASE", "basetable")
     context["header1"] = header1
     context["header2"] = header2
     context["doctors"] = []
