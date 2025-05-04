@@ -5,7 +5,7 @@ from core.models import User
 import json
 
 
-def prepare_table_data(request):
+def unpack_table_data(request):
     """Update table data based on the request."""
 
     state = json.loads(request.body)
@@ -43,7 +43,7 @@ def prepare_table_data(request):
             "newValue": shift_code,
         })
 
-        return updates   
+    return updates   
 
 
 def build_table_data(center, table_type, template, doctor=None):

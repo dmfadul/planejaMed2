@@ -64,3 +64,23 @@ class AbstractShift(models.Model):
             output += f"n{hours['night']}"
         
         return output
+    
+    def merge(self, new_start:int, new_end:int):
+        """Merge two shifts, if they overlap."""
+        new_hours = self.gen_hour_list(new_start, new_end)
+        if set(self.hour_list).isdisjoint(new_hours):
+            return -1
+        
+        if new_start in self.hour_list and new_end in self.hour_list:
+            return self
+
+        if self.start_time in new_hours and self.end_time in new_hours:
+            self.start_time = new_start
+            self.end_time = new_end
+        elif new_start in self.hour_list:
+            self.end_time = new_end
+        elif new_end in self.hour_list:
+            self.start_time = new_start
+
+        self.save()
+        return self
