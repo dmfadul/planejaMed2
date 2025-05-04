@@ -10,7 +10,8 @@ async function sendData() {
         });
 
         if (!response.ok) {
-            throw new Error(`Server responded with status ${response.status}`);
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Server responded with status ${response.status}`);
         }
 
         const data = await response.json(); // Expecting { updates: [{ cellID, newValue }, ...] }
@@ -32,7 +33,7 @@ async function sendData() {
 
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while updating appointments. Please try again.');
+        alert(error.message);  // 🟥 Shows backend error message here
     } finally {
         clearSelectedCells();
     }

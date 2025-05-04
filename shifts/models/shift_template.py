@@ -37,7 +37,9 @@ class TemplateShift(AbstractShift):
         
         for shift in other_centers_shifts:
             if not set(shift.hour_list).isdisjoint(test_shift.hour_list):
-                return f"Conflito - {shift.user.name} já tem esse horário na base {shift.center.abbreviation}"
+                raise ValueError(
+                    f"Conflito - {shift.user.name} já tem esse horário na base {shift.center.abbreviation}"
+                )
         
         for shift in same_center_shifts:
             if not set(shift.hour_list).isdisjoint(test_shift.hour_list):
@@ -57,10 +59,8 @@ class TemplateShift(AbstractShift):
             end_time=end_time
         )
 
-        flag = cls.check_conflicts(new_shift)
-        if flag:
-            return flag
-        
+        cls.check_conflicts(new_shift)
+
         # new_shift.save()
 
         return new_shift
