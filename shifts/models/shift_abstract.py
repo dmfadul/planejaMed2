@@ -30,11 +30,31 @@ class AbstractShift(models.Model):
         return SHIFTS_MAP.get(code, (0, 0))
 
 
-    @staticmethod
-    def convert_to_code(start:int, end:int) -> str:
+    @classmethod
+    def convert_to_code(cls, start:int, end:int) -> str:
         # add logic to deal with custom times (that are not in SHIFTS_MAP)
         """Convert start and end time to code."""
-        for code, (s, e) in SHIFTS_MAP.items():
+        shifts_map = SHIFTS_MAP
+        for code, (s, e) in shifts_map.items():
             if s == start and e == end:
                 return code
-        return -1
+        
+        day_range = cls.hour_range(*shifts_map['d'])
+        night_range = cls.hour_range(*shifts_map['n'])
+
+        hours = {"day": 0, "night": 0}
+        for h in cls.hour_range(start, end):
+            if h in day_range:
+                hours["day"] += 1
+            elif h in night_range:
+                hours["night"] += 1
+            else:
+                continue      
+        
+        output = ""
+        if hours["day"] > 0:
+            output += f"d{hours['day']}"
+        if hours["night"] > 0:
+            output += f"n{hours['night']}"
+        
+        return output

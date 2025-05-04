@@ -44,11 +44,10 @@ def update(request):
         for cell_id, value in new_values.items():
             _, crm, weekday, idx = cell_id.split("-")
 
-            print("tesa", crm, weekday, idx)
             doctor = User.objects.get(crm=int(crm))
             shift_code = value.get("shiftCode")
-            start_time = value.get("startTime")
-            end_time = value.get("endTime")
+            start_time = int(value.get("startTime").split(":")[0])
+            end_time = int(value.get("endTime").split(":")[0])
 
             if shift_code == "-":
                 shift_code = TemplateShift.convert_to_code(start_time, end_time)
