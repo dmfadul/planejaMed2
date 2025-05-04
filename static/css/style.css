@@ -101,7 +101,7 @@ button.signin-btn:hover {
 
 /* table css */
 .table-wrapper {
-    max-height: 700px;
+    max-height: 900px;
     overflow-y: auto;
     overflow-x: auto;
     position: relative;
@@ -140,6 +140,7 @@ th.first-col, td.first-col {
 
 th.normal-col, td.normal-col {
     width: 50px;
+    text-align: center;
 }
 
 #corner1, #corner2 {

@@ -85,8 +85,7 @@ def update(request):
             updates.append({
                 "cellID": cell_id,
                 "newValue": shift_code,
-            })
-            
+            })   
 
         return JsonResponse({"updates": updates})
     except Exception as e:
