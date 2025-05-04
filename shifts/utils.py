@@ -19,8 +19,17 @@ def build_table_data(center, table_type, template, doctor=None):
         shifts = TemplateShift.build_doctor_shifts(doctor=doctor, center=center)
         shifts = translate_to_table(doctor.crm, shifts)
         
-        table_data["header1"] = [""] + [i for i in range(1, 6)]
-        table_data["weekdays"] = [d[:3] for d in DIAS_SEMANA]
+        table_data["header1"] = []
+        for i in range(6):
+            if i == 0:
+                table_data["header1"].append({"cellID": 'corner1', "label": ""})
+                continue
+            table_data["header1"].append({"cellID": i, "label": i})
+
+        table_data["weekdays"] = []
+        for i, day in enumerate([d[:3] for d in DIAS_SEMANA]):
+            table_data["weekdays"].append({"dayID": i, "label": day})
+
         table_data["doctor"] = {
             "name": doctor.name,
             "abbr_name": doctor.abbr_name,
