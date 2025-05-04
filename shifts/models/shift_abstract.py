@@ -13,8 +13,14 @@ class AbstractShift(models.Model):
         abstract = True
 
 
+    @property
+    def hour_list(self) -> list:
+        """Returns a list of hours from start to end, wrapping around midnight if needed."""
+        return self.gen_hour_list(self.start_time, self.end_time)
+
+
     @staticmethod
-    def hour_range(start:int, end:int) -> list:
+    def gen_hour_list(start:int, end:int) -> list:
         """Returns a list of hours from start to end, wrapping around midnight if needed."""
         if start == end:
             return [start]
@@ -39,11 +45,11 @@ class AbstractShift(models.Model):
             if s == start and e == end:
                 return code
         
-        day_range = cls.hour_range(*shifts_map['d'])
-        night_range = cls.hour_range(*shifts_map['n'])
+        day_range = cls.gen_hour_list(*shifts_map['d'])
+        night_range = cls.gen_hour_list(*shifts_map['n'])
 
         hours = {"day": 0, "night": 0}
-        for h in cls.hour_range(start, end):
+        for h in cls.gen_hour_list(start, end):
             if h in day_range:
                 hours["day"] += 1
             elif h in night_range:

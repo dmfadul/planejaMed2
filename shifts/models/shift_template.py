@@ -32,24 +32,24 @@ class TemplateShift(AbstractShift):
             index=week_index,
         ).all()
 
-        print(existing_shifts)
+        print('ef', existing_shifts)
     
     @classmethod
     def add(cls, doctor, center, week_day, week_index, start_time, end_time):
      
         cls.check_conflicts(doctor, center, week_day, week_index, start_time, end_time)
 
-        new_shift = cls(
-            user=doctor,
-            center=center,
-            weekday=week_day,
-            index=week_index,
-            start_time=start_time,
-            end_time=end_time
-        )
-        new_shift.save()
+        # new_shift = cls(
+        #     user=doctor,
+        #     center=center,
+        #     weekday=week_day,
+        #     index=week_index,
+        #     start_time=start_time,
+        #     end_time=end_time
+        # )
+        # new_shift.save()
 
-        return new_shift
+        return "new_shift"
 
     @staticmethod
     def gen_headers():

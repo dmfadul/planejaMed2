@@ -46,8 +46,8 @@ def update(request):
 
             doctor = User.objects.get(crm=int(crm))
             shift_code = value.get("shiftCode")
-            start_time = int(value.get("startTime").split(":")[0])
-            end_time = int(value.get("endTime").split(":")[0])
+            start_time = int(value.get("startTime").split(":")[0]) if value.get("startTime") else 0
+            end_time = int(value.get("endTime").split(":")[0]) if value.get("endTime") else 0
 
             if shift_code == "-":
                 shift_code = TemplateShift.convert_to_code(start_time, end_time)
