@@ -92,7 +92,7 @@ function renderDoctorTable(data) {
         const tr = document.createElement('tr');
 
         const nameTd = document.createElement('td');
-        nameTd.className = 'small-first-col day-col';
+        nameTd.className = 'first-col small-col';
         nameTd.id = day.dayID;
         nameTd.style.cursor = "pointer";
         nameTd.title = day.label;

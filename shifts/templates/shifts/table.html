@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% if table_data.template == "doctor_tabledata" %}
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'shifts/css/doctor_basetable.css' %}">
+    {% endblock %}
+{% endif %}
+
 {% block content %}
 
 <div class="container mt-4">
