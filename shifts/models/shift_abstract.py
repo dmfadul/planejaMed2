@@ -12,10 +12,23 @@ class AbstractShift(models.Model):
     class Meta:
         abstract = True
 
+
+    @staticmethod
+    def hour_range(start:int, end:int) -> list:
+        """Returns a list of hours from start to end, wrapping around midnight if needed."""
+        if start == end:
+            return [start]
+        elif start < end:
+            return list(range(start, end))
+        else:
+            return list(range(start, 24)) + list(range(0, end))
+
+
     @staticmethod
     def convert_to_hours(code:str) -> tuple:
         """Convert hour string to tuple of integers."""
         return SHIFTS_MAP.get(code, (0, 0))
+
 
     @staticmethod
     def convert_to_code(start:int, end:int) -> str:
