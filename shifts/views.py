@@ -25,7 +25,7 @@ def doctor_basetable(request, center_abbr, crm):
     table_data = build_table_data(center, "BASE", "doctor_basetable", doctor)
     context = {"table_data": table_data}
 
-    return render(request, "shifts/doctor_basetable.html", context)
+    return render(request, "shifts/table.html", context)
 
 
 @login_required

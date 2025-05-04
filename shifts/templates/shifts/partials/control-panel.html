@@ -10,8 +10,8 @@
 
     <div class="flex-grow-1 text-center">
         <strong>{{ table_data.center }}</strong> &nbsp; | &nbsp; <strong>{{ table_data.table_type }}</strong>
-        {% if template == "doctor_basetable" %}
-        &nbsp; | &nbsp; <strong>{{ doctor|upper }}</strong>
+        {% if table_data.template == "doctor_basetable" %}
+        &nbsp; | &nbsp; <strong>{{ table_data.doctor.name|upper }}</strong>
         {% endif %}
     </div>
 
