@@ -24,32 +24,46 @@ class TemplateShift(AbstractShift):
 
 
     @classmethod
-    def check_conflicts(cls, doctor, center, week_day, week_index, start_time, end_time):
+    def check_conflicts(cls, test_shift):
         """Check if the shift conflicts with existing shifts."""
         existing_shifts = cls.objects.filter(
-            user=doctor,
-            weekday=week_day,
-            index=week_index,
+            user=test_shift.user,
+            weekday=test_shift.weekday,
+            index=test_shift.index,
         ).all()
 
-        print('ef', existing_shifts)
+        same_center_shifts = existing_shifts.filter(center=test_shift.center)
+        other_centers_shifts = existing_shifts.exclude(center=test_shift.center)
+        
+        for shift in other_centers_shifts:
+            if not set(shift.hour_list).isdisjoint(test_shift.hour_list):
+                return f"Conflito - {shift.user.name} já tem esse horário na base {shift.center.abbreviation}"
+        
+        for shift in same_center_shifts:
+            if not set(shift.hour_list).isdisjoint(test_shift.hour_list):
+                # merge shifts if needed
+                return 0
+
+
     
     @classmethod
-    def add(cls, doctor, center, week_day, week_index, start_time, end_time):
-     
-        cls.check_conflicts(doctor, center, week_day, week_index, start_time, end_time)
+    def add(cls, doctor, center, week_day, week_index, start_time, end_time):   
+        new_shift = cls(
+            user=doctor,
+            center=center,
+            weekday=week_day,
+            index=week_index,
+            start_time=start_time,
+            end_time=end_time
+        )
 
-        # new_shift = cls(
-        #     user=doctor,
-        #     center=center,
-        #     weekday=week_day,
-        #     index=week_index,
-        #     start_time=start_time,
-        #     end_time=end_time
-        # )
+        flag = cls.check_conflicts(new_shift)
+        if flag:
+            return flag
+        
         # new_shift.save()
 
-        return "new_shift"
+        return new_shift
 
     @staticmethod
     def gen_headers():
