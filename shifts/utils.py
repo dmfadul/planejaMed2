@@ -1,7 +1,49 @@
 from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA
-from .models import TemplateShift
+from django.shortcuts import render, get_object_or_404
+from .models import TemplateShift, Center
 from core.models import User
 import json
+
+
+def prepare_table_data(request):
+    """Update table data based on the request."""
+
+    state = json.loads(request.body)
+    table_type = state.get("tableType")
+    action = state.get("action")       
+    month = state.get("month")
+    year = state.get("year")
+    center = get_object_or_404(Center, abbreviation=state.get("center"))
+    
+    updates = []
+    new_values = state.get("newValues")
+    for cell_id, value in new_values.items():
+        _, crm, weekday, idx = cell_id.split("-")
+        doctor = User.objects.get(crm=int(crm))
+        
+        shift_code = value.get("shiftCode")
+        start_time = int(value.get("startTime").split(":")[0]) if value.get("startTime") else 0
+        end_time = int(value.get("endTime").split(":")[0]) if value.get("endTime") else 0
+        
+        if shift_code == "-":
+            shift_code = TemplateShift.convert_to_code(start_time, end_time)
+        else:
+            start_time, end_time = TemplateShift.convert_to_hours(shift_code)
+        
+        if action == "add" and table_type == "BASE":
+            TemplateShift.add(doctor=doctor,
+                              center=center,
+                              week_day=int(weekday),
+                              week_index=int(idx),
+                              start_time=start_time,
+                              end_time=end_time)
+        
+        updates.append({
+            "cellID": cell_id,
+            "newValue": shift_code,
+        })
+
+        return updates   
 
 
 def build_table_data(center, table_type, template, doctor=None):

@@ -4,7 +4,7 @@ from core.constants import DIAS_SEMANA
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from core.models import User
-from .utils import build_table_data
+from .utils import build_table_data, prepare_table_data
 from shifts.models import TemplateShift, Shift, Center
 import json
 
@@ -32,41 +32,7 @@ def doctor_basetable(request, center_abbr, crm):
 @require_POST
 def update(request):
     try:
-        state = json.loads(request.body)
-        table_type = state.get("tableType")
-        action = state.get("action")       
-        month = state.get("month")
-        year = state.get("year")
-        center = get_object_or_404(Center, abbreviation=state.get("center"))
-
-        updates = []
-        new_values = state.get("newValues")
-        for cell_id, value in new_values.items():
-            _, crm, weekday, idx = cell_id.split("-")
-
-            doctor = User.objects.get(crm=int(crm))
-            shift_code = value.get("shiftCode")
-            start_time = int(value.get("startTime").split(":")[0]) if value.get("startTime") else 0
-            end_time = int(value.get("endTime").split(":")[0]) if value.get("endTime") else 0
-
-            if shift_code == "-":
-                shift_code = TemplateShift.convert_to_code(start_time, end_time)
-            else:
-                start_time, end_time = TemplateShift.convert_to_hours(shift_code)
-
-            if action == "add" and table_type == "BASE":
-                TemplateShift.add(doctor=doctor,
-                                  center=center,
-                                  week_day=int(weekday),
-                                  week_index=int(idx),
-                                  start_time=start_time,
-                                  end_time=end_time)
-
-
-            updates.append({
-                "cellID": cell_id,
-                "newValue": shift_code,
-            })   
+        updates = prepare_table_data(request)
 
         return JsonResponse({"updates": updates})
     except Exception as e:
