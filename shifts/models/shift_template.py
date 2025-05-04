@@ -32,6 +32,9 @@ class TemplateShift(AbstractShift):
             index=test_shift.index,
         ).all()
 
+        if not existing_shifts:
+            return 0
+
         same_center_shifts = existing_shifts.filter(center=test_shift.center)
         other_centers_shifts = existing_shifts.exclude(center=test_shift.center)
         
@@ -41,12 +44,16 @@ class TemplateShift(AbstractShift):
                     f"Conflito - {shift.user.name} já tem esse horário na base {shift.center.abbreviation}"
                 )
         
+        flags = []
         for shift in same_center_shifts:
             if not set(shift.hour_list).isdisjoint(test_shift.hour_list):
-                # merge shifts if needed
-                return 0
+                flags.append(1)
+                test_shift.merge(shift)
+            else:
+                flags.append(0)
 
-
+        return sum(flags)
+    
     
     @classmethod
     def add(cls, doctor, center, week_day, week_index, start_time, end_time):   
@@ -59,11 +66,13 @@ class TemplateShift(AbstractShift):
             end_time=end_time
         )
 
-        cls.check_conflicts(new_shift)
-
-        # new_shift.save()
+        flag = cls.check_conflicts(new_shift)
+        print("flag", flag)
+        if flag == 0:
+            new_shift.save()          
 
         return new_shift
+    
 
     @staticmethod
     def gen_headers():
