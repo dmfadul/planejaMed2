@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% if table_data.template == "doctor_tabledata" %}
-    {% block css %}
-    <link rel="stylesheet" href="{% static 'shifts/css/doctor_basetable.css' %}">
-    {% endblock %}
-{% endif %}
+{% block css %}
+    {% if table_data.template == "doctor_basetable" %}
+        <link rel="stylesheet" href="{% static 'shifts/css/doctor_basetable.css' %}">
+    {% endif %}
+{% endblock %}
 
 {% block content %}
+{{ table_data.template }}
 
 <div class="container mt-4">
     {% include "shifts/partials/control-panel.html" %}
