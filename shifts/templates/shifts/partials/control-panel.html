@@ -2,7 +2,7 @@
     <div class="ms-3">
         {% if template == "doctor_basetable" %}
         <button type="button" class="btn btn-outline-light btn-sm"
-                onclick="window.location.href='{% url 'shifts:basetable' center=center %}'">
+                onclick="window.location.href='{% url 'shifts:basetable' center_abbr=center %}'">
             Voltar
         </button>
         {% endif %}

@@ -21,7 +21,7 @@ def basetable(request, center_abbr):
 
 
 @login_required
-def doctor_basetable(request, center, crm):    
+def doctor_basetable(request, center_abbr, crm):    
     user = User.objects.get(crm=crm)
     shifts = {
         WEEKDAYS[0]: [""] * 5,
@@ -34,7 +34,7 @@ def doctor_basetable(request, center, crm):
     }
 
     context = {
-        "center": center,
+        "center": center_abbr,
         "table_type": "BASE",
         "template": "doctor_basetable",
         "header1": [""] + [i for i in range(1, 6)],
