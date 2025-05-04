@@ -1,10 +1,10 @@
-from core.constants import SHIFT_CODES, HOUR_RANGE
+from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA
 from .models import TemplateShift
 from core.models import User
 import json
 
 
-def build_table_data(center, table_type, template):
+def build_table_data(center, table_type, template, doctor=None):
     table_data = {
         "center": center.abbreviation,
         "month": 0,
@@ -14,21 +14,34 @@ def build_table_data(center, table_type, template):
         "shift_codes": ["-"] + SHIFT_CODES,
         "hour_range": [f"{x:02d}:00" for x in HOUR_RANGE],
     }
-    header1, header2 = TemplateShift.gen_headers()
-    table_data["header1"] = header1
-    table_data["header2"] = header2
-    table_data["doctors"] = []
+    
+    if template == "doctor_basetable":
+        shifts = TemplateShift.build_doctor_shifts(doctor=doctor, center=center)
+        shifts = translate_to_table(doctor.crm, shifts)
+        
+        table_data["header1"] = [""] + [i for i in range(1, 6)]
+        table_data["weekdays"] = [d[:3] for d in DIAS_SEMANA]
+        table_data["doctor"] = {
+            "name": doctor.name,
+            "abbr_name": doctor.abbr_name,
+            "crm":doctor.crm,
+            "shifts": shifts,
+        }
+    elif template == "basetable":
+        header1, header2 = TemplateShift.gen_headers()
+        table_data["header1"] = header1
+        table_data["header2"] = header2
+        table_data["doctors"] = []
 
+        doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
+        for doctor in doctors:
+            shifts = TemplateShift.build_doctor_shifts(doctor=doctor, center=center)
+            shifts = translate_to_table(doctor.crm, shifts)
 
-    users = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
-    for user in users:
-        shifts = TemplateShift.build_doctor_shifts(doctor=user, center=center)
-        shifts = translate_to_table(user.crm, shifts)
-
-        table_data["doctors"].append({"name": user.name,
-                                      "abbr_name": user.abbr_name,
-                                      "crm": user.crm,
-                                      "shifts": shifts,})
+            table_data["doctors"].append({"name": doctor.name,
+                                          "abbr_name": doctor.abbr_name,
+                                          "crm": doctor.crm,
+                                          "shifts": shifts,})
     
     return table_data 
     

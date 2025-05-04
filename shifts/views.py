@@ -9,8 +9,6 @@ from shifts.models import TemplateShift, Shift, Center
 import json
 
 
-WEEKDAYS = [d[:3] for d in DIAS_SEMANA]
-
 @login_required
 def basetable(request, center_abbr):
     center = get_object_or_404(Center, abbreviation=center_abbr)
@@ -22,26 +20,10 @@ def basetable(request, center_abbr):
 
 @login_required
 def doctor_basetable(request, center_abbr, crm):    
-    user = User.objects.get(crm=crm)
-    shifts = {
-        WEEKDAYS[0]: [""] * 5,
-        WEEKDAYS[1]: [""] * 5,
-        WEEKDAYS[2]: [""] * 5,
-        WEEKDAYS[3]: [""] * 5,
-        WEEKDAYS[4]: [""] * 5,
-        WEEKDAYS[5]: [""] * 5,
-        WEEKDAYS[6]: [""] * 5,
-    }
-
-    context = {
-        "center": center_abbr,
-        "table_type": "BASE",
-        "template": "doctor_basetable",
-        "header1": [""] + [i for i in range(1, 6)],
-        "weekdays": WEEKDAYS,
-        "doctor": user,
-        "shifts": shifts.items(),
-    }
+    doctor = get_object_or_404(User, crm=crm)
+    center = get_object_or_404(Center, abbreviation=center_abbr)
+    table_data = build_table_data(center, "BASE", "doctor_basetable", doctor)
+    context = {"table_data": table_data}
 
     return render(request, "shifts/doctor_basetable.html", context)
 
