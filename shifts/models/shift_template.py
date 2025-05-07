@@ -1,4 +1,5 @@
 from django.db import models
+from collections import defaultdict
 from core.constants import SHIFTS_MAP, DIAS_SEMANA
 from shifts.models.shift_abstract import AbstractShift
 
@@ -16,9 +17,9 @@ class TemplateShift(AbstractShift):
         if not shifts:
             return {}
         
-        output = {}
+        output = defaultdict(list)
         for shift in shifts:
-            output[(shift.weekday, shift.index)] = (shift.start_time, shift.end_time)
+            output[(shift.weekday, shift.index)].append((shift.start_time, shift.end_time))
 
         return output
 
@@ -35,24 +36,13 @@ class TemplateShift(AbstractShift):
         if not existing_shifts:
             return 0
 
-        same_center_shifts = existing_shifts.filter(center=test_shift.center)
-        other_centers_shifts = existing_shifts.exclude(center=test_shift.center)
-        
-        for shift in other_centers_shifts:
+        for shift in existing_shifts:
             if not set(shift.hour_list).isdisjoint(test_shift.hour_list):
                 raise ValueError(
                     f"Conflito - {shift.user.name} já tem esse horário na base {shift.center.abbreviation}"
                 )
-        
-        flags = []
-        for shift in same_center_shifts:
-            if not set(shift.hour_list).isdisjoint(test_shift.hour_list):
-                flags.append(1)
-                test_shift.merge(shift)
-            else:
-                flags.append(0)
 
-        return sum(flags)
+        return 0
     
     
     @classmethod
@@ -66,11 +56,22 @@ class TemplateShift(AbstractShift):
             end_time=end_time
         )
 
-        flag = cls.check_conflicts(new_shift)
-        print("flag", flag)
-        if flag == 0:
-            new_shift.save()          
+        existing_shifts = cls.objects.filter(
+            user=doctor,
+            weekday=week_day,
+            index=week_index,
+        ).all()
 
+        for shift in existing_shifts:
+            if not set(shift.hour_list).isdisjoint(new_shift.hour_list):
+                raise ValueError(
+                    f"Conflito - {shift.user.name} já tem esse horário na base {shift.center.abbreviation}"
+                )
+
+            if shift.center == new_shift.center:
+                print("cne", shift.hour_list, new_shift.hour_list) 
+        
+        new_shift.save()          
         return new_shift
     
 

@@ -1,7 +1,8 @@
 from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA
 from django.shortcuts import render, get_object_or_404
-from .models import TemplateShift, Center
+from .models import TemplateShift as TS
 from core.models import User
+from .models import Center
 import json
 
 
@@ -26,17 +27,17 @@ def unpack_table_data(request):
         end_time = int(value.get("endTime").split(":")[0]) if value.get("endTime") else 0
         
         if shift_code == "-":
-            shift_code = TemplateShift.convert_to_code(start_time, end_time)
+            shift_code = TS.convert_to_code(start_time, end_time)
         else:
-            start_time, end_time = TemplateShift.convert_to_hours(shift_code)
+            start_time, end_time = TS.convert_to_hours(shift_code)
         
         if action == "add" and table_type == "BASE":
-            TemplateShift.add(doctor=doctor,
-                              center=center,
-                              week_day=int(weekday),
-                              week_index=int(idx),
-                              start_time=start_time,
-                              end_time=end_time)
+            TS.add(doctor=doctor,
+                   center=center,
+                   week_day=int(weekday),
+                   week_index=int(idx),
+                   start_time=start_time,
+                   end_time=end_time)
         
         updates.append({
             "cellID": cell_id,
@@ -58,7 +59,7 @@ def build_table_data(center, table_type, template, doctor=None):
     }
     
     if template == "doctor_basetable":
-        shifts = TemplateShift.build_doctor_shifts(doctor=doctor, center=center)
+        shifts = TS.build_doctor_shifts(doctor=doctor, center=center)
         shifts = translate_to_table(doctor.crm, shifts)
         
         table_data["header1"] = []
@@ -79,14 +80,14 @@ def build_table_data(center, table_type, template, doctor=None):
             "shifts": shifts,
         }
     elif template == "basetable":
-        header1, header2 = TemplateShift.gen_headers()
+        header1, header2 = TS.gen_headers()
         table_data["header1"] = header1
         table_data["header2"] = header2
         table_data["doctors"] = []
 
         doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
         for doctor in doctors:
-            shifts = TemplateShift.build_doctor_shifts(doctor=doctor, center=center)
+            shifts = TS.build_doctor_shifts(doctor=doctor, center=center)
             shifts = translate_to_table(doctor.crm, shifts)
 
             table_data["doctors"].append({"name": doctor.name,
@@ -103,9 +104,11 @@ def translate_to_table(crm, shifts):
         return {}
 
     output = {}
-    for day, hours in shifts.items():
-        weekday, week_index = day
-        start_time, end_time = hours
-        output[f"cell-{crm}-{weekday}-{week_index}"] = TemplateShift.convert_to_code(start_time, end_time)
+    for (weekday, week_index), hours in shifts.items():
+        code = ""
+        for hour in hours:
+            code += TS.convert_to_code(*hour)
+        
+        output[f"cell-{crm}-{weekday}-{week_index}"] = code
     
     return output   

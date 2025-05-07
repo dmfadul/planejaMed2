@@ -68,55 +68,60 @@ class AbstractShift(models.Model):
     def merge(self, new_shift):
         """Merge two shifts, if they overlap."""
 
+        print("tehy not the same1", self.hour_list, new_shift.hour_list)
+
         # check if the shifts are the same
         if self.start_time == new_shift.start_time and self.end_time == new_shift.end_time:
-            new_shift.delete()
+            print("they the same", self.hour_list, new_shift.hour_list)
+            # new_shift.delete()
             return self
         
-        # check if the shifts are adjacent (old -> new)
-        if self.end_time == new_shift.start_time:
-            self.end_time = new_shift.end_time
-            self.save()
-            new_shift.delete()
-            return self
+        print("tehy not the same", self.hour_list, new_shift.hour_list)
         
-        # check if the shifts are adjacent (new -> old)
-        if new_shift.end_time == self.start_time:
-            self.start_time = new_shift.start_time
-            self.save()
-            new_shift.delete()
-            return self
+        # # check if the shifts are adjacent (old -> new)
+        # if self.end_time == new_shift.start_time:
+        #     self.end_time = new_shift.end_time
+        #     self.save()
+        #     new_shift.delete()
+        #     return self
+        
+        # # check if the shifts are adjacent (new -> old)
+        # if new_shift.end_time == self.start_time:
+        #     self.start_time = new_shift.start_time
+        #     self.save()
+        #     new_shift.delete()
+        #     return self
 
-        # check if the shifts are disjoint
-        if set(self.hour_list).isdisjoint(new_shift.hour_list):
-            return -1
+        # # check if the shifts are disjoint
+        # if set(self.hour_list).isdisjoint(new_shift.hour_list):
+        #     return -1
         
-        # check if new_shift is inside old_shift
-        if new_shift.start_time in self.hour_list and (new_shift.end_time in self.hour_list or new_shift.end_time == self.end_time):
-            new_shift.delete()
-            return self
+        # # check if new_shift is inside old_shift
+        # if new_shift.start_time in self.hour_list and (new_shift.end_time in self.hour_list or new_shift.end_time == self.end_time):
+        #     new_shift.delete()
+        #     return self
         
-        # check if old_shift is inside new_shift
-        if self.start_time in new_shift.hour_list and (self.end_time in new_shift.hour_list or self.end_time == new_shift.end_time):
-            self.start_time = new_shift.start_time
-            self.end_time = new_shift.end_time
-            self.save()
-            new_shift.delete()
-            return self
+        # # check if old_shift is inside new_shift
+        # if self.start_time in new_shift.hour_list and (self.end_time in new_shift.hour_list or self.end_time == new_shift.end_time):
+        #     self.start_time = new_shift.start_time
+        #     self.end_time = new_shift.end_time
+        #     self.save()
+        #     new_shift.delete()
+        #     return self
         
-        # check if new_shift overlaps old_shift (old -> new)
-        if new_shift.start_time in self.hour_list or new_shift.start_time == self.end_time:
-            self.end_time = new_shift.end_time
-            self.save()
-            new_shift.delete()
-            return self
+        # # check if new_shift overlaps old_shift (old -> new)
+        # if new_shift.start_time in self.hour_list or new_shift.start_time == self.end_time:
+        #     self.end_time = new_shift.end_time
+        #     self.save()
+        #     new_shift.delete()
+        #     return self
         
-        # check if old_shift overlaps new_shift (new -> old)
-        if new_shift.end_time in self.hour_list:
-            self.start_time = new_shift.start_time
-            self.save()
-            new_shift.delete()
-            return self
+        # # check if old_shift overlaps new_shift (new -> old)
+        # if new_shift.end_time in self.hour_list:
+        #     self.start_time = new_shift.start_time
+        #     self.save()
+        #     new_shift.delete()
+        #     return self
 
-        self.save()
-        return self
+        # self.save()
+        # return self
