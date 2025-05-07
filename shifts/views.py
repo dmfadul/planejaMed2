@@ -4,6 +4,7 @@ from core.constants import DIAS_SEMANA
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from core.models import User
+from .table_payload import process_table_payload
 from .utils import build_table_data, unpack_table_data
 from shifts.models import TemplateShift, Shift, Center
 import json
@@ -32,7 +33,8 @@ def doctor_basetable(request, center_abbr, crm):
 @require_POST
 def update(request):
     try:
-        updates = unpack_table_data(request)
+        # updates = unpack_table_data(request)
+        updates = process_table_payload(request)
 
         return JsonResponse({"updates": updates})
     except Exception as e:
