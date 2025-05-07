@@ -48,7 +48,7 @@ class TemplateShift(AbstractShift):
                 )
 
             if shift.center == new_shift.center:
-                print("cne", shift.hour_list, new_shift.hour_list) 
+                new_shift.merge(shift)
         
         new_shift.save()          
         return new_shift
