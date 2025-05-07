@@ -58,10 +58,10 @@ class AbstractShift(models.Model):
                 continue      
         
         output = ""
-        if hours["day"] > 0:
-            output += f"d{hours['day']}"
-        if hours["night"] > 0:
-            output += f"n{hours['night']}"
+        if hours["day"]:
+            output += "d" if hours["day"] == 12 else f"d{hours['day']}"
+        if hours["night"]:
+            output += "n" if hours["night"] == 12 else f"n{hours['night']}"
         
         return output
     
