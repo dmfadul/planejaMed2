@@ -22,27 +22,6 @@ class TemplateShift(AbstractShift):
             output[(shift.weekday, shift.index)].append((shift.start_time, shift.end_time))
 
         return output
-
-
-    @classmethod
-    def check_conflicts(cls, test_shift):
-        """Check if the shift conflicts with existing shifts."""
-        existing_shifts = cls.objects.filter(
-            user=test_shift.user,
-            weekday=test_shift.weekday,
-            index=test_shift.index,
-        ).all()
-
-        if not existing_shifts:
-            return 0
-
-        for shift in existing_shifts:
-            if not set(shift.hour_list).isdisjoint(test_shift.hour_list):
-                raise ValueError(
-                    f"Conflito - {shift.user.name} já tem esse horário na base {shift.center.abbreviation}"
-                )
-
-        return 0
     
     
     @classmethod
