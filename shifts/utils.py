@@ -1,6 +1,7 @@
 from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA
 from django.shortcuts import render, get_object_or_404
 from .models import TemplateShift as TS
+from collections import defaultdict
 from core.models import User
 from .models import Center
 import json
@@ -26,9 +27,7 @@ def unpack_table_data(request):
         start_time = int(value.get("startTime").split(":")[0]) if value.get("startTime") else 0
         end_time = int(value.get("endTime").split(":")[0]) if value.get("endTime") else 0
         
-        if shift_code == "-":
-            shift_code = TS.convert_to_code(start_time, end_time)
-        else:
+        if not shift_code == "-":
             start_time, end_time = TS.convert_to_hours(shift_code)
         
         if action == "add" and table_type == "BASE":
@@ -39,9 +38,18 @@ def unpack_table_data(request):
                    start_time=start_time,
                    end_time=end_time)
         
+
+        new_shifts = TS.objects.filter(
+            user=doctor,
+            center=center,
+            weekday=int(weekday),
+            index=int(idx),
+        ).all()
+
+        new_shifts = translate_to_table(new_shifts)
         updates.append({
             "cellID": cell_id,
-            "newValue": shift_code,
+            "newValue": new_shifts.get(cell_id),
         })
 
     return updates   
@@ -59,8 +67,8 @@ def build_table_data(center, table_type, template, doctor=None):
     }
     
     if template == "doctor_basetable":
-        shifts = TS.build_doctor_shifts(doctor=doctor, center=center)
-        shifts = translate_to_table(doctor.crm, shifts)
+        shifts = TS.objects.filter(user=doctor, center=center).all()
+        shifts = translate_to_table(shifts)
         
         table_data["header1"] = []
         for i in range(6):
@@ -87,8 +95,8 @@ def build_table_data(center, table_type, template, doctor=None):
 
         doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
         for doctor in doctors:
-            shifts = TS.build_doctor_shifts(doctor=doctor, center=center)
-            shifts = translate_to_table(doctor.crm, shifts)
+            shifts = TS.objects.filter(user=doctor, center=center).all()
+            shifts = translate_to_table(shifts)
 
             table_data["doctors"].append({"name": doctor.name,
                                           "abbr_name": doctor.abbr_name,
@@ -98,13 +106,18 @@ def build_table_data(center, table_type, template, doctor=None):
     return table_data 
     
 
-def translate_to_table(crm, shifts):
+def translate_to_table(shifts:list) -> dict:
     """Translate shifts to table formatting."""
     if not shifts:
         return {}
+    
+    crm = shifts[0].user.crm
+    shifts_per_day = defaultdict(list)
+    for shift in shifts:
+        shifts_per_day[(shift.weekday, shift.index)].append((shift.start_time, shift.end_time))
 
     output = {}
-    for (weekday, week_index), hours in shifts.items():
+    for (weekday, week_index), hours in shifts_per_day.items():
         code = ""
         for hour in hours:
             code += TS.convert_to_code(*hour)

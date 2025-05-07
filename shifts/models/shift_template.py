@@ -1,5 +1,4 @@
 from django.db import models
-from collections import defaultdict
 from core.constants import SHIFTS_MAP, DIAS_SEMANA
 from shifts.models.shift_abstract import AbstractShift
 
@@ -8,21 +7,6 @@ class TemplateShift(AbstractShift):
     center = models.ForeignKey('Center', on_delete=models.CASCADE, related_name='base_shifts')
     weekday = models.IntegerField()
     index = models.IntegerField()
-
-
-    @classmethod
-    def build_doctor_shifts(cls, doctor, center):
-        """Build the shifts for a doctor."""
-        shifts = cls.objects.filter(user=doctor, center=center).all()
-        if not shifts:
-            return {}
-        
-        output = defaultdict(list)
-        for shift in shifts:
-            output[(shift.weekday, shift.index)].append((shift.start_time, shift.end_time))
-
-        return output
-    
     
     @classmethod
     def add(cls, doctor, center, week_day, week_index, start_time, end_time):   
