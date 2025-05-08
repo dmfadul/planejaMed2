@@ -35,7 +35,6 @@ def update(request):
     try:
         # updates = unpack_table_data(request)
         updates = process_table_payload(request)
-
         return JsonResponse({"updates": updates})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)

@@ -12,7 +12,6 @@ def unpack_table_data(request):
 
 
     state = json.loads(request.body)
-    print(state)
     table_type = state.get("tableType")
     action = state.get("action")       
     month = state.get("month")
