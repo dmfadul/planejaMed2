@@ -18,7 +18,7 @@ def process_table_payload(request):
     elif action == "add" and table_type == "MONTH":
         updates = []
     elif action == "remove" and table_type == "BASE":
-        updates = []
+        updates = remove_shift(state, "BASE")
     elif action == "remove" and table_type == "MONTH":
         updates = []
     else:
@@ -27,15 +27,44 @@ def process_table_payload(request):
     return updates
 
 
+def remove_shift(state, table_type):
+    center = get_object_or_404(Center, abbreviation=state.get("center"))
+    
+    updates = []
+    for cell in state.get("selectedCells"):
+        cell_id = cell.get("cellID")
+        crm = cell.get("doctorCRM")
+        doctor = User.objects.get(crm=int(crm))
+
+        if table_type == "BASE":
+            _, _, weekday, week_index = cell_id.split("-")
+
+            shifts = TS.objects.filter(
+                user=doctor,
+                center=center,
+                weekday=int(weekday),
+                index=int(week_index),
+            )
+
+            for shift in shifts:
+                shift.delete()
+
+        elif table_type == "MONTH":
+            return []
+
+        updates.append({
+            "cellID": cell_id,
+            "newValue": "",
+        })
+
+    return updates
+
 def add_shift(state, table_type):
     center = get_object_or_404(Center, abbreviation=state.get("center"))
     new_values = state.get("newValues")
 
     updates = []
-    for cell_id, value in new_values.items():
-        _, crm, weekday, idx = cell_id.split("-")
-        doctor = User.objects.get(crm=int(crm))
-        
+    for cell_id, value in new_values.items():       
         shift_code = value.get("shiftCode")
         if not shift_code == "-":
             start_time, end_time = TS.convert_to_hours(shift_code)
@@ -45,6 +74,9 @@ def add_shift(state, table_type):
             # TODO: change frontend so it passes start_time and end_time as ints
 
         if table_type == "BASE":
+            _, crm, weekday, idx = cell_id.split("-")
+            doctor = User.objects.get(crm=int(crm))
+            
             TS.add(doctor=doctor,
                    center=center,
                    week_day=int(weekday),
@@ -59,7 +91,7 @@ def add_shift(state, table_type):
                 index=int(idx),
             ).all()
         elif table_type == "MONTH":
-            continue
+            return []
 
         new_shifts = translate_to_table(new_shifts)
         

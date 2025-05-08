@@ -33,7 +33,6 @@ def doctor_basetable(request, center_abbr, crm):
 @require_POST
 def update(request):
     try:
-        # updates = unpack_table_data(request)
         updates = process_table_payload(request)
         return JsonResponse({"updates": updates})
     except Exception as e:
