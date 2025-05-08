@@ -21,12 +21,11 @@ async function sendData() {
             if (cell) {
                 cell.textContent = update.newValue;
 
-                cell.style.transition = "background-color 2s";
-                cell.offsetHeight; //force reflow
+                cell.style.transition = "background-color 1s";
                 cell.style.backgroundColor = state.action === 'add' ? "green" : "red";
-                setTimeout(() => {
-                    cell.style.backgroundColor = "";
-                }, 2500);
+                // setTimeout(() => {
+                //     cell.style.backgroundColor = "";
+                // }, 2500);
             }
         });
 
@@ -36,6 +35,9 @@ async function sendData() {
         console.error('Error:', error);
         alert(error.message);  // 🟥 Shows backend error message here
     } finally {
-        clearSelectedCells();
+        setTimeout(() => {
+            clearSelectedCells();
+        }, 1000);
+        
     }
 }
