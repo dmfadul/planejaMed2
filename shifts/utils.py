@@ -7,55 +7,6 @@ from .models import Center
 import json
 
 
-def unpack_table_data(request):
-    """Update table data based on the request."""
-
-
-    state = json.loads(request.body)
-    table_type = state.get("tableType")
-    action = state.get("action")       
-    month = state.get("month")
-    year = state.get("year")
-    center = get_object_or_404(Center, abbreviation=state.get("center"))
-    
-    updates = []
-    new_values = state.get("newValues")
-    for cell_id, value in new_values.items():
-        _, crm, weekday, idx = cell_id.split("-")
-        doctor = User.objects.get(crm=int(crm))
-        
-        shift_code = value.get("shiftCode")
-        start_time = int(value.get("startTime").split(":")[0]) if value.get("startTime") else 0
-        end_time = int(value.get("endTime").split(":")[0]) if value.get("endTime") else 0
-        
-        if not shift_code == "-":
-            start_time, end_time = TS.convert_to_hours(shift_code)
-        
-        if action == "add" and table_type == "BASE":
-            TS.add(doctor=doctor,
-                   center=center,
-                   week_day=int(weekday),
-                   week_index=int(idx),
-                   start_time=start_time,
-                   end_time=end_time)
-        
-
-        new_shifts = TS.objects.filter(
-            user=doctor,
-            center=center,
-            weekday=int(weekday),
-            index=int(idx),
-        ).all()
-
-        new_shifts = translate_to_table(new_shifts)
-        updates.append({
-            "cellID": cell_id,
-            "newValue": new_shifts.get(cell_id),
-        })
-
-    return updates   
-
-
 def build_table_data(center, table_type, template, doctor=None):
     table_data = {
         "center": center.abbreviation,
