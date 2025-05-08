@@ -28,12 +28,13 @@ def process_table_payload(request):
 
 
 def remove_shift(state, table_type):
+    print("s", state)
     center = get_object_or_404(Center, abbreviation=state.get("center"))
     
     updates = []
     for cell in state.get("selectedCells"):
         cell_id = cell.get("cellID")
-        crm = cell.get("doctorCRM")
+        crm = cell_id.split("-")[1]
         doctor = User.objects.get(crm=int(crm))
 
         if table_type == "BASE":
