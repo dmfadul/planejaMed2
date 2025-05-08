@@ -21,11 +21,8 @@ async function sendData() {
             if (cell) {
                 cell.textContent = update.newValue;
 
-                cell.style.transition = "background-color 1s";
+                cell.style.transition = "background-color 0.5s";
                 cell.style.backgroundColor = state.action === 'add' ? "green" : "red";
-                // setTimeout(() => {
-                //     cell.style.backgroundColor = "";
-                // }, 2500);
             }
         });
 
@@ -37,7 +34,7 @@ async function sendData() {
     } finally {
         setTimeout(() => {
             clearSelectedCells();
-        }, 1000);
+        }, 500);
         
     }
 }
