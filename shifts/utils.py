@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from .models import TemplateShift as TS
 from collections import defaultdict
 from core.models import User
-from .models import Center
+from .models import Center, Month
 import json
 
 
@@ -40,7 +40,7 @@ def build_table_data(center, table_type, template, doctor=None):
             "shifts": shifts,
         }
     elif template == "basetable":
-        header1, header2 = TS.gen_headers()
+        header1, header2 = Month.gen_headers()
         table_data["header1"] = header1
         table_data["header2"] = header2
         table_data["doctors"] = []
