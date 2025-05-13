@@ -6,8 +6,19 @@ from django.shortcuts import render, get_object_or_404
 from core.models import User
 from .table_payload import process_table_payload
 from .table_builder import build_table_data
-from shifts.models import TemplateShift, Shift, Center
+from shifts.models import TemplateShift, Shift, Center, Month
 import json
+
+
+@login_required
+def month_table(request, center_abbr, month_num, year):
+    center = get_object_or_404(Center, abbreviation=center_abbr)
+    # month = get_object_or_404(Month, number=month_num, year=year)
+    month = None
+    table_data = build_table_data(center, "MONTH", "month_table", month=month)
+    context = {"table_data": table_data}
+
+    return render(request, "shifts/table.html", context)
 
 
 @login_required

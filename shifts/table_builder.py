@@ -5,7 +5,7 @@ from core.models import User
 from .models import Month
 
 
-def build_table_data(center, table_type, template, doctor=None, month=None, year=None):
+def build_table_data(center, table_type, template, doctor=None, month=None):
     table_data = {
         "center": center.abbreviation,
         "month": 0,
@@ -23,10 +23,11 @@ def build_table_data(center, table_type, template, doctor=None, month=None, year
         return build_basetable(center, table_data)
 
     if template == "month_table":
-        return build_month_table(center, table_data)
+        return build_month_table(month, center, table_data)
 
 
-def build_month_table(center, table_data):
+def build_month_table(month, center, table_data):
+    print(month, center, table_data)
     return "unimplemented"
 
 
