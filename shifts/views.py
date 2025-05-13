@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from core.models import User
 from .table_payload import process_table_payload
-from .utils import build_table_data
+from .table_builder import build_table_data
 from shifts.models import TemplateShift, Shift, Center
 import json
 
