@@ -71,8 +71,8 @@ def add_shift(state, table_type):
             start_time, end_time = TS.convert_to_hours(shift_code)
         else:
             print(value.get("startTime"), value.get("endTime"))
-            start_time = int(value.get("startTime")) if value.get("startTime") else 0
-            end_time = int(value.get("endTime")) if value.get("endTime") else 0
+            start_time = int(value.get("startTime", 0))
+            end_time = int(value.get("endTime", 0))
 
         if table_type == "BASE":
             _, crm, weekday, idx = cell_id.split("-")
