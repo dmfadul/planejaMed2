@@ -70,9 +70,9 @@ def add_shift(state, table_type):
         if not shift_code == "-":
             start_time, end_time = TS.convert_to_hours(shift_code)
         else:
-            start_time = int(value.get("startTime").split(":")[0]) if value.get("startTime") else 0
-            end_time = int(value.get("endTime").split(":")[0]) if value.get("endTime") else 0
-            # TODO: change frontend so it passes start_time and end_time as ints
+            print(value.get("startTime"), value.get("endTime"))
+            start_time = int(value.get("startTime")) if value.get("startTime") else 0
+            end_time = int(value.get("endTime")) if value.get("endTime") else 0
 
         if table_type == "BASE":
             _, crm, weekday, idx = cell_id.split("-")

@@ -13,10 +13,11 @@ function openModalAdd(cells) {
         message_div.innerHTML = `<label for="${cell.cellID}" class="form-label fw-bold fs-6">${message}</label>`;
         
         let hourRangeNoEnd = tableData["hour_range"].slice(0, -1);
+        let hourRangeNoEnd_values = tableData["hour_values"].slice(0, -1);
 
         const dropdown1 = createDropdown(`${cell.cellID}_shift`, tableData["shift_codes"]);
-        const dropdown2 = createDropdown(`${cell.cellID}_start`, hourRangeNoEnd);
-        const dropdown3 = createDropdown(`${cell.cellID}_end`, tableData["hour_range"]);
+        const dropdown2 = createDropdown(`${cell.cellID}_start`, hourRangeNoEnd, hourRangeNoEnd_values);
+        const dropdown3 = createDropdown(`${cell.cellID}_end`, tableData["hour_range"], tableData["hour_values"]);
 
         dropdown1.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));
         dropdown2.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));
@@ -67,18 +68,22 @@ function submitModalAdd() {
 }
 
 
-function createDropdown(id, options) {
+function createDropdown(id, options, values=[]) {
     let dropdown = document.createElement('select');
     dropdown.classList.add('form-select');
     dropdown.id = id;
     dropdown.name = id;
 
-    options.forEach(option => {
+    for(i = 0; i < options.length; i++){
         let opt = document.createElement('option');
-        opt.value = option;
-        opt.textContent = option;
+        if(values.length > 0){
+            opt.value = values[i];
+        } else{
+            opt.value = options[i];
+        }
+        opt.textContent = options[i];
         dropdown.appendChild(opt);
-    });
+    }
 
     return dropdown;
 }
