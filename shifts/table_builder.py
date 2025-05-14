@@ -27,11 +27,11 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
         return build_basetable(center, table_data)
 
     if template == "month_table":
+        table_data["header1"], table_data["header2"] = month.gen_month_headers()
         return build_month_table(month, center, table_data)
 
 
 def build_month_table(month, center, table_data):
-    print(month, center, table_data)
     return table_data
 
 

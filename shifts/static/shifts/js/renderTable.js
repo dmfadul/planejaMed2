@@ -1,5 +1,5 @@
 function renderTable(tableData){
-    if (tableData.template === "basetable") {
+    if (tableData.template === "basetable" || tableData.template === "month_table") {
         renderNormalTable(tableData);
     } else if (tableData.template === "doctor_basetable") {
         renderDoctorTable(tableData);

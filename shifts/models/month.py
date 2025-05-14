@@ -15,14 +15,24 @@ class Month(models.Model):
     
 
     @classmethod
-    def new_month(cls, year, month):
+    def new_month(cls, number, year):
         from core.constants import LEADER
 
-        new_month = cls(year=year, number=month)
+        new_month = cls(year=year, number=number)
         new_month.leader = User.objects.get(crm=LEADER.get('crm'))
         new_month.save()
 
         return new_month
+
+
+    def gen_month_headers(self):
+        header1, header2 = [], []
+        for i in range(1, 36):
+            header1.append({"cellID": f"{i}", "label": i})
+            header2.append({"cellID": f"index-{i}", "label": i})
+
+        return header1, header2
+
 
     @staticmethod
     def gen_headers(template):
