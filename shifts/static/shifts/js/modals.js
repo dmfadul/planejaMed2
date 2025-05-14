@@ -67,7 +67,7 @@ function submitModalAdd() {
 }
 
 
-function createDropdown(id, options, values=[]) {
+function createDropdown(id, options, values={}) {
     let dropdown = document.createElement('select');
     dropdown.classList.add('form-select');
     dropdown.id = id;

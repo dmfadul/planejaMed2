@@ -6,7 +6,10 @@ from .models import Month
 
 
 def build_table_data(center, table_type, template, doctor=None, month=None):
+    header1, header2 = Month.gen_headers(template)
     table_data = {
+        "header1": header1,
+        "header2": header2,
         "center": center.abbreviation,
         "month": 0,
         "year": 0,
@@ -29,14 +32,10 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
 
 def build_month_table(month, center, table_data):
     print(month, center, table_data)
-    return "unimplemented"
+    return table_data
 
 
 def build_basetable(center, table_data):
-    header1, header2 = Month.gen_headers()
-    table_data["header1"] = header1
-    table_data["header2"] = header2
-
     doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
     table_data["doctors"] = []
     for doctor in doctors:
@@ -53,17 +52,10 @@ def build_doctor_table(doctor, center, table_data):
     shifts = TS.objects.filter(user=doctor, center=center).all()
     shifts = translate_to_table(shifts)
     
-    table_data["header1"] = []
-    for i in range(6):
-        if i == 0:
-            table_data["header1"].append({"cellID": 'corner1', "label": ""})
-            continue
-
-        table_data["header1"].append({"cellID": i, "label": i})
-
     table_data["weekdays"] = []
     for i, day in enumerate([d[:3] for d in DIAS_SEMANA]):
         table_data["weekdays"].append({"dayID": i, "label": day})
+
     table_data["doctor"] = {
         "name": doctor.name,
         "abbr_name": doctor.abbr_name,
