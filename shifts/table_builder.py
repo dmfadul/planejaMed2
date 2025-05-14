@@ -14,8 +14,9 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
         "template": template,
         "shift_codes": ["-"] + SHIFT_CODES,
         "hour_range": [f"{x:02d}:00" for x in HOUR_RANGE],
-        "hour_values": [x for x in HOUR_RANGE]
+        "hour_values": {f"{x:02d}:00": x for x in HOUR_RANGE},
     }
+
     if template == "doctor_basetable":
         return build_doctor_table(doctor, center, table_data)
     
