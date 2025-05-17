@@ -42,8 +42,8 @@ def gen_headers(template, month=None):
                 header2.append({"cellID": "corner2", "label": ""})
                 continue
             
-            header1.append({"cellID": f"wday-{date.day}", "label": dias_semana[date.weekday()]})
-            header2.append({"cellID": f"day-{date.day}", "label": date.day})
+            header1.append({"cellID": f"{date.day}", "label": dias_semana[date.weekday()]})
+            header2.append({"cellID": f"mday-{date.day}", "label": date.day})
 
 
         return header1, header2

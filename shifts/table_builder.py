@@ -29,6 +29,8 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
 
     if template == "month_table":
         table_data["header1"], table_data["header2"] = gen_headers(template, month)
+        table_data["month"] = month.number
+        table_data["year"] = month.year
         return build_basetable(center, table_data, template=template)
 
 
