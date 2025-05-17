@@ -15,6 +15,18 @@ class Month(models.Model):
         return f"{self.year}-{self.number}"
     
 
+    @property
+    def start_date(self):
+        if self.number == 1:
+            start_date = datetime(self.year - 1, 12, STR_DAY)
+        else:
+            start_date = datetime(self.year, self.number - 1, STR_DAY)
+        return start_date
+    
+    @property
+    def end_date(self):
+        return datetime(self.year, self.number, END_DAY)
+
     @classmethod
     def new_month(cls, number, year):
         from core.constants import LEADER
@@ -26,11 +38,8 @@ class Month(models.Model):
         return new_month
 
     def gen_date_row(self):
-        end_date = datetime(self.year, self.number, END_DAY)
-        if self.number == 1:
-            start_date = datetime(self.year - 1, 12, STR_DAY)
-        else:
-            start_date = datetime(self.year, self.number - 1, STR_DAY)
+        start_date = self.start_date
+        end_date = self.end_date
         
         dates = []
         while start_date <= end_date:
@@ -39,9 +48,22 @@ class Month(models.Model):
 
         return dates
 
+    def gen_calendar_table(self):
+        cal_table = []
+        week = [""] * 7
+        current_date = self.start_date
 
-    def gen_calendar(self):
-        pass
+        while current_date <= self.end_date:
+            weekday = current_date.weekday()
+            week[weekday] = current_date.day
+            if weekday == 6:  # Sunday
+                cal_table.append(week)
+                week = [""] * 7
+            current_date += timedelta(days=1)
+        if any(week):
+            cal_table.append(week)
+        return cal_table
+
 
 
 
