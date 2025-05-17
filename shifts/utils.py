@@ -42,12 +42,13 @@ def gen_headers(template, month=None):
                 header2.append({"cellID": "corner2", "label": ""})
                 continue
             
-            header1.append({"cellID": f"{date.day}", "label": dias_semana[date.weekday()]})
+            header1.append({"cellID": f"wday-{date.day}", "label": dias_semana[date.weekday()]})
             header2.append({"cellID": f"mday-{date.day}", "label": date.day})
 
 
         return header1, header2
     
+
 def translate_to_table(shifts:list) -> dict:
     """Translate shifts to table formatting."""
     if not shifts:
@@ -56,14 +57,24 @@ def translate_to_table(shifts:list) -> dict:
     crm = shifts[0].user.crm
     shifts_per_day = defaultdict(list)
     for shift in shifts:
-        shifts_per_day[(shift.weekday, shift.index)].append((shift.start_time, shift.end_time))
+        if isinstance(shift, TS):
+            dict_key = (shift.weekday, shift.index)
+        else:
+            dict_key = shift.day
+
+        shifts_per_day[dict_key].append((shift.start_time, shift.end_time))
 
     output = {}
-    for (weekday, week_index), hours in shifts_per_day.items():
+    for dict_key, hours in shifts_per_day.items():
         code = ""
         for hour in hours:
             code += TS.convert_to_code(*hour)
         
-        output[f"cell-{crm}-{weekday}-{week_index}"] = code
+        if isinstance(dict_key, tuple):
+            cell_id = f"cell-{crm}-{shift.weekday}-{shift.index}"
+        else:
+            cell_id = f"cell-{crm}-wday-{shift.day}"
+        
+        output[cell_id] = code
     
     return output   

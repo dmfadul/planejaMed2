@@ -1,8 +1,8 @@
 import json
-from .models import Center
 from core.models import User
-from collections import defaultdict
+from .utils import translate_to_table
 from .models import TemplateShift as TS
+from .models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 
 
@@ -13,10 +13,8 @@ def process_table_payload(request):
     action = state.get("action")   
     table_type = state.get("tableType")
     
-    if action == "add" and table_type == "BASE":
-        updates = add_shift(state, "BASE")
-    elif action == "add" and table_type == "MONTH":
-        updates = []
+    if action == "add":
+        updates = add_shift(state, table_type)
     elif action == "remove" and table_type == "BASE":
         updates = remove_shift(state, "BASE")
     elif action == "remove" and table_type == "MONTH":
@@ -28,7 +26,6 @@ def process_table_payload(request):
 
 
 def remove_shift(state, table_type):
-    print("s", state)
     center = get_object_or_404(Center, abbreviation=state.get("center"))
     
     updates = []
@@ -66,7 +63,10 @@ def add_shift(state, table_type):
     new_values = state.get("newValues")
 
     updates = []
-    for cell_id, value in new_values.items():       
+    for cell_id, value in new_values.items():      
+        _, crm, weekday, idx = cell_id.split("-")
+        doctor = User.objects.get(crm=int(crm)) 
+        
         shift_code = value.get("shiftCode")
         if shift_code == "-":
             start_time = int(value.get("startTime", 0))
@@ -75,9 +75,6 @@ def add_shift(state, table_type):
             start_time, end_time = TS.convert_to_hours(shift_code)
 
         if table_type == "BASE":
-            _, crm, weekday, idx = cell_id.split("-")
-            doctor = User.objects.get(crm=int(crm))
-            
             TS.add(doctor=doctor,
                    center=center,
                    week_day=int(weekday),
@@ -91,8 +88,27 @@ def add_shift(state, table_type):
                 weekday=int(weekday),
                 index=int(idx),
             ).all()
+
+
         elif table_type == "MONTH":
-            return []
+            day = int(idx)
+            year = state.get("year")
+            number = state.get("month")
+
+            month = get_object_or_404(Month, number=int(number), year=int(year))
+            Shift.add(doctor=doctor,
+                      center=center,
+                      month=month,
+                      day=day,
+                      start_time=start_time,
+                      end_time=end_time)
+            
+            new_shifts = Shift.objects.filter(
+                user=doctor,
+                center=center,
+                month=month,
+                day=day,
+            ).all()
 
         new_shifts = translate_to_table(new_shifts)
         
@@ -104,22 +120,24 @@ def add_shift(state, table_type):
     return updates
 
 
-def translate_to_table(shifts:list) -> dict:
-    """Translate shifts to table formatting."""
-    if not shifts:
-        return {}
-    
-    crm = shifts[0].user.crm
-    shifts_per_day = defaultdict(list)
-    for shift in shifts:
-        shifts_per_day[(shift.weekday, shift.index)].append((shift.start_time, shift.end_time))
 
-    output = {}
-    for (weekday, week_index), hours in shifts_per_day.items():
-        code = ""
-        for hour in hours:
-            code += TS.convert_to_code(*hour)
-        
-        output[f"cell-{crm}-{weekday}-{week_index}"] = code
+
+# def translate_to_table(shifts:list) -> dict:
+#     """Translate shifts to table formatting."""
+#     if not shifts:
+#         return {}
     
-    return output 
+#     crm = shifts[0].user.crm
+#     shifts_per_day = defaultdict(list)
+#     for shift in shifts:
+#         shifts_per_day[(shift.weekday, shift.index)].append((shift.start_time, shift.end_time))
+
+#     output = {}
+#     for (weekday, week_index), hours in shifts_per_day.items():
+#         code = ""
+#         for hour in hours:
+#             code += TS.convert_to_code(*hour)
+        
+#         output[f"cell-{crm}-{weekday}-{week_index}"] = code
+    
+#     return output 
