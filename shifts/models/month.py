@@ -1,6 +1,7 @@
 from django.db import models
 from core.models import User
-from datetime import datetime
+from datetime import datetime, timedelta
+from core.constants import STR_DAY, END_DAY
 
 
 class Month(models.Model):
@@ -24,11 +25,24 @@ class Month(models.Model):
 
         return new_month
 
-    def gen_calendar():
+    def gen_date_row(self):
+        end_date = datetime(self.year, self.number, END_DAY)
+        if self.number == 1:
+            start_date = datetime(self.year - 1, 12, STR_DAY)
+        else:
+            start_date = datetime(self.year, self.number - 1, STR_DAY)
+        
+        dates = []
+        while start_date <= end_date:
+            dates.append(start_date)
+            start_date += timedelta(days=1)
+
+        return dates
+
+
+    def gen_calendar(self):
         pass
 
-    def gen_date_row():
-        pass
 
 
 class Holiday(models.Model):

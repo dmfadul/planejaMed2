@@ -1,6 +1,6 @@
 from .models import TemplateShift as TS
 from collections import defaultdict
-from core.constants import SHIFTS_MAP, DIAS_SEMANA
+from core.constants import DIAS_SEMANA
 
 
 def gen_headers(template, month=None):
