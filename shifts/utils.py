@@ -4,6 +4,7 @@ from core.constants import DIAS_SEMANA
 
 
 def gen_headers(template, month=None):
+    dias_semana = [x[:3] for x in DIAS_SEMANA]
     """Generate headers for the table according to template."""
     if template == "doctor_basetable":
         header = []
@@ -15,7 +16,7 @@ def gen_headers(template, month=None):
         return header, []
     
     elif template == "basetable":
-        weekdays = [""] + [x[:3] for x in DIAS_SEMANA] * 5
+        weekdays = [""] + dias_semana * 5
         indeces = [""] + [((x - 1) // 7) + 1 for x in range(1, 36)]
 
         header1, header2 = [], []
@@ -33,8 +34,19 @@ def gen_headers(template, month=None):
     elif template == "month_table":
         if month is None:
             raise ValueError("Month must be provided for month_table template.")
+        
+        header1, header2 = [], []
+        for i, date in enumerate(month.gen_date_row()):
+            if i == 0:
+                header1.append({"cellID": "corner1", "label": ""})
+                header2.append({"cellID": "corner2", "label": ""})
+                continue
+            
+            header1.append({"cellID": f"wday-{date.day}", "label": dias_semana[date.weekday()]})
+            header2.append({"cellID": f"day-{date.day}", "label": date.day})
 
-        return [], []
+
+        return header1, header2
     
 def translate_to_table(shifts:list) -> dict:
     """Translate shifts to table formatting."""

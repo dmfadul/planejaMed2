@@ -2,7 +2,7 @@ from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA
 from .models import TemplateShift as TS
 from .utils import translate_to_table, gen_headers
 from core.models import User
-from .models import Month
+from .models import Month, Shift
 
 
 def build_table_data(center, table_type, template, doctor=None, month=None):
@@ -29,18 +29,17 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
 
     if template == "month_table":
         table_data["header1"], table_data["header2"] = gen_headers(template, month)
-        return build_month_table(month, center, table_data)
+        return build_basetable(center, table_data, template=template)
 
 
-def build_month_table(month, center, table_data):
-    return table_data
-
-
-def build_basetable(center, table_data):
+def build_basetable(center, table_data, template=None):
     doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
     table_data["doctors"] = []
     for doctor in doctors:
-        shifts = TS.objects.filter(user=doctor, center=center).all()
+        if template == "month_table":
+            shifts = Shift.objects.filter(user=doctor, center=center).all()
+        else:
+            shifts = TS.objects.filter(user=doctor, center=center).all()
         shifts = translate_to_table(shifts)
         table_data["doctors"].append({"name": doctor.name,
                                       "abbr_name": doctor.abbr_name,
