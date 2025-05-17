@@ -50,7 +50,7 @@ def gen_headers(template, month=None):
     
 
 def translate_to_table(shifts:list) -> dict:
-    """Translate shifts to table formatting."""
+    """Translate a list of shifts from the same doctor to dictionary of cell-id keys and code values."""
     if not shifts:
         return {}
     
@@ -71,9 +71,9 @@ def translate_to_table(shifts:list) -> dict:
             code += TS.convert_to_code(*hour)
         
         if isinstance(dict_key, tuple):
-            cell_id = f"cell-{crm}-{shift.weekday}-{shift.index}"
+            cell_id = f"cell-{crm}-{dict_key[0]}-{dict_key[1]}"
         else:
-            cell_id = f"cell-{crm}-wday-{shift.day}"
+            cell_id = f"cell-{crm}-wday-{dict_key}"
         
         output[cell_id] = code
     

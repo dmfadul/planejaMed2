@@ -42,11 +42,13 @@ def build_basetable(center, table_data, template=None):
             shifts = Shift.objects.filter(user=doctor, center=center).all()
         else:
             shifts = TS.objects.filter(user=doctor, center=center).all()
+
         shifts = translate_to_table(shifts)
         table_data["doctors"].append({"name": doctor.name,
                                       "abbr_name": doctor.abbr_name,
                                       "crm": doctor.crm,
                                       "shifts": shifts,})
+    
     return table_data
 
 
