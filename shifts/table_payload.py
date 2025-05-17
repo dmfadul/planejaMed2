@@ -60,6 +60,7 @@ def remove_shift(state, table_type):
 
     return updates
 
+
 def add_shift(state, table_type):
     center = get_object_or_404(Center, abbreviation=state.get("center"))
     new_values = state.get("newValues")
@@ -67,12 +68,11 @@ def add_shift(state, table_type):
     updates = []
     for cell_id, value in new_values.items():       
         shift_code = value.get("shiftCode")
-        if not shift_code == "-":
-            start_time, end_time = TS.convert_to_hours(shift_code)
-        else:
-            print(value.get("startTime"), value.get("endTime"))
+        if shift_code == "-":
             start_time = int(value.get("startTime", 0))
             end_time = int(value.get("endTime", 0))
+        else:
+            start_time, end_time = TS.convert_to_hours(shift_code)
 
         if table_type == "BASE":
             _, crm, weekday, idx = cell_id.split("-")
