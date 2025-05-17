@@ -1,12 +1,12 @@
 from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA
 from .models import TemplateShift as TS
-from .utils import translate_to_table
+from .utils import translate_to_table, gen_headers
 from core.models import User
 from .models import Month
 
 
 def build_table_data(center, table_type, template, doctor=None, month=None):
-    header1, header2 = Month.gen_headers(template)
+    header1, header2 = gen_headers(template)
     table_data = {
         "header1": header1,
         "header2": header2,
@@ -27,7 +27,7 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
         return build_basetable(center, table_data)
 
     if template == "month_table":
-        table_data["header1"], table_data["header2"] = month.gen_month_headers()
+        table_data["header1"], table_data["header2"] = gen_headers(template, month)
         return build_month_table(month, center, table_data)
 
 

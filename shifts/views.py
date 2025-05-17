@@ -16,7 +16,6 @@ def month_table(request, center_abbr, month_num, year):
     month = get_object_or_404(Month, number=month_num, year=year)
     table_data = build_table_data(center, "MONTH", "month_table", month=month)
     context = {"table_data": table_data}
-    print(table_data)
 
     return render(request, "shifts/table.html", context)
 
