@@ -6,10 +6,9 @@ from .models import Month
 
 
 def build_table_data(center, table_type, template, doctor=None, month=None):
-    header1, header2 = gen_headers(template)
     table_data = {
-        "header1": header1,
-        "header2": header2,
+        "header1": None,
+        "header2": None,
         "center": center.abbreviation,
         "month": 0,
         "year": 0,
@@ -21,9 +20,11 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
     }
 
     if template == "doctor_basetable":
+        table_data["header1"], table_data["header2"] = gen_headers(template)
         return build_doctor_table(doctor, center, table_data)
     
     if template == "basetable":
+        table_data["header1"], table_data["header2"] = gen_headers(template)
         return build_basetable(center, table_data)
 
     if template == "month_table":
