@@ -41,6 +41,54 @@ class Month(models.Model):
         new_month.save()
 
         return new_month
+    
+    def populate_month(self):
+        from . import Shift, TemplateShift
+        
+        print(f"Populating month {self}...")
+
+        year, month = self.year, self.number
+        first_day = datetime(year, month, 1)
+        first_wday = first_day.weekday()  # Monday is 0
+
+        prv_year, prv_month = self.start_date.year, self.start_date.month
+        prv_first_day = datetime(prv_year, prv_month, 1)
+        prv_first_wday = prv_first_day.weekday()  # Monday is 0
+
+        templates = TemplateShift.objects.filter(user__is_active=True)
+
+        for t in templates:
+            day_offset_curr = (t.weekday - first_wday + 7) % 7
+            day_offset_prv = (t.weekday - prv_first_wday + 7) % 7
+
+            first_ocurrence_curr = first_day + timedelta(days=day_offset_curr)
+            first_ocurrence_prv = prv_first_day + timedelta(days=day_offset_prv)
+
+
+            target_date_curr = first_ocurrence_curr + timedelta(weeks=t.index-1)
+            target_date_prv = first_ocurrence_prv + timedelta(weeks=t.index-1)
+
+            if self.start_date <= target_date_curr <= self.end_date:
+                new_shift = Shift.objects.create(
+                    user=t.user,
+                    center=t.center,
+                    month=self,
+                    day=target_date_curr.day,
+                    start_time=t.start_time,
+                    end_time=t.end_time
+                )
+            
+            if self.start_date <= target_date_prv <= self.end_date:
+                new_shift = Shift.objects.create(
+                    user=t.user,
+                    center=t.center,
+                    month=self,
+                    day=target_date_prv.day,
+                    start_time=t.start_time,
+                    end_time=t.end_time
+                )
+
+        print(f"Month {self} populated.")
 
     def gen_date_row(self):
         start_date = self.start_date
