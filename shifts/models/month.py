@@ -1,5 +1,6 @@
 from django.db import models
 from core.models import User
+from calendar import monthrange
 from datetime import datetime, timedelta
 from core.constants import STR_DAY, END_DAY
 
@@ -14,7 +15,6 @@ class Month(models.Model):
     def __str__(self):
         return f"{self.year}-{self.number}"
     
-
     @property
     def start_date(self):
         if self.number == 1:
@@ -26,6 +26,11 @@ class Month(models.Model):
     @property
     def end_date(self):
         return datetime(self.year, self.number, END_DAY)
+    
+    @property
+    def month_break(self):
+        _, last_day = monthrange(self.start_date.year, self.start_date.month)
+        return datetime(self.start_date.year, self.start_date.month, last_day)
 
     @classmethod
     def new_month(cls, number, year):
