@@ -28,7 +28,7 @@ class Month(models.Model):
         return datetime(self.year, self.number, END_DAY)
     
     @property
-    def month_break(self):
+    def break_date(self):
         _, last_day = monthrange(self.start_date.year, self.start_date.month)
         return datetime(self.start_date.year, self.start_date.month, last_day)
 
