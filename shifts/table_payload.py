@@ -15,10 +15,8 @@ def process_table_payload(request):
     
     if action == "add":
         updates = add_shift(state, table_type)
-    elif action == "remove" and table_type == "BASE":
-        updates = remove_shift(state, "BASE")
-    elif action == "remove" and table_type == "MONTH":
-        updates = []
+    elif action == "remove":
+        updates = remove_shift(state, table_type)
     else:
         raise ValueError("Improper action or table type.")
 
@@ -31,12 +29,10 @@ def remove_shift(state, table_type):
     updates = []
     for cell in state.get("selectedCells"):
         cell_id = cell.get("cellID")
-        crm = cell_id.split("-")[1]
+        _, crm, weekday, week_index = cell_id.split("-")
         doctor = User.objects.get(crm=int(crm))
 
         if table_type == "BASE":
-            _, _, weekday, week_index = cell_id.split("-")
-
             shifts = TS.objects.filter(
                 user=doctor,
                 center=center,
@@ -44,11 +40,24 @@ def remove_shift(state, table_type):
                 index=int(week_index),
             )
 
-            for shift in shifts:
-                shift.delete()
-
         elif table_type == "MONTH":
+            day = int(week_index)
+            year = state.get("year")
+            number = state.get("month")
+            month = get_object_or_404(Month, number=int(number), year=int(year))
+
+            shifts = Shift.objects.filter(
+                user=doctor,
+                center=center,
+                month=month,
+                day=day,
+            )
+
+        if not shifts:
             return []
+        
+        for shift in shifts:
+            shift.delete()
 
         updates.append({
             "cellID": cell_id,
