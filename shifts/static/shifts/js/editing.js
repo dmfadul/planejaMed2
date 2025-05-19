@@ -47,6 +47,10 @@ function clickCell(cell) {
     }
 }
 
+function clickName(name) {
+    window.location.href = `/shifts/basetable/${tableData.center}/${name.id}/`;
+}
+
 
 function clearSelectedCells() {
     document.querySelectorAll('.selected').forEach(cell => {

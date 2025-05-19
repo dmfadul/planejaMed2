@@ -1,5 +1,6 @@
 function addListeners() {
     const cells = document.querySelectorAll('.cell-col');
+    const names = document.querySelectorAll('.name-col');
     const addButton = document.getElementById('edit-add-button');
     const remButton = document.getElementById('edit-rem-button');
 
@@ -8,6 +9,12 @@ function addListeners() {
     cells.forEach(cell => {
         cell.addEventListener('click', () => {
             clickCell(cell);
+        });
+    });
+
+    names.forEach(name => {
+        name.addEventListener('click', () => {
+            clickName(name);
         });
     });
 

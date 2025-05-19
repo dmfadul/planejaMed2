@@ -43,13 +43,15 @@ function renderNormalTable(data) {
         nameTd.className = 'first-col name-col';
         nameTd.id = doctor.crm;
         nameTd.style.cursor = "pointer";
-        nameTd.onclick = () => window.location.href = `/shifts/basetable/${data.center}/${doctor.crm}/`;
+        nameTd.textContent = doctor.abbr_name;
+        nameTd.title = `${doctor.name} - ${doctor.crm}`;
+        // nameTd.onclick = () => window.location.href = `/shifts/basetable/${data.center}/${doctor.crm}/`;
 
-        const link = document.createElement('a');
-        link.href = `/shifts/basetable/${data.center}/${doctor.crm}/`;
-        link.title = `${doctor.name} - ${doctor.crm}`;
-        link.textContent = doctor.abbr_name;
-        nameTd.appendChild(link);
+        // const link = document.createElement('a');
+        // link.href = `/shifts/basetable/${data.center}/${doctor.crm}/`;
+        // link.title = `${doctor.name} - ${doctor.crm}`;
+        // link.textContent = doctor.abbr_name;
+        // nameTd.appendChild(link);
 
         tr.appendChild(nameTd);
 
