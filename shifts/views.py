@@ -1,12 +1,13 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
 from core.constants import DIAS_SEMANA
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from core.models import User
 from .table_payload import process_table_payload
 from .table_builder import build_table_data
 from shifts.models import TemplateShift, Shift, Center, Month
+from django.contrib import messages
 import json
 
 
@@ -39,7 +40,7 @@ def doctor_basetable(request, center_abbr, crm):
     return render(request, "shifts/table.html", context)
 
 
-@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
 @require_POST
 def update(request):
     try:
@@ -47,3 +48,13 @@ def update(request):
         return JsonResponse({"updates": updates})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def create_month(request):
+    if request.method == "POST":
+        print("Creating month...")
+
+        messages.success(request, "Mês criado com sucesso.")
+
+    return redirect(request.META.get("HTTP_REFERER", "/"))

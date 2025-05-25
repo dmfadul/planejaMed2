@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import month_table, basetable, doctor_basetable, update
+from .views import month_table, basetable, doctor_basetable, update, create_month
 
 app_name = "shifts"
 
@@ -8,4 +8,5 @@ urlpatterns = [
     path("basetable/<str:center_abbr>/", basetable, name="basetable"),
     path("basetable/<str:center_abbr>/<str:crm>/", doctor_basetable, name="doctor_basetable"),
     path("update", update, name="update"), 
+    path("create_month", create_month, name="create_month"),
     ]
