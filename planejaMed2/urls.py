@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from core.views import dashboard
+from user_requests.views import calendar
 
 
 urlpatterns = [
@@ -24,5 +24,5 @@ urlpatterns = [
     path('', include('core.urls')),
     path('shifts/', include('shifts.urls')),
     path('requests/', include('user_requests.urls')),
-    path('', dashboard, name='home'),
+    path('', calendar, name='home'),
 ]
