@@ -25,6 +25,19 @@
           <a class="nav-link" aria-current="page" href="#">Benefícios</a>
         </li>
 
+        {% if user.is_staff %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Bases
+          </a>
+          <ul class="dropdown-menu">
+            {% for center in centers %}
+            <li><a class="dropdown-item" href="#">{{ center }}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+        {% endif %}
+
         {% if user.is_superuser %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
