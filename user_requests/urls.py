@@ -1,6 +1,8 @@
 from django.urls import path
+from .views import calendar
 
+app_name = "requests"
 
-app_name = "user_requests"
-
-urlpatterns = []
+urlpatterns = [
+    path("calendar/", calendar, name="calendar"),
+]
