@@ -23,5 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('shifts/', include('shifts.urls')),
+    path('user_requests/', include('user_requests.urls')),
     path('', dashboard, name='home'),
 ]
