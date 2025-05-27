@@ -1,9 +1,12 @@
-from django.contrib.auth.views import LoginView
-from django.contrib.auth import logout
-from django.shortcuts import redirect
-from django.urls import reverse_lazy
+import logging
 from django.views import View
+from django.urls import reverse_lazy
+from django.shortcuts import redirect
+from django.contrib.auth import logout
+from django.contrib.auth.views import LoginView
 
+logger = logging.getLogger(__name__)
+print("nm", logger)
 
 class CustomLoginView(LoginView):
     template_name = "core/login.html"

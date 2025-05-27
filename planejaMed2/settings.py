@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -136,3 +137,64 @@ LOGIN_URL = "core:login"
 LOGIN_REDIRECT_URL = "home"  # Adjust to your main page
 LOGOUT_REDIRECT_URL = "core:login"
 
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+os.makedirs(LOG_DIR, exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    
+    'handlers': {
+        'core_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'core.log'),
+            'formatter': 'verbose',
+        },
+        'shifts_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'shifts.log'),
+            'formatter': 'verbose',
+        },
+        'user_requests_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'user_requests.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    
+    'loggers': {
+        'shifts': {  # your custom app
+            'handlers': ['shifts_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'core': {  # your custom app
+            'handlers': ['core_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'user_requests': {  # your custom app
+            'handlers': ['user_requests_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
