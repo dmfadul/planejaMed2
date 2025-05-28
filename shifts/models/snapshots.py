@@ -1,27 +1,28 @@
 from django.db import models
 from core.models import User
-from shifts.models.month import Month
+from shifts.models import Month, Center
 
 
-class AbstractShiftSnapshot(models.Model):
+class ShiftType(models.TextChoices):
+    BASE = 'base', 'Base'
+    ORIGINAL = 'original', 'Original'
+    REALIZED = 'realized', 'Realized'
+
+
+class ShiftSnapshot(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    center = models.ForeignKey(Center, on_delete=models.CASCADE, related_name='shiftsnapshots')
+    month = models.ForeignKey(Month, on_delete=models.CASCADE, related_name='shiftsnapshots')
     start_time = models.IntegerField()
     end_time = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    weekday = models.IntegerField(null=True, blank=True)
+    index = models.IntegerField(null=True, blank=True)
+    day = models.IntegerField(null=True, blank=True)
+    type = models.CharField(max_length=10, choices=ShiftType.choices)
 
     class Meta:
-        abstract = True
-
-
-class TemplateShiftSnapshot(AbstractShiftSnapshot):
-    center = models.ForeignKey('Center', on_delete=models.CASCADE, related_name='center_base_snapshots')
-    weekday = models.IntegerField()
-    index = models.IntegerField()
-    month = models.ForeignKey(Month, on_delete=models.CASCADE, related_name='month_base_snapshots')
-
-
-
-class ShiftSnapshot(AbstractShiftSnapshot):
-    center = models.ForeignKey('Center', on_delete=models.CASCADE, related_name='center_shifts_snapshots')
-    month = models.ForeignKey(Month, on_delete=models.CASCADE, related_name='month_shift_snapshots')
-    day = models.IntegerField()
+        indexes = [
+            models.Index(fields=['center', 'month', 'type']),
+        ]
+    
