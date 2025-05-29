@@ -1,4 +1,6 @@
 from django.views import View
+from .models import MaintenanceMode
+from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.contrib.auth import logout
 from django.shortcuts import render, redirect
@@ -19,3 +21,7 @@ class CustomLogoutView(View):
 
 def maintenance_notice(request):
     return render(request, "core/maintenance.html")
+
+
+def maintenance_status(request):
+    return JsonResponse({'enabled': MaintenanceMode.is_enabled()})
