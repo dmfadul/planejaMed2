@@ -1,14 +1,21 @@
-body{
+/* ========== GLOBAL STYLES ========== */
+body {
     background-color: #7d7d99;
     font-family: 'Roboto', sans-serif;
     color: #e0e0e0;
 }
 
-.container.signin-container{
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+}
+
+/* ========== SIGN-IN CONTAINER STYLES ========== */
+.container.signin-container {
     margin-top: 10%;
 }
 
-.card.signin-card{
+.card.signin-card {
     padding: 40px 30px;
     background-color: #2c2c3e;
     border: none;
@@ -16,17 +23,18 @@ body{
     box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
 }
 
-img.signin-img{
+img.signin-img {
     display: block;
     margin: 0 auto;
 }
 
-form.signin-form{
+form.signin-form {
     max-width: 220px;
     margin: auto;
 }
 
-input.form-control{
+/* ========== INPUTS ========== */
+input.form-control {
     background-color: #1e1e2f;
     color: #e0e0e0;
     border: 1px solid #444;
@@ -37,17 +45,18 @@ input.form-control{
     width: 100%;
 }
 
-input.form-control::placeholder{
+input.form-control::placeholder {
     color: #e0e0e0;
 }
 
-input.form-control:focus{
+input.form-control:focus {
     border-color: #007bff;
     box-shadow: 0 0 5px #007bff;
     background-color: #2b2b40;
     color: white;
 }
 
+/* Autofill override */
 input:-webkit-autofill {
     background-color: #1e1e2f !important;
     -webkit-box-shadow: 0 0 0px 1000px #1e1e2f inset;
@@ -60,7 +69,8 @@ input:-webkit-autofill:focus {
     -webkit-text-fill-color: #ffffff;
 }
 
-button.signin-btn{
+/* ========== BUTTONS ========== */
+button.signin-btn {
     color: white;
     background-color: #007bff;
     width: 100%;
@@ -69,11 +79,11 @@ button.signin-btn{
     transition: background-color 0.3s ease;
 }
 
-
 button.signin-btn:hover {
     background-color: #0579ed;
 }
 
+/* ========== PASSWORD TOGGLE ========== */
 .toggle-password {
     position: absolute;
     top: 50%;
@@ -89,30 +99,26 @@ button.signin-btn:hover {
     transform: translateY(-50%) scale(1.2);
 }
 
-
 @media (max-width: 768px) {
     .toggle-password {
         width: 18px;
     }
 }
 
+/* ========== TABLE STYLES ========== */
+.table-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    max-height: 750px;
+    position: relative;
+    width: 100%;
+}
 
-
-
-/* table css */
 table {
     user-select: none;
     cursor: default;
-}
-
-.table-wrapper {
-    max-height: 900px;
-    overflow-y: auto;
-    overflow-x: auto;
-    position: relative;
-}
-
-.table {
+    width: max-content;
+    min-width: 100%;
     table-layout: fixed;
 }
 
@@ -121,21 +127,22 @@ thead th {
     text-align: center;
 }
 
-/* First header row */
+/* Sticky headers */
 thead tr:nth-child(1) th {
     position: sticky;
-    top: 0;          /* Sticks to the top of the scrolling container */
-    z-index: 10;      /* Ensures it stays above table content */
+    top: 0;
+    z-index: 10;
 }
 
-/* Second header row */
 thead tr:nth-child(2) th {
     position: sticky;
-    top: 40px;       /* Sticks 40px below the top; adjust based on first row height */
-    z-index: 10;      /* Same z-index as first row, since they won’t overlap */
+    top: 40px;
+    z-index: 10;
 }
 
-th.first-col, td.first-col {
+/* Sticky first column */
+th.first-col,
+td.first-col {
     position: sticky;
     left: 0;
     background-color: #e9ecef;
@@ -143,21 +150,27 @@ th.first-col, td.first-col {
     width: 255px;
 }
 
-th.normal-col, td.normal-col {
+/* Other columns */
+th.normal-col,
+td.normal-col {
     width: 50px;
     text-align: center;
 }
 
-#corner1, #corner2 {
+/* Special elements */
+#corner1,
+#corner2 {
     z-index: 15;
 }
 
-.sticky-div-1, .sticky-div-2 {
+.sticky-div-1,
+.sticky-div-2 {
     position: sticky;
     top: 0;
     z-index: 4;
 }
 
+/* Misc */
 .crm-info {
     font-size: 0.8em;
     color: #007bff;
@@ -165,9 +178,9 @@ th.normal-col, td.normal-col {
     margin-left: 5px;
 }
 
-.first-col  a {
+.first-col a {
     text-decoration: none;
-    color: inherit; /* Matches the color of the surrounding text */
+    color: inherit;
 }
 
 .name-col:hover {
@@ -175,7 +188,7 @@ th.normal-col, td.normal-col {
 }
 
 .editing-active {
-    background-color: #0d6efd; /* Bootstrap primary blue */
+    background-color: #0d6efd;
     color: white;
     border-color: #0d6efd;
 }
