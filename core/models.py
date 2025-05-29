@@ -67,3 +67,15 @@ class User(AbstractBaseUser, PermissionsMixin):
             return self.alias
         
         return f"{self.name.split()[0]} {self.name.split()[-1]}"
+    
+class MaintenanceMode(models.Model):
+    enabled = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "Maintenance Mode" if self.enabled else "Normal Mode"
+    
+    @classmethod
+    def is_enabled(cls):
+        """Check if maintenance mode is enabled."""
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj.enabled
