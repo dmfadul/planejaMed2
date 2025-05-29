@@ -40,7 +40,7 @@ def doctor_basetable(request, center_abbr, crm):
     return render(request, "shifts/table.html", context)
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+@user_passes_test(lambda u: u.is_superuser)
 @require_POST
 def update(request):
     try:
@@ -50,7 +50,7 @@ def update(request):
         return JsonResponse({"error": str(e)}, status=400)
 
 
-@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+@user_passes_test(lambda u: u.is_superuser)
 def create_month(request):
     if request.method == "POST":
         print("Creating month...")

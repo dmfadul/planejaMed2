@@ -47,8 +47,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_invisible = models.BooleanField(default=False)
 
     is_manager = models.BooleanField(default=False) # For vacation control
-    is_staff = models.BooleanField(default=False) # For admin access. Equivalent to is_admin
-    is_superuser = models.BooleanField(default=False) # Should be cced on all messages
+    is_staff = models.BooleanField(default=False) # == is_root. Gives access to admin panel.
+    is_superuser = models.BooleanField(default=False) # == is_admin. Should be cced on all messages
 
     date_joined = models.DateTimeField(default='2020-01-01')
     compliant_since = models.DateField(null=True, blank=True)
