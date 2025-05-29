@@ -1,36 +1,47 @@
 <!-- templates/maintenance.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Site Under Maintenance</title>
+    <title>Estamos dando um trato no sistema!</title>
     <style>
         body {
-            font-family: sans-serif;
-            background-color: #f8f9fa;
+            font-family: "Segoe UI", sans-serif;
+            background-color: #fefefe;
             text-align: center;
             padding: 5rem;
-        }
-        .container {
-            background: white;
-            padding: 3rem;
-            border-radius: 8px;
-            box-shadow: 0 0 10px #ccc;
-            display: inline-block;
-        }
-        h1 {
             color: #333;
         }
+        .container {
+            background: #fff;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: inline-block;
+            max-width: 500px;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 1rem;
+        }
         p {
-            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 2rem;
+        }
+        .emoji {
+            font-size: 3rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚧 Site Em Manutenção</h1>
-        <p>Estamos executando uma manutenção programada. Por favor, retorne mais tarde.</p>
+        <div class="emoji">🛠️🤖☕</div>
+        <h1>Estamos dando um trato no sistema!</h1>
+        <p>Nossos bits estão tomando um café, e os engenheiros estão brigando com os servidores.</p>
+        <p>Volte em alguns instantes para ver tudo funcionando melhor que nunca!</p>
+        <p><em>(Esta página se atualizará automaticamente assim que a manutenção terminar)</em></p>
     </div>
+
     <script>
         setInterval(() => {
             fetch("{% url 'core:maintenance_status' %}")
@@ -40,7 +51,7 @@
                         window.location.href = "/";
                     }
                 });
-        }, 5000); // checa a cada 5 segundos
+        }, 5000);
     </script>
 </body>
 </html>
