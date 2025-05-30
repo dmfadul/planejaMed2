@@ -1,6 +1,6 @@
 from .models import TemplateShift as TS
 from collections import defaultdict
-from core.constants import DIAS_SEMANA
+from core.constants import DIAS_SEMANA, SHIFT_CODES
 
 
 def gen_headers(template, month=None):
@@ -66,10 +66,15 @@ def translate_to_table(shifts:list) -> dict:
 
     output = {}
     for dict_key, hours in shifts_per_day.items():
-        code = ""
+        code_lst = []
         for hour in hours:
-            code += TS.convert_to_code(*hour)
+            code_lst.append(TS.convert_to_code(*hour))
         
+        code_order = SHIFT_CODES
+        order_map = {val: idx for idx, val in enumerate(code_order)}
+        code_lst.sort(key=lambda x: order_map.get(x, len(code_order)))
+        code = "".join(code_lst)
+
         if isinstance(dict_key, tuple):
             cell_id = f"cell-{crm}-{dict_key[0]}-{dict_key[1]}"
         else:
