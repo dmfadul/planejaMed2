@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import now
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
@@ -50,7 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False) # == is_root. Gives access to admin panel.
     is_superuser = models.BooleanField(default=False) # == is_admin. Should be cced on all messages
 
-    date_joined = models.DateTimeField(default='2020-01-01')
+    date_joined = models.DateTimeField(default=now)
     compliant_since = models.DateField(null=True, blank=True)
 
     objects = UserManager()
