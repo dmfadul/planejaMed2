@@ -21,7 +21,16 @@ class TestTemplateShift(TestCase):
             assert TemplateShift.convert_to_hours(key) == (start, end)
 
     def test_convert_to_code_exact_match(self):
+        assert TemplateShift.convert_to_code(7, 6) == "dn"
+        assert TemplateShift.convert_to_code(7, 1) == "dc"
+        assert TemplateShift.convert_to_code(7, 19) == "d"
+        assert TemplateShift.convert_to_code(19, 6) == "n"
         assert TemplateShift.convert_to_code(7, 13) == "m"
+        assert TemplateShift.convert_to_code(13, 19) == "t"
+        assert TemplateShift.convert_to_code(19, 1) == "c"
+        assert TemplateShift.convert_to_code(1, 6) == "v"
+        assert TemplateShift.convert_to_code(13, 6) == "tn"
+        assert TemplateShift.convert_to_code(13, 1) == "tc"
 
     def test_convert_to_code_partial(self):
         assert TemplateShift.convert_to_code(7, 12) == "d5"
