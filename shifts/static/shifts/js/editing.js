@@ -36,7 +36,7 @@ function toggleEditing() {
     const editButtons = document.getElementById('edit-buttons');
 
     if (state.editing) {
-        editButton.textContent = "Finalizar";
+        editButton.textContent = "Editar";
         editButton.classList.add("editing-active");
         defaultButtons.style.display = "none";
         editButtons.style.display = "flex"; // flex or block, depending on layout
@@ -61,7 +61,7 @@ function restoreUI() {
     const editButtons = document.getElementById('edit-buttons');
 
     if (state.editing) {
-        editButton.textContent = "Finalizar";
+        editButton.textContent = "Editar";
         editButton.classList.add("editing-active");
         defaultButtons.style.display = "none";
         editButtons.style.display = "flex";
