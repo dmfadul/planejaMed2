@@ -1,6 +1,6 @@
 from django.db import models
 from core.models import User
-from core.constants import SHIFTS_MAP
+from core.constants import SHIFTS_MAP, VAMPIRE_END, MORNING_START
 
 
 class AbstractShift(models.Model):
@@ -67,9 +67,14 @@ class AbstractShift(models.Model):
     
     def merge(self, other_shift):
         """Merge two shifts, if they complement each other."""
-        
+        print(self, other_shift.start_time, other_shift.end_time)
+        day_break = VAMPIRE_END if VAMPIRE_END == MORNING_START else None
+
         # check if the shifts are adjacent (self -> other)
         if self.end_time == other_shift.start_time:
+            if day_break and self.end_time == day_break:
+                # shifts cannot be merged across day break
+                return -1
             self.end_time = other_shift.end_time
             self.save()
             other_shift.delete()
@@ -77,6 +82,9 @@ class AbstractShift(models.Model):
         
         # check if the shifts are adjacent (other -> self)
         if self.start_time == other_shift.end_time:
+            if day_break and self.start_time == day_break:
+                # shifts cannot be merged across day break
+                return -1
             self.start_time = other_shift.start_time
             self.save()
             other_shift.delete()
