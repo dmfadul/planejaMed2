@@ -40,6 +40,13 @@ def doctor_basetable(request, center_abbr, crm):
     return render(request, "shifts/table.html", context)
 
 
+@login_required
+def sum_days(request, center_abbr):
+    center = get_object_or_404(Center, abbreviation=center_abbr)
+    context = {"table_data": {}}
+
+    return render(request, "shifts/table.html", context)
+
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
 def update(request):
