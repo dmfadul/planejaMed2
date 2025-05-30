@@ -15,15 +15,6 @@
         {% endif %}
     </div>
 
-    <div class="ms-3">
-        {% if request.user.is_staff %}
-        <button type="button" id="edit-button" class="btn btn-outline-light btn-sm me-2"
-                onclick="toggleEditing()">
-            Editar
-        </button>
-        {% endif %}
-    </div>
-
     <div class="ms-3" id="default-buttons">
         {% if request.user.is_superuser %}
         <button type="button" class="btn btn-outline-light btn-sm me-2">Somar</button>
@@ -37,4 +28,15 @@
         <button type="button" id="edit-add-button" class="btn btn-outline-light btn-sm me-2 editing-active">Adicionar</button>
         <button type="button" id="edit-rem-button" class="btn btn-outline-light btn-sm editing-active">Remover</button>
     </div>
+
+    <div class="ms-3">
+        {% if request.user.is_staff %}
+        <button type="button" id="edit-button" class="btn btn-outline-light btn-sm me-2"
+                onclick="toggleEditing()">
+            Editar
+        </button>
+        {% endif %}
+    </div>
+
+
 </div>

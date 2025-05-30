@@ -61,6 +61,7 @@ function submitModalAdd() {
     });
 
     state['newValues'] = newValues;
+    saveState();
     bootstrap.Modal.getInstance(document.getElementById('modal_add')).hide();
 
     sendData();
