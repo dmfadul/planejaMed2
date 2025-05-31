@@ -34,16 +34,16 @@ class TestTemplateShift(TestCase):
 
     def test_convert_to_code_partial(self):
         assert TemplateShift.convert_to_code(7, 12) == "d5"
-
+       
     def test_template_shift_add_and_merge(self):
         user = User.objects.create_user(crm="12345", name="Test User", password="testpass")
         center = Center.objects.create(abbreviation="HUEM")
-        shift1 = TemplateShift.add(user, center, 0, 1, 7, 13)
-        shift2 = TemplateShift.add(user, center, 0, 1, 13, 19)  # Should merge with shift1
+        shift1 = TemplateShift.add(user, center, 0, 1, 7, 6)
+        shift2 = TemplateShift.add(user, center, 0, 1, 6, 7)  # Should merge with shift1
 
         assert TemplateShift.objects.count() == 1
         assert TemplateShift.objects.first().start_time == 7
-        assert TemplateShift.objects.first().end_time == 19
+        assert TemplateShift.objects.first().end_time == 7
 
     def test_template_conflict(self):
         user = User.objects.create_user(crm="12345", name="Test User", password="testpass")

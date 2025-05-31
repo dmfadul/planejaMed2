@@ -1,6 +1,6 @@
 from django.db import models
 from core.models import User
-from core.constants import SHIFTS_MAP, VAMPIRE_END, MORNING_START
+from core.constants import SHIFTS_MAP, HOUR_RANGE
 
 
 class AbstractShift(models.Model):
@@ -65,30 +65,33 @@ class AbstractShift(models.Model):
         
         return output
     
-    def merge(self, other_shift):
-        """Merge two shifts, if they complement each other."""
-        print(self, other_shift.start_time, other_shift.end_time)
-        day_break = VAMPIRE_END if VAMPIRE_END == MORNING_START else None
 
-        # check if the shifts are adjacent (self -> other)
-        if self.end_time == other_shift.start_time:
-            if day_break and self.end_time == day_break:
-                # shifts cannot be merged across day break
+    @classmethod
+    def merge(cls, shift1, shift2):
+        """Merge two shifts, if they complement each other.
+        Delete input shifts and returns the merged shift, if merge is possible
+        or return -1 if merge is not possible.
+        """
+        custom_order = HOUR_RANGE
+
+        hour_list_1 = shift1.hour_list
+        hour_list_2 = shift2.hour_list
+        merged_hours = list(set(hour_list_1) | set(hour_list_2))
+        merged_hours.sort(key=lambda x: custom_order.index(x))
+
+        # check if the merged hours are continuous
+        for i in range(len(merged_hours) - 1):
+            if custom_order.index(merged_hours[i]) + 1 != custom_order.index(merged_hours[i + 1]):
                 return -1
-            self.end_time = other_shift.end_time
-            self.save()
-            other_shift.delete()
-            return self
         
-        # check if the shifts are adjacent (other -> self)
-        if self.start_time == other_shift.end_time:
-            if day_break and self.start_time == day_break:
-                # shifts cannot be merged across day break
-                return -1
-            self.start_time = other_shift.start_time
-            self.save()
-            other_shift.delete()
-            return self
-
-        return -1
+        merged_shift = cls(
+            user=shift1.user,
+            center=shift1.center,
+            weekday=shift1.weekday,
+            index=shift1.index,
+            start_time=merged_hours[0],
+            end_time=merged_hours[-1] + 1 # +1 to include the last hour in the range
+        )
+        
+        return merged_shift
     

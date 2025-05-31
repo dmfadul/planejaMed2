@@ -24,14 +24,18 @@ class TemplateShift(AbstractShift):
             index=week_index,
         ).all()
 
-        for shift in existing_shifts:
-            if not set(shift.hour_list).isdisjoint(new_shift.hour_list):
+        for old_shift in existing_shifts:
+            if not set(old_shift.hour_list).isdisjoint(new_shift.hour_list):
                 raise ValueError(
-                    f"Conflito - {shift.user.name} já tem esse horário na base {shift.center.abbreviation}"
+                    f"Conflito - {old_shift.user.name} já tem esse horário na base {old_shift.center.abbreviation}"
                 )
 
-            if shift.center == new_shift.center:
-                new_shift.merge(shift)
+            if old_shift.center == new_shift.center:
+                merged_shift = cls.merge(old_shift, new_shift)
+                if merged_shift != -1:
+                    # If the merge was successful, delete the old shift
+                    old_shift.delete()
+                    new_shift = merged_shift
         
         new_shift.save()          
         return new_shift
