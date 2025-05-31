@@ -17,7 +17,7 @@
 
     <div class="ms-3" id="default-buttons">
         {% if request.user.is_superuser %}
-        <button type="button" class="btn btn-outline-light btn-sm me-2">Somar</button>
+        <button id="sum-hours-button" type="button" class="btn btn-outline-light btn-sm me-2">Somar</button>
         {% endif %}
         {% if table_data.template != "basetable" or table_data.template != "monthtable" %}
         <button type="button" class="btn btn-outline-light btn-sm">Relatório</button>
