@@ -19,6 +19,9 @@ def gen_headers(template, month=None):
             header1.append({"cellID": i, "label": i})
     
     elif template == "basetable" or template == "sum_days_base":
+        if template == "sum_days_base":
+            weekdays = [""] + [x[0] for x in weekdays[1:]]
+
         for i, day in enumerate(weekdays):
             if i == 0:
                 header1.append({"cellID": "corner1", "label": ""})
