@@ -2,11 +2,13 @@ function renderTable(tableData){
     const table = document.getElementById('shift-table');
     table.innerHTML = ''; // Clear any previous content
 
-    if (["basetable", "month_table", "sum_days_base", "sum_days_month"].includes(tableData.template)) {
+    if (["basetable", "month_table"].includes(tableData.template)) {
         renderNormalTable(tableData, table);
+    } else if (["sum_days_base", "sum_days_month"].includes(tableData.template)){ 
+        renderSumTable(tableData, table);
     } else if (tableData.template === "doctor_basetable") {
         renderDoctorTable(tableData, table);
-    }
+    } 
 }
 
 function renderHeaders(data, table, twoHeaders=true) {
@@ -99,6 +101,39 @@ function renderDoctorTable(data, table) {
             td.id = cellId;
             td.className = 'normal-col cell-col';
             td.textContent = tableData.doctor.shifts[cellId] || '';
+            tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+}
+
+function renderSumTable(data, table) {
+    // Create the header of the table
+    renderHeaders(data, table, true);
+    
+    // Create the body of the table
+    const tbody = document.createElement('tbody');
+    data.doctors.forEach(doctor => {
+        const tr = document.createElement('tr');
+
+        const nameTd = document.createElement('td');
+        nameTd.className = 'first-col name-col';
+        nameTd.id = doctor.crm;
+        nameTd.style.cursor = "pointer";
+        nameTd.textContent = doctor.abbr_name;
+        nameTd.title = `${doctor.name} - ${doctor.crm}`;
+        
+        tr.appendChild(nameTd);
+
+        data.header1.slice(1).forEach(cell => {
+            const cellId = `cell-${doctor.crm}-${cell.cellID}`;
+            const td = document.createElement('td');
+            td.id = cellId;
+            td.className = 'normal-col cell-col';
+            td.textContent = doctor.shifts[cellId] || '';
             tr.appendChild(td);
         });
 
