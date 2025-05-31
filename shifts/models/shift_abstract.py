@@ -107,5 +107,4 @@ class AbstractShift(models.Model):
             elif hour in night_range:
                 hours_count["night"] += 1
 
-        print(self.hour_list, self.weekday, self.index, self.user, self.start_time, self.end_time)
         return hours_count

@@ -20,6 +20,9 @@ function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
         th.id = cell.cellID;
         if (idx === 0) th.classList.add('first-col', 'corner');
         else th.classList.add('normal-col', 'header');
+        if (showTitle) {
+            th.title = cell.title || '';
+        }
         row1.appendChild(th);
     });
 
@@ -33,9 +36,6 @@ function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
             th.id = cell.cellID;
             if (idx === 0) th.classList.add('first-col', 'corner');
             else th.classList.add('normal-col', 'header');
-            if (showTitle) {
-                th.title = "teste";
-            }
             row2.appendChild(th);
         });
         
