@@ -12,7 +12,6 @@ class AbstractShift(models.Model):
     class Meta:
         abstract = True
 
-
     @property
     def hour_list(self) -> list:
         """Returns a list of hours from start to end, wrapping around midnight if needed."""
@@ -95,3 +94,17 @@ class AbstractShift(models.Model):
         
         return merged_shift
     
+
+    def get_hours_count(self):
+        shifts_map = SHIFTS_MAP
+        day_range = self.gen_hour_list(*shifts_map['d'])
+        night_range = self.gen_hour_list(*shifts_map['n'])
+
+        hours_count = {"day": 0, "night": 0}
+        for hour in self.hour_list:
+            if hour in day_range:
+                hours_count["day"] += 1
+            elif hour in night_range:
+                hours_count["night"] += 1
+
+        return hours_count

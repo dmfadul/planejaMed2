@@ -1,8 +1,9 @@
 from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA
-from .models import TemplateShift as TS
 from .utils import translate_to_table, gen_headers
+from .models import Month, Shift, TemplateShift
+from .models import TemplateShift as TS
+from collections import defaultdict
 from core.models import User
-from .models import Month, Shift
 
 
 def build_table_data(center, table_type, template, doctor=None, month=None):
@@ -41,9 +42,17 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
         return build_sumtable(center, table_data, template=template)
 
 
-def build_sumtable(center, table_data, template):
+def build_sumtable(center, table_data, template, month=None):
     if template == "sum_days_base":
-        print("Building sum_days_base table")
+        base_shifts = TemplateShift.objects.filter(center=center)
+        hours_by_day = defaultdict(lambda: {"day": 0, "night": 0})
+        for bs in base_shifts:
+            bs_hours = bs.get_hours_count()
+
+            hours_by_day[(bs.weekday, bs.index)]["day"] += bs_hours.get("day")
+            hours_by_day[(bs.weekday, bs.index)]["night"] += bs_hours.get("night")
+
+        print(hours_by_day)
     return table_data
 
 
