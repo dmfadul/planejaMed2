@@ -34,10 +34,15 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
         return build_basetable(center, table_data, template=template)
     
     if template == "sum_days_base":
-        return sumtable(table_data)
-    
-def sumtable(table_data):
+        table_data["header1"], table_data["header2"] = gen_headers(template)
+        return build_sumtable(center, table_data, template=template)
+
+
+def build_sumtable(center, table_data, template):
+    if template == "sum_days_base":
+        print("c", center)
     return table_data
+
 
 def build_basetable(center, table_data, template=None):
     doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
