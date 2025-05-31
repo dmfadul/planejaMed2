@@ -1,5 +1,5 @@
 function renderTable(tableData){
-    if (tableData.template === "basetable" || tableData.template === "month_table") {
+    if (["basetable", "month_table", "sum_days_base", "sum_days_month"].includes(tableData.template)) {
         renderNormalTable(tableData);
     } else if (tableData.template === "doctor_basetable") {
         renderDoctorTable(tableData);

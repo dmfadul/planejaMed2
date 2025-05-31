@@ -4,22 +4,22 @@ from core.constants import DIAS_SEMANA, SHIFT_CODES
 
 
 def gen_headers(template, month=None):
-    dias_semana = [x[:3] for x in DIAS_SEMANA]
     """Generate headers for the table according to template."""
+
+    dias_semana = [x[:3] for x in DIAS_SEMANA]
+    weekdays = [""] + dias_semana * 5
+    indeces = [""] + [((x - 1) // 7) + 1 for x in range(1, 36)]
+    header1, header2 = [], []
+
     if template == "doctor_basetable":
-        header = []
         for i in range(6):
             if i == 0:
-                header.append({"cellID": 'corner1', "label": ""})
+                header1.append({"cellID": 'corner1', "label": ""})
                 continue
-            header.append({"cellID": i, "label": i})
-        return header, []
+            header1.append({"cellID": i, "label": i})
+        return header1, header2
     
     elif template == "basetable":
-        weekdays = [""] + dias_semana * 5
-        indeces = [""] + [((x - 1) // 7) + 1 for x in range(1, 36)]
-
-        header1, header2 = [], []
         for i, day in enumerate(weekdays):
             if i == 0:
                 header1.append({"cellID": "corner1", "label": ""})
@@ -35,7 +35,6 @@ def gen_headers(template, month=None):
         if month is None:
             raise ValueError("Month must be provided for month_table template.")
         
-        header1, header2 = [], []
         for i, date in enumerate(month.gen_date_row()):
             if i == 0:
                 header1.append({"cellID": "corner1", "label": ""})
@@ -45,6 +44,17 @@ def gen_headers(template, month=None):
             header1.append({"cellID": f"wday-{date.day}", "label": dias_semana[date.weekday()]})
             header2.append({"cellID": f"mday-{date.day}", "label": date.day})
 
+        return header1, header2
+    
+    elif template == "sum_days_base":
+        for i, day in enumerate(weekdays):
+            if i == 0:
+                header1.append({"cellID": "corner1", "label": ""})
+                header2.append({"cellID": "corner2", "label": ""})
+                continue
+
+            header1.append({"cellID": f"{(i-1)%7}-{indeces[i]}", "label": day})
+            header2.append({"cellID": f"index-{indeces[i]}", "label": indeces[i]})
 
         return header1, header2
     

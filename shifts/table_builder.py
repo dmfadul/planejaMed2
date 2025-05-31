@@ -36,14 +36,14 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
         return build_basetable(center, table_data, template=template)
     
     if template == "sum_days_base":
-        # table_data["header1"], table_data["header2"] = gen_headers(template)
+        table_data["header1"], table_data["header2"] = gen_headers(template)
         table_data["show_back_button"] = 1
         return build_sumtable(center, table_data, template=template)
 
 
 def build_sumtable(center, table_data, template):
     if template == "sum_days_base":
-        print("c", center)
+        print("Building sum_days_base table")
     return table_data
 
 
