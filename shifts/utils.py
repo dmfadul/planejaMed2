@@ -17,9 +17,8 @@ def gen_headers(template, month=None):
                 header1.append({"cellID": 'corner1', "label": ""})
                 continue
             header1.append({"cellID": i, "label": i})
-        return header1, header2
     
-    elif template == "basetable":
+    elif template == "basetable" or template == "sum_days_base":
         for i, day in enumerate(weekdays):
             if i == 0:
                 header1.append({"cellID": "corner1", "label": ""})
@@ -28,8 +27,6 @@ def gen_headers(template, month=None):
 
             header1.append({"cellID": f"{(i-1)%7}-{indeces[i]}", "label": day})
             header2.append({"cellID": f"index-{indeces[i]}", "label": indeces[i]})
-
-        return header1, header2
 
     elif template == "month_table":
         if month is None:
@@ -44,19 +41,7 @@ def gen_headers(template, month=None):
             header1.append({"cellID": f"wday-{date.day}", "label": dias_semana[date.weekday()]})
             header2.append({"cellID": f"mday-{date.day}", "label": date.day})
 
-        return header1, header2
-    
-    elif template == "sum_days_base":
-        for i, day in enumerate(weekdays):
-            if i == 0:
-                header1.append({"cellID": "corner1", "label": ""})
-                header2.append({"cellID": "corner2", "label": ""})
-                continue
-
-            header1.append({"cellID": f"{(i-1)%7}-{indeces[i]}", "label": day})
-            header2.append({"cellID": f"index-{indeces[i]}", "label": indeces[i]})
-
-        return header1, header2
+    return header1, header2
     
 
 def translate_to_table(shifts:list) -> dict:
