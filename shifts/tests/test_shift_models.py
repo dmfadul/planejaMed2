@@ -35,25 +35,80 @@ class TestTemplateShift(TestCase):
     def test_convert_to_code_partial(self):
         assert TemplateShift.convert_to_code(7, 12) == "d5"
        
-    def test_template_shift_add_and_merge(self):
+    def test_template_shift_merging_various_cases(self):
         user = User.objects.create_user(crm="12345", name="Test User", password="testpass")
         center = Center.objects.create(abbreviation="HUEM")
-        shift1 = TemplateShift.add(user, center, 0, 1, 7, 6)
-        shift2 = TemplateShift.add(user, center, 0, 1, 6, 7)  # Should merge with shift1
 
+        # Base shift
+        shift1 = TemplateShift.add(user, center, 0, 1, 7, 13)
+
+        # Overlapping shift
+        shift2 = TemplateShift.add(user, center, 0, 1, 9, 12)
         assert TemplateShift.objects.count() == 1
-        assert TemplateShift.objects.first().start_time == 7
-        assert TemplateShift.objects.first().end_time == 7
+        shift = TemplateShift.objects.first()
+        assert shift.start_time == 7
+        assert shift.end_time == 13
 
-    def test_template_conflict(self):
+        # Adjacent shift
+        shift3 = TemplateShift.add(user, center, 0, 1, 13, 15)
+        assert TemplateShift.objects.count() == 1
+        shift = TemplateShift.objects.first()
+        assert shift.start_time == 7
+        assert shift.end_time == 15
+
+        # Non-overlapping shift (different weekday)
+        shift4 = TemplateShift.add(user, center, 1, 1, 7, 8)
+        assert TemplateShift.objects.count() == 2  # new shift added
+        shifts = TemplateShift.objects.filter(weekday=1)
+        assert shifts.count() == 1
+        assert shifts.first().start_time == 7
+        assert shifts.first().end_time == 8
+
+        # New set of tests
+        TemplateShift.objects.all().delete()
+        shift1 = TemplateShift.add(user, center, 0, 1, 15, 2)
+
+        # Midnight wraparound shift
+        shift5 = TemplateShift.add(user, center, 0, 1, 8, 16)
+        assert TemplateShift.objects.count() == 1
+        shift = TemplateShift.objects.first()
+        assert shift.start_time == 8
+        assert shift.end_time == 2
+
+        # Overlapping with midnight shift
+        shift6 = TemplateShift.add(user, center, 0, 1, 23, 7)
+        assert TemplateShift.objects.count() == 1
+        shift = TemplateShift.objects.first()
+        assert shift.start_time == 8
+        assert shift.end_time == 7
+
+        # Crossing day-break
+        shift7 = TemplateShift.add(user, center, 0, 1, 7, 8)
+        assert TemplateShift.objects.count() == 1
+        shift = TemplateShift.objects.first()
+        assert shift.start_time == 7
+        assert shift.end_time == 7
+
+
+    def test_other_center_conflict(self):
         user = User.objects.create_user(crm="12345", name="Test User", password="testpass")
         center1 = Center.objects.create(abbreviation="HUEM")
         center2 = Center.objects.create(abbreviation="HUEC")
         TemplateShift.add(user, center1, 1, 3, 7, 13)
 
-        with pytest.raises(ValueError):
-            TemplateShift.add(user, center1, 1, 3, 12, 14)  # Overlapping
         with pytest.raises(ValueError): 
             TemplateShift.add(user, center2, 1, 3, 12, 14)
+    
+    
+    def test_other_center_no_conflict(self):
+        user = User.objects.create_user(crm="12345", name="Test User", password="testpass")
+        center1 = Center.objects.create(abbreviation="HUMM")
+        center2 = Center.objects.create(abbreviation="HUCC")
         
+        base_shift = TemplateShift.add(user, center1, 1, 3, 7, 13)
 
+        assert TemplateShift.objects.count() == 1
+
+        other_shift = TemplateShift.add(user, center2, 1, 3, 13, 19)
+        
+        assert TemplateShift.objects.count() == 2

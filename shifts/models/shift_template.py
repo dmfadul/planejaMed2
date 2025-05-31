@@ -25,11 +25,12 @@ class TemplateShift(AbstractShift):
         ).all()
 
         for old_shift in existing_shifts:
-            if not set(old_shift.hour_list).isdisjoint(new_shift.hour_list):
+            shifts_overlap = not set(old_shift.hour_list).isdisjoint(set(new_shift.hour_list))
+            if shifts_overlap and not old_shift.center == new_shift.center:
                 raise ValueError(
-                    f"Conflito - {old_shift.user.name} já tem esse horário na base {old_shift.center.abbreviation}"
+                    f"Conflito - {old_shift.user.name} já tem esse horário no centro {old_shift.center.abbreviation}"
                 )
-
+            
             if old_shift.center == new_shift.center:
                 merged_shift = cls.merge(old_shift, new_shift)
                 if merged_shift != -1:
