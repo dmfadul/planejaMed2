@@ -32,7 +32,12 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
         table_data["month"] = month.number
         table_data["year"] = month.year
         return build_basetable(center, table_data, template=template)
-
+    
+    if template == "sum_days_basetable":
+        return sumtable(table_data)
+    
+def sumtable(table_data):
+    return table_data
 
 def build_basetable(center, table_data, template=None):
     doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")

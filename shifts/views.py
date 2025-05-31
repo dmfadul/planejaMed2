@@ -43,7 +43,8 @@ def doctor_basetable(request, center_abbr, crm):
 @login_required
 def sum_days(request, center_abbr):
     center = get_object_or_404(Center, abbreviation=center_abbr)
-    context = {"table_data": {}}
+    table_data = build_table_data()
+    context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)
 
