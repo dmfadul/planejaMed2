@@ -17,10 +17,14 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
         "shift_codes": ["-"] + SHIFT_CODES,
         "hour_range": [f"{x:02d}:00" for x in HOUR_RANGE],
         "hour_values": {f"{x:02d}:00": x for x in HOUR_RANGE},
+        "show_back_button": 0,
+        "show_edit_buttons": 1,
     }
 
     if template == "doctor_basetable":
         table_data["header1"], table_data["header2"] = gen_headers(template)
+        table_data["show_back_button"] = 1
+        table_data["show_edit_buttons"] = 0
         return build_doctor_table(doctor, center, table_data)
     
     if template == "basetable":
@@ -34,7 +38,9 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
         return build_basetable(center, table_data, template=template)
     
     if template == "sum_days_base":
-        table_data["header1"], table_data["header2"] = gen_headers(template)
+        # table_data["header1"], table_data["header2"] = gen_headers(template)
+        table_data["show_back_button"] = 1
+        table_data["show_edit_buttons"] = 0
         return build_sumtable(center, table_data, template=template)
 
 
