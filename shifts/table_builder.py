@@ -45,14 +45,16 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
 def build_sumtable(center, table_data, template, month=None):
     if template == "sum_days_base":
         base_shifts = TemplateShift.objects.filter(center=center)
-        hours_by_day = defaultdict(lambda: {"day": 0, "night": 0})
+        hours_by_day = {}
         for bs in base_shifts:
+            if f"{bs.weekday}-{bs.index}" not in hours_by_day:
+                hours_by_day[f"{bs.weekday}-{bs.index}"] = {"day": 0, "night": 0}
             bs_hours = bs.get_hours_count()
 
-            hours_by_day[(bs.weekday, bs.index)]["day"] += bs_hours.get("day")
-            hours_by_day[(bs.weekday, bs.index)]["night"] += bs_hours.get("night")
+            hours_by_day[f"{bs.weekday}-{bs.index}"]["day"] += bs_hours.get("day")
+            hours_by_day[f"{bs.weekday}-{bs.index}"]["night"] += bs_hours.get("night")
 
-        print(hours_by_day)
+        table_data["days"] = hours_by_day
     return table_data
 
 

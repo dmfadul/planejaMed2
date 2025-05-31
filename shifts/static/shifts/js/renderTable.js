@@ -116,29 +116,29 @@ function renderSumTable(data, table) {
     
     // Create the body of the table
     const tbody = document.createElement('tbody');
-    data.doctors.forEach(doctor => {
-        const tr = document.createElement('tr');
 
+    [["DIA:", "day"], ["NOITE:", "night"]].forEach(name => {
+        const tr = document.createElement('tr');
         const nameTd = document.createElement('td');
         nameTd.className = 'first-col name-col';
-        nameTd.id = doctor.crm;
+        nameTd.id = name[1];
         nameTd.style.cursor = "pointer";
-        nameTd.textContent = doctor.abbr_name;
-        nameTd.title = `${doctor.name} - ${doctor.crm}`;
-        
+        nameTd.textContent = name[0];
         tr.appendChild(nameTd);
-
-        data.header1.slice(1).forEach(cell => {
-            const cellId = `cell-${doctor.crm}-${cell.cellID}`;
-            const td = document.createElement('td');
-            td.id = cellId;
-            td.className = 'normal-col cell-col';
-            td.textContent = doctor.shifts[cellId] || '';
-            tr.appendChild(td);
-        });
-
         tbody.appendChild(tr);
     });
+
+
+    data.header1.slice(1).forEach(cell => {
+        console.log(cell);
+        // const cellId = `cell-${doctor.crm}-${cell.cellID}`;
+        // const td = document.createElement('td');
+        // td.id = cellId;
+        // td.className = 'normal-col cell-col';
+        // td.textContent = doctor.shifts[cellId] || '';
+        // tr.appendChild(td);
+    });
+
 
     table.appendChild(tbody);
 }
