@@ -1,15 +1,15 @@
 function renderTable(tableData){
-    if (["basetable", "month_table", "sum_days_base", "sum_days_month"].includes(tableData.template)) {
-        renderNormalTable(tableData);
-    } else if (tableData.template === "doctor_basetable") {
-        renderDoctorTable(tableData);
-    }
-}
-
-function renderNormalTable(data) {
     const table = document.getElementById('shift-table');
     table.innerHTML = ''; // Clear any previous content
 
+    if (["basetable", "month_table", "sum_days_base", "sum_days_month"].includes(tableData.template)) {
+        renderNormalTable(tableData, table);
+    } else if (tableData.template === "doctor_basetable") {
+        renderDoctorTable(tableData, table);
+    }
+}
+
+function renderHeaders(data, table, twoHeaders=true) {
     const thead = document.createElement('thead');
     const row1 = document.createElement('tr');
     data.header1.forEach((cell, idx) => {
@@ -21,20 +21,31 @@ function renderNormalTable(data) {
         row1.appendChild(th);
     });
 
-    const row2 = document.createElement('tr');
-    data.header2.forEach((cell, idx) => {
-        const th = document.createElement('th');
-        th.textContent = cell.label;
-        th.id = cell.cellID;
-        if (idx === 0) th.classList.add('first-col', 'corner');
-        else th.classList.add('normal-col', 'header');
-        row2.appendChild(th);
-    });
-
     thead.appendChild(row1);
-    thead.appendChild(row2);
-    table.appendChild(thead);
 
+    if (twoHeaders) {
+        const row2 = document.createElement('tr');
+        data.header2.forEach((cell, idx) => {
+            const th = document.createElement('th');
+            th.textContent = cell.label;
+            th.id = cell.cellID;
+            if (idx === 0) th.classList.add('first-col', 'corner');
+            else th.classList.add('normal-col', 'header');
+            row2.appendChild(th);
+        });
+        
+        thead.appendChild(row2);
+    }
+
+    table.appendChild(thead);
+}
+
+
+function renderNormalTable(data, table) {
+    // Create the header of the table
+    renderHeaders(data, table, true);
+
+    // Create the body of the table
     const tbody = document.createElement('tbody');
     data.doctors.forEach(doctor => {
         const tr = document.createElement('tr');
@@ -64,24 +75,11 @@ function renderNormalTable(data) {
 }
 
 
-function renderDoctorTable(data) {
-    const table = document.getElementById('shift-table');
-    table.innerHTML = ''; // Clear any previous content
+function renderDoctorTable(data, table) {
+    // Create the header of the table
+    renderHeaders(data, table, false);
 
-    const thead = document.createElement('thead');
-    const row1 = document.createElement('tr');
-    data.header1.forEach((cell, idx) => {
-        const th = document.createElement('th');
-        th.textContent = cell.label;
-        th.id = cell.cellID;
-        if (idx === 0) th.classList.add('first-col', 'corner');
-        else th.classList.add('normal-col', 'header');
-        row1.appendChild(th);
-    });
-
-    thead.appendChild(row1);
-    table.appendChild(thead);
-
+    // Create the body of the table
     const tbody = document.createElement('tbody');
     data.weekdays.forEach(day => {
         const tr = document.createElement('tr');
