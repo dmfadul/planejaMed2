@@ -1,6 +1,6 @@
 from django.db import models
 from core.models import User
-from core.constants import SHIFTS_MAP, HOUR_RANGE
+from core.constants import SHIFTS_MAP, HOUR_RANGE, MORNING_START
 
 
 class AbstractShift(models.Model):
@@ -21,7 +21,7 @@ class AbstractShift(models.Model):
     @staticmethod
     def gen_hour_list(start:int, end:int) -> list:
         """Returns a list of hours from start to end, wrapping around midnight if needed."""
-        if start == end:
+        if start == end and start != MORNING_START:
             return [start]
         elif start < end:
             return list(range(start, end))
@@ -107,4 +107,5 @@ class AbstractShift(models.Model):
             elif hour in night_range:
                 hours_count["night"] += 1
 
+        print(self.hour_list, self.weekday, self.index, self.user, self.start_time, self.end_time)
         return hours_count
