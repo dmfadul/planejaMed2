@@ -11,7 +11,7 @@ function renderTable(tableData){
     } 
 }
 
-function renderHeaders(data, table, twoHeaders=true) {
+function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
     const thead = document.createElement('thead');
     const row1 = document.createElement('tr');
     data.header1.forEach((cell, idx) => {
@@ -33,6 +33,9 @@ function renderHeaders(data, table, twoHeaders=true) {
             th.id = cell.cellID;
             if (idx === 0) th.classList.add('first-col', 'corner');
             else th.classList.add('normal-col', 'header');
+            if (showTitle) {
+                th.title = "teste";
+            }
             row2.appendChild(th);
         });
         
@@ -112,12 +115,15 @@ function renderDoctorTable(data, table) {
 
 function renderSumTable(data, table) {
     // Create the header of the table
-    renderHeaders(data, table, true);
+    renderHeaders(data, table, true, true);
+    
+    const hours_by_day = data.days || [];
+    const first_col = [["DIA:", "day"], ["NOITE:", "night"]];
     
     // Create the body of the table
     const tbody = document.createElement('tbody');
 
-    [["DIA:", "day"], ["NOITE:", "night"]].forEach(name => {
+    first_col.forEach(name => {
         const tr = document.createElement('tr');
         const nameTd = document.createElement('td');
         nameTd.className = 'first-col name-col';
@@ -125,20 +131,17 @@ function renderSumTable(data, table) {
         nameTd.style.cursor = "pointer";
         nameTd.textContent = name[0];
         tr.appendChild(nameTd);
+
+        data.header1.slice(1).forEach(cell => {
+            const cellId = `cell-${name[1]}-${cell.cellID}`;
+            const td = document.createElement('td');
+            td.id = cellId;
+            td.className = 'normal-col cell-col';
+            td.textContent = hours_by_day[cell.cellID][name[1]] || 0;
+
+            tr.appendChild(td);
+        });
         tbody.appendChild(tr);
     });
-
-
-    data.header1.slice(1).forEach(cell => {
-        console.log(cell);
-        // const cellId = `cell-${doctor.crm}-${cell.cellID}`;
-        // const td = document.createElement('td');
-        // td.id = cellId;
-        // td.className = 'normal-col cell-col';
-        // td.textContent = doctor.shifts[cellId] || '';
-        // tr.appendChild(td);
-    });
-
-
     table.appendChild(tbody);
 }
