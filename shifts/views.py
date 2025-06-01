@@ -15,7 +15,14 @@ import json
 def month_table(request, center_abbr, month_num, year):
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month = get_object_or_404(Month, number=month_num, year=year)
-    table_data = build_table_data(center, "MONTH", "month_table", month=month)
+
+    table_data = build_table_data(
+        center=center,
+        table_type="MONTH",
+        template="month_table",
+        month=month
+    )
+
     context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)
@@ -24,7 +31,13 @@ def month_table(request, center_abbr, month_num, year):
 @login_required
 def basetable(request, center_abbr):
     center = get_object_or_404(Center, abbreviation=center_abbr)
-    table_data = build_table_data(center, "BASE", "basetable")
+
+    table_data = build_table_data(
+        center=center,
+        table_type="BASE",
+        template="basetable"
+    )
+    
     context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)
@@ -34,7 +47,14 @@ def basetable(request, center_abbr):
 def doctor_basetable(request, center_abbr, crm):    
     doctor = get_object_or_404(User, crm=crm)
     center = get_object_or_404(Center, abbreviation=center_abbr)
-    table_data = build_table_data(center, "BASE", "doctor_basetable", doctor)
+    
+    table_data = build_table_data(
+        center=center,
+        table_type="BASE",
+        template="doctor_basetable",
+        doctor=doctor
+    )
+    
     context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)
@@ -42,7 +62,11 @@ def doctor_basetable(request, center_abbr, crm):
 
 @login_required
 def sum_doctors_base(request):
-    table_data = build_table_data("HORAS-DIA (BASE)", "sum_days_base")
+    table_data = build_table_data(
+        table_type="HORAS-DIA (BASE)",
+        template="sum_days_base"
+    )
+
     context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)
@@ -56,7 +80,13 @@ def sum_doctors_month(request, month_num, year):
 @login_required
 def sum_days_base(request, center_abbr):
     center = get_object_or_404(Center, abbreviation=center_abbr)
-    table_data = build_table_data(center, "HORAS-DIA (BASE)", "sum_days_base")
+    
+    table_data = build_table_data(
+        center=center,
+        table_type="HORAS-DIA (BASE)",
+        template="sum_days_base"
+    )
+    
     context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)
@@ -66,7 +96,9 @@ def sum_days_base(request, center_abbr):
 def sum_days_month(request, center_abbr, month_num, year):
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month = get_object_or_404(Month, number=month_num, year=year)
+
     table_data = build_table_data()
+    
     context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)
