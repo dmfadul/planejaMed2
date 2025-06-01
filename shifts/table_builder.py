@@ -6,11 +6,11 @@ from collections import defaultdict
 from core.models import User
 
 
-def build_table_data(center, table_type, template, doctor=None, month=None):
+def build_table_data(table_type, template, center=None, doctor=None, month=None):
     table_data = {
         "header1": None,
         "header2": None,
-        "center": center.abbreviation,
+        "center": None,
         "month": 0,
         "year": 0,
         "table_type": table_type,
@@ -20,6 +20,8 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
         "hour_values": {f"{x:02d}:00": x for x in HOUR_RANGE},
         "show_back_button": 0,
     }
+    if center:
+        table_data["center"] = center.abbreviation
 
     if template == "doctor_basetable":
         table_data["header1"], table_data["header2"] = gen_headers(template)
