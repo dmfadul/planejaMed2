@@ -46,8 +46,25 @@ def gen_headers(template, month=None):
             header2.append({"cellID": f"mday-{date.day}", "label": date.day})
 
     elif template == "sum_doctors_base":
-        header1, header2 = [], []
+        centers = [None] + [
+            abbr for c in Center.objects.filter(is_active=True)
+            for abbr in [c.abbreviation, c.abbreviation]
+        ] + ["TOTAL", "TOTAL"]
 
+        for i, center_abbr in enumerate(centers):
+            if i == 0:
+                header1.append({"cellID": "corner1", "label": ""})
+                header2.append({"cellID": "corner2", "label": ""})
+                continue
+            
+
+            if i % 2 == 0:
+                hour_type = ("Plantão", "overtime")
+            else:
+                hour_type = ("Rotina", "normal")
+
+            header1.append({"cellID": f"{center_abbr}-{hour_type[1]}", "label": center_abbr})
+            header2.append({"cellID": f"{hour_type[1]}-{center_abbr}", "label": hour_type[0]})
 
     return header1, header2
     
