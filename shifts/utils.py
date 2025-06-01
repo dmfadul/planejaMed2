@@ -1,4 +1,5 @@
 from .models import TemplateShift as TS
+from .models import Center
 from collections import defaultdict
 from core.constants import DIAS_SEMANA, SHIFT_CODES
 
@@ -18,7 +19,7 @@ def gen_headers(template, month=None):
                 continue
             header1.append({"cellID": i, "label": i})
     
-    elif template == "basetable" or template == "sum_days_base":
+    elif template in ["basetable", "sum_days_base"]:
         if template == "sum_days_base":
             weekdays = [""] + [x[0] for x in weekdays[1:]]
 
@@ -43,6 +44,10 @@ def gen_headers(template, month=None):
             
             header1.append({"cellID": f"wday-{date.day}", "label": dias_semana[date.weekday()]})
             header2.append({"cellID": f"mday-{date.day}", "label": date.day})
+
+    elif template == "sum_doctors_base":
+        header1, header2 = [], []
+
 
     return header1, header2
     

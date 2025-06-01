@@ -22,12 +22,8 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
     }
     if center:
         table_data["center"] = center.abbreviation
-
-    if template == "doctor_basetable":
-        table_data["header1"], table_data["header2"] = gen_headers(template)
-        table_data["show_back_button"] = 1
-        return build_doctor_table(doctor, center, table_data)
     
+
     if template == "basetable":
         table_data["header1"], table_data["header2"] = gen_headers(template)
         return build_basetable(center, table_data)
@@ -38,6 +34,11 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
         table_data["year"] = month.year
         return build_basetable(center, table_data, template=template)
     
+    if template == "doctor_basetable":
+        table_data["header1"], table_data["header2"] = gen_headers(template)
+        table_data["show_back_button"] = 1
+        return build_doctor_table(doctor, center, table_data)
+    
     if template == "sum_days_base":
         table_data["header1"], table_data["header2"] = gen_headers(template)
         table_data["show_back_button"] = 1
@@ -47,7 +48,7 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
         return []
     
     if template == "sum_doctors_base":
-        # table_data["header1"], table_data["header2"] = gen_headers(template)
+        table_data["header1"], table_data["header2"] = gen_headers(template)
         table_data["center"] = ""
         return build_doctors_sumtable(table_data, template)
     
