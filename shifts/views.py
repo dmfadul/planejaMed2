@@ -63,8 +63,8 @@ def doctor_basetable(request, center_abbr, crm):
 @login_required
 def sum_doctors_base(request):
     table_data = build_table_data(
-        table_type="HORAS-DIA (BASE)",
-        template="sum_days_base"
+        table_type="HORAS-MÉDICO (BASE)",
+        template="sum_doctors_base"
     )
 
     context = {"table_data": table_data}
