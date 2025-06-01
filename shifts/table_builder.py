@@ -58,7 +58,15 @@ def build_sumtable(center, table_data, template, month=None):
             hours_by_day[f"{bs.weekday}-{bs.index}"]["day"] += bs_hours.get("day")
             hours_by_day[f"{bs.weekday}-{bs.index}"]["night"] += bs_hours.get("night")
 
+        # add zeroes for missing days
+        for i in range(7):
+            for j in range(1, 6):
+                key = f"{i}-{j}"
+                if key not in hours_by_day:
+                    hours_by_day[key] = {"day": 0, "night": 0}
+
         table_data["days"] = hours_by_day
+    
     return table_data
 
 
