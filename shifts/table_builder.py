@@ -57,6 +57,14 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
 
 
 def build_doctors_sumtable(table_data, template):
+    doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
+    table_data["doctors"] = []
+    for doctor in doctors:
+        shifts = {}
+        table_data["doctors"].append({"name": doctor.name,
+                                      "abbr_name": doctor.abbr_name,
+                                      "crm": doctor.crm,
+                                      "shifts": shifts,})
     return table_data
 
 

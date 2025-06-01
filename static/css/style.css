@@ -192,3 +192,7 @@ td.normal-col {
     color: white;
     border-color: #0d6efd;
 }
+
+th.first-col, td.first-col {
+    width: 150px;
+}

@@ -53,6 +53,7 @@ function renderNormalTable(data, table) {
     // Create the body of the table
     const tbody = document.createElement('tbody');
     data.doctors.forEach(doctor => {
+        const doctorIndex = data.doctors.indexOf(doctor) + 1; // Start index from 1 for display purposes
         const tr = document.createElement('tr');
 
         const nameTd = document.createElement('td');
@@ -60,7 +61,7 @@ function renderNormalTable(data, table) {
         nameTd.id = doctor.crm;
         nameTd.style.cursor = "pointer";
         nameTd.textContent = doctor.abbr_name;
-        nameTd.title = `${doctor.name} - ${doctor.crm}`;
+        nameTd.title = `${doctorIndex} - ${doctor.name} (${doctor.crm})`;
         
         tr.appendChild(nameTd);
 
