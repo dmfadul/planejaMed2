@@ -32,7 +32,7 @@
           </a>
           <ul class="dropdown-menu">
             {% for center in centers %}
-            <li><a class="dropdown-item" href="#">{{ center }}</a></li>
+            <li><a class="dropdown-item" href="{% url 'shifts:basetable' center_abbr=center %}">{{ center }}</a></li>
             {% endfor %}
           </ul>
         </li>
