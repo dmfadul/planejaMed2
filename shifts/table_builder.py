@@ -45,9 +45,6 @@ def build_table_data(center, table_type, template, doctor=None, month=None):
 def build_sumtable(center, table_data, template, month=None):
     if template == "sum_days_base":
         base_shifts = TemplateShift.objects.filter(center=center)
-        if not base_shifts:
-            table_data["days"] = {}
-            return table_data
         
         hours_by_day = {}
         for bs in base_shifts:
