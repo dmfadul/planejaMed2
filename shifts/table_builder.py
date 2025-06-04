@@ -65,6 +65,7 @@ def build_doctors_sumtable(table_data, template, month=None):
         else:
             all_shifts = Shift.objects.filter(user=doctor, month=month).all()
 
+        total_overtime, total_normal = 0, 0
         for s in all_shifts:
             cell_id_over = f"cell-{doctor.crm}-{s.center.abbreviation}-overtime"
             cell_id_norm = f"cell-{doctor.crm}-{s.center.abbreviation}-normal"
@@ -75,8 +76,12 @@ def build_doctors_sumtable(table_data, template, month=None):
                 shifts[cell_id_norm] = 0
 
             hours_dict = s.get_overtime_count()
+            
             shifts[cell_id_over] += hours_dict["overtime"]
             shifts[cell_id_norm] += hours_dict["normal"]      
+            
+            total_overtime += hours_dict["overtime"]
+            total_normal += hours_dict["normal"]
         
         # add zeroes for missing centers
         for center in Center.objects.filter(is_active=True).all():
@@ -87,14 +92,20 @@ def build_doctors_sumtable(table_data, template, month=None):
                 shifts[cell_id_over] = 0
             if cell_id_norm not in shifts:
                 shifts[cell_id_norm] = 0
-        # add zeroes for missing shifts
         
+        # add totals
+        cell_id_tot_over = f"cell-{doctor.crm}-TOTAL-overtime"
+        cell_id_tot_norm = f"cell-{doctor.crm}-TOTAL-normal"
+        
+        shifts[cell_id_tot_over] = total_overtime
+        shifts[cell_id_tot_norm] = total_normal
 
         table_data["doctors"].append({"name": doctor.name,
                                       "abbr_name": doctor.abbr_name,
                                       "crm": doctor.crm,
                                       "shifts": shifts,})
     
+    print(table_data["doctors"])
     return table_data
 
 
