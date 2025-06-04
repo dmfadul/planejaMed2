@@ -70,7 +70,13 @@ function renderNormalTable(data, table) {
             const td = document.createElement('td');
             td.id = cellId;
             td.className = 'normal-col cell-col';
-            td.textContent = doctor.shifts[cellId] || '';
+            let txtContent = null;
+            if (doctor.shifts[cellId] === undefined) {
+                txtContent = '';
+            } else {
+                txtContent = doctor.shifts[cellId];
+            }
+            td.textContent = txtContent;
             tr.appendChild(td);
         });
 

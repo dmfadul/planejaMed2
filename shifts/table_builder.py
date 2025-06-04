@@ -56,19 +56,45 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
 
 
 def build_doctors_sumtable(table_data, template, month=None):
-    shifts = {}
-    if template == "sum_doctors_base":
-        all_shifts = TS.objects.all()
-    else:
-        all_shifts = Shift.objects.filter(month=month).all()
+    doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
+    table_data["doctors"] = []
+    for doctor in doctors:
+        shifts = {}
+        if template == "sum_doctors_base":
+            all_shifts = TS.objects.filter(user=doctor).all()
+        else:
+            all_shifts = Shift.objects.filter(user=doctor, month=month).all()
 
-    for s in all_shifts:
-        cell_id = "cell-{}-{}-{}"
+        for s in all_shifts:
+            cell_id_over = f"cell-{doctor.crm}-{s.center.abbreviation}-overtime"
+            cell_id_norm = f"cell-{doctor.crm}-{s.center.abbreviation}-normal"
+
+            if cell_id_over not in shifts:
+                shifts[cell_id_over] = 0
+            if cell_id_norm not in shifts:
+                shifts[cell_id_norm] = 0
+
+            hours_dict = s.get_overtime_count()
+            shifts[cell_id_over] += hours_dict["overtime"]
+            shifts[cell_id_norm] += hours_dict["normal"]      
         
-    # table_data["doctors"].append({"name": doctor.name,
-    #                               "abbr_name": doctor.abbr_name,
-    #                               "crm": doctor.crm,
-    #                               "shifts": shifts,})
+        # add zeroes for missing centers
+        for center in Center.objects.filter(is_active=True).all():
+            cell_id_over = f"cell-{doctor.crm}-{center.abbreviation}-overtime"
+            cell_id_norm = f"cell-{doctor.crm}-{center.abbreviation}-normal"
+
+            if cell_id_over not in shifts:
+                shifts[cell_id_over] = 0
+            if cell_id_norm not in shifts:
+                shifts[cell_id_norm] = 0
+        # add zeroes for missing shifts
+        
+
+        table_data["doctors"].append({"name": doctor.name,
+                                      "abbr_name": doctor.abbr_name,
+                                      "crm": doctor.crm,
+                                      "shifts": shifts,})
+    
     return table_data
 
 
