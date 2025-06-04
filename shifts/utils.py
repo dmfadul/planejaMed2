@@ -75,31 +75,21 @@ def translate_to_table(shifts:list) -> dict:
         return {}
     
     crm = shifts[0].user.crm
-    shifts_per_day = defaultdict(list)
+    output = {}
     for shift in shifts:
         if isinstance(shift, TS):
-            dict_key = (shift.weekday, shift.index)
+            cell_id = f"cell-{crm}-{shift.weekday}-{shift.index}"
         else:
-            dict_key = shift.day
+            cell_id = f"cell-{crm}-wday-{shift.day}"
 
-        shifts_per_day[dict_key].append((shift.start_time, shift.end_time))
-
-    output = {}
-    for dict_key, hours in shifts_per_day.items():
-        code_lst = []
-        for hour in hours:
-            code_lst.append(TS.convert_to_code(*hour))
+        if cell_id not in output:
+            output[cell_id] = []
         
-        code_order = SHIFT_CODES
-        order_map = {val: idx for idx, val in enumerate(code_order)}
-        code_lst.sort(key=lambda x: order_map.get(x, len(code_order)))
-        code = "".join(code_lst)
+        code = TS.convert_to_code(shift.start_time, shift.end_time)
+        output[cell_id].append(code)
 
-        if isinstance(dict_key, tuple):
-            cell_id = f"cell-{crm}-{dict_key[0]}-{dict_key[1]}"
-        else:
-            cell_id = f"cell-{crm}-wday-{dict_key}"
-        
-        output[cell_id] = code
+    # Unify shifts to a string format
+    for key, values in output.items():
+        output[key] = TS.stringfy_codes(values)
     
-    return output   
+    return output
