@@ -95,14 +95,32 @@ def build_sumtable(center, table_data, template, month=None):
 
 def build_basetable(center, table_data, template=None):
     doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
+
     table_data["doctors"] = []
     for doctor in doctors:
-        if template == "month_table":
-            shifts = Shift.objects.filter(user=doctor, center=center).all()
-        else:
-            shifts = TS.objects.filter(user=doctor, center=center).all()
+        shifts = {}
 
-        shifts = translate_to_table(shifts)
+        if template == "month_table":
+            all_shifts = Shift.objects.filter(user=doctor, center=center).all()
+        else:
+            all_shifts = TS.objects.filter(user=doctor, center=center).all()
+
+        for s in all_shifts:
+            if template == "month_table":
+                cell_id = f"cell-{doctor.crm}-wday-{s.day}"
+            else:
+                cell_id = f"cell-{doctor.crm}-{s.weekday}-{s.index}"
+
+            if cell_id not in shifts:
+                shifts[cell_id] = []
+
+            s_code = TS.convert_to_code(s.start_time, s.end_time)
+            shifts[cell_id].append(s_code)
+
+        # Unify shifts to a string format
+        for key, values in shifts.items():
+            shifts[key] = TS.stringfy_codes(values)
+
         table_data["doctors"].append({"name": doctor.name,
                                       "abbr_name": doctor.abbr_name,
                                       "crm": doctor.crm,

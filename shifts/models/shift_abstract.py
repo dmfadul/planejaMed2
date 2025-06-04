@@ -1,6 +1,6 @@
 from django.db import models
 from core.models import User
-from core.constants import SHIFTS_MAP, HOUR_RANGE, MORNING_START
+from core.constants import SHIFTS_MAP, SHIFT_CODES, HOUR_RANGE, MORNING_START
 
 
 class AbstractShift(models.Model):
@@ -63,6 +63,20 @@ class AbstractShift(models.Model):
             output += "n" if hours["night"] == 12 else f"n{hours['night']}"
         
         return output
+    
+
+    @classmethod
+    def stringfy_codes(cls, codes:list) -> str:
+        """Convert a list of codes to a string."""
+        if not codes:
+            return ""
+        
+        code_order = SHIFT_CODES
+        order_map = {val: idx for idx, val in enumerate(code_order)}
+        codes.sort(key=lambda x: order_map.get(x, len(code_order)))
+        code = "".join(codes)
+
+        return code
     
 
     @classmethod
