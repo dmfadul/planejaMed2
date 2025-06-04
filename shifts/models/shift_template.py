@@ -40,3 +40,26 @@ class TemplateShift(AbstractShift):
         
         new_shift.save()          
         return new_shift
+
+
+    def get_overtime_count(self):
+        """Returns a dict of overtime and normal hours."""
+
+        if self.weekday in [5, 6]:  # Saturday or Sunday
+            return {"normal": 0, "overtime": len(self.hour_list)}
+        
+        # For weekdays, calculate overtime based on night hours
+        day_night_hours = self.get_hours_count()
+        return {
+            "normal": day_night_hours["day"],
+            "overtime": day_night_hours["night"]
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        

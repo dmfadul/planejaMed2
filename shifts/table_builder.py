@@ -1,8 +1,7 @@
 from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA
 from .utils import translate_to_table, gen_headers
-from .models import Month, Shift, TemplateShift
+from .models import Center, Month, Shift, TemplateShift
 from .models import TemplateShift as TS
-from collections import defaultdict
 from core.models import User
 
 
@@ -56,15 +55,20 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
         return []
 
 
-def build_doctors_sumtable(table_data, template):
-    doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
-    table_data["doctors"] = []
-    for doctor in doctors:
-        shifts = {}
-        table_data["doctors"].append({"name": doctor.name,
-                                      "abbr_name": doctor.abbr_name,
-                                      "crm": doctor.crm,
-                                      "shifts": shifts,})
+def build_doctors_sumtable(table_data, template, month=None):
+    shifts = {}
+    if template == "sum_doctors_base":
+        all_shifts = TS.objects.all()
+    else:
+        all_shifts = Shift.objects.filter(month=month).all()
+
+    for s in all_shifts:
+        cell_id = "cell-{}-{}-{}"
+        
+    # table_data["doctors"].append({"name": doctor.name,
+    #                               "abbr_name": doctor.abbr_name,
+    #                               "crm": doctor.crm,
+    #                               "shifts": shifts,})
     return table_data
 
 
@@ -98,8 +102,6 @@ def build_basetable(center, table_data, template=None):
 
     table_data["doctors"] = []
     for doctor in doctors:
-        shifts = {}
-
         if template == "month_table":
             all_shifts = Shift.objects.filter(user=doctor, center=center).all()
         else:
