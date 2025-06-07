@@ -1,3 +1,4 @@
+import logging
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
 from core.constants import DIAS_SEMANA
@@ -8,7 +9,8 @@ from .table_payload import process_table_payload
 from .table_builder import build_table_data
 from shifts.models import TemplateShift, Shift, Center, Month
 from django.contrib import messages
-import json
+
+logger = logging.getLogger(__name__) 
 
 
 @login_required
