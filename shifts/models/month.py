@@ -67,7 +67,14 @@ class Month(models.Model):
         
         return current_month if current_month else None
     
+
     # ---- Instance Methods ----
+
+    def next_number_year(self):
+        if self.number == 12:
+            return 1, self.year + 1
+        else:
+            return self.number + 1, self.year
 
     def populate_month(self):
         _populate_month(self)

@@ -119,17 +119,18 @@ def update(request):
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
 def create_month(request):
-    curr_month = Month.objects.current()
-    print(f"Current month: {curr_month}")
-    # next_month = curr_month.
-
-    # ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)
-
-    # current_month = Month.get_current()
-
+    next_month = Month.objects.next()
+    if next_month:
+        raise ValueError(f"Já existe um mês {next_month} criado.")
     
-    logger.info(f'{request.user.crm} created a new month')
+    curr_month = Month.objects.current()
+    ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)
+    next_number, next_year = curr_month.next_number_year()
 
+    new_month = Month.new_month(next_number, next_year)
+    new_month.populate_month()
+
+    logger.info(f'{request.user.crm} created a new month')
     messages.success(request, "Mês criado com sucesso.")
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
