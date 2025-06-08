@@ -117,10 +117,13 @@ def update(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
+@require_POST
 def create_month(request):
-    if request.method == "POST":
-        print("Creating month...")
+    # current_month = Month.get_current()
 
-        messages.success(request, "Mês criado com sucesso.")
+    
+    logger.info(f'{request.user.crm} created a new month')
+
+    messages.success(request, "Mês criado com sucesso.")
 
     return redirect(request.META.get("HTTP_REFERER", "/"))

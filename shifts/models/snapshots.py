@@ -61,6 +61,13 @@ class ShiftSnapshot(models.Model):
         cls.objects.bulk_create(snapshots)
         return True
 
+    @classmethod
+    def delete_snapshot(cls, month, shift_type):
+        if shift_type == ShiftType.BASE:
+            cls.objects.filter(month=month, type=ShiftType.BASE).delete()
+        else:
+            cls.objects.filter(month=month, type=shift_type).delete()
+        return True
 
     @classmethod
     def recover_snapshot(cls, month, shift_type, organize_by='user'):
@@ -96,3 +103,4 @@ class ShiftSnapshot(models.Model):
         #     ]
         # cls.objects.bulk_create(snapshots)
         # return True
+        

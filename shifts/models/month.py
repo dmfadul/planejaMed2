@@ -42,6 +42,12 @@ class Month(models.Model):
 
         return new_month
     
+    @classmethod
+    def get_current(cls):
+        current_month = cls.objects.filter(is_current=True).first()
+        
+        return current_month if current_month else None
+    
     def populate_month(self):
         from . import Shift, TemplateShift
         
