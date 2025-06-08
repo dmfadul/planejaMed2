@@ -1,13 +1,13 @@
 import logging
+import core.constants as constants
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
-from core.constants import DIAS_SEMANA
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from core.models import User
 from .table_payload import process_table_payload
 from .table_builder import build_table_data
-from shifts.models import TemplateShift, Shift, Center, Month
+from shifts.models import ShiftType, ShiftSnapshot, TemplateShift, Shift, Center, Month
 from django.contrib import messages
 
 logger = logging.getLogger(__name__) 
@@ -119,6 +119,10 @@ def update(request):
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
 def create_month(request):
+    temp_month = Month.new_month(number=constants.FIRST_MONTH, year=constants.FIRST_YEAR)
+
+    ShiftSnapshot.take_snapshot(temp_month, ShiftType.BASE)
+
     # current_month = Month.get_current()
 
     

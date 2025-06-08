@@ -29,6 +29,7 @@ class ShiftSnapshot(models.Model):
 
     @classmethod
     def take_snapshot(cls, month, shift_type):
+        cls.delete_snapshot(month, shift_type)
         if shift_type == ShiftType.BASE:
             tshifts = TemplateShift.objects.all()
             snapshots = [
