@@ -21,6 +21,7 @@ class Month(models.Model):
     leader = models.ForeignKey(User, on_delete=models.CASCADE, related_name='month_leader')
     is_current = models.BooleanField(default=False)
     is_locked = models.BooleanField(default=True)
+    users = models.ManyToManyField(User, related_name='months', blank=True)
 
     objects = MonthManager()
 
@@ -75,6 +76,20 @@ class Month(models.Model):
             return 1, self.year + 1
         else:
             return self.number + 1, self.year
+        
+    def fix_users(self):
+        active_users = User.objects.filter(is_active=True, is_invisible=False)
+        self.users.set(active_users)
+
+    def include_user(self, user):
+        if not isinstance(user, User):
+            raise ValueError("Expected a User instance.")
+        self.users.add(user)
+
+    def exclude_user(self, user):
+        if not isinstance(user, User):
+            raise ValueError("Expected a User instance.")
+        self.users.remove(user)
 
     def populate_month(self):
         _populate_month(self)
