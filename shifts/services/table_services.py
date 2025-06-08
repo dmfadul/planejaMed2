@@ -1,5 +1,5 @@
-from .models import TemplateShift as TS
-from .models import Center
+from shifts.models import TemplateShift as TS
+from shifts.models import Center
 from collections import defaultdict
 from core.constants import DIAS_SEMANA, SHIFT_CODES
 
