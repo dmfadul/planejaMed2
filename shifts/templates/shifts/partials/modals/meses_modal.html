@@ -1,0 +1,43 @@
+<div class="modal fade" id="mesesModal" tabindex="-1" aria-labelledby="mesesModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header">
+          <h5 class="modal-title" id="mesesModalLabel">Selecionar Mês</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="mesesForm">
+            <div class="mb-3">
+              <label for="centroSelect" class="form-label">Centro</label>
+              <select class="form-select" id="centroSelect" name="centro">
+                {% for center in centers %}
+                <option value="{{ center.abbr }}">{{ center.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="mesSelect" class="form-label">Mês</label>
+              <select class="form-select" id="mesSelect" name="mes">
+                {% for i in 1|to_list:12 %}
+                <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="anoSelect" class="form-label">Ano</label>
+              <select class="form-select" id="anoSelect" name="ano">
+                {% for y in year_range %}
+                <option value="{{ y }}">{{ y }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="submitMesesBtn">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
