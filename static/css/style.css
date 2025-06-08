@@ -147,7 +147,7 @@ td.first-col {
     left: 0;
     background-color: #e9ecef;
     z-index: 5;
-    width: 255px;
+    width: 220px;
 }
 
 /* Other columns */
@@ -194,5 +194,5 @@ td.normal-col {
 }
 
 th.first-col, td.first-col {
-    width: 150px;
+    width: 220px;
 }

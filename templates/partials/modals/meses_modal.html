@@ -10,25 +10,19 @@
             <div class="mb-3">
               <label for="centroSelect" class="form-label">Centro</label>
               <select class="form-select" id="centroSelect" name="centro">
-                {% for center in centers %}
-                <option value="{{ center.abbr }}">{{ center.name }}</option>
-                {% endfor %}
+
               </select>
             </div>
             <div class="mb-3">
               <label for="mesSelect" class="form-label">Mês</label>
               <select class="form-select" id="mesSelect" name="mes">
-                {% for i in 1|to_list:12 %}
-                <option value="{{ i }}">{{ i }}</option>
-                {% endfor %}
+
               </select>
             </div>
             <div class="mb-3">
               <label for="anoSelect" class="form-label">Ano</label>
               <select class="form-select" id="anoSelect" name="ano">
-                {% for y in year_range %}
-                <option value="{{ y }}">{{ y }}</option>
-                {% endfor %}
+
               </select>
             </div>
           </form>
