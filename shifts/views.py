@@ -119,10 +119,11 @@ def update(request):
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
 def create_month(request):
-    curr_month = Month.new_month(number=constants.FIRST_MONTH, year=constants.FIRST_YEAR)
+    curr_month = Month.objects.current()
+    print(f"Current month: {curr_month}")
     # next_month = curr_month.
 
-    ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)
+    # ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)
 
     # current_month = Month.get_current()
 

@@ -7,12 +7,22 @@ from shifts.services.month_services import populate_month as _populate_month
 from core.constants import STR_DAY, END_DAY
 
 
+class MonthManager(models.Manager):
+    def current(self):
+        return self.filter(is_current=True).first()
+    
+    def next(self):
+        return self.filter(is_locked=True)
+
+
 class Month(models.Model):
     year = models.IntegerField()
     number = models.IntegerField()
     leader = models.ForeignKey(User, on_delete=models.CASCADE, related_name='month_leader')
     is_current = models.BooleanField(default=False)
     is_locked = models.BooleanField(default=True)
+
+    objects = MonthManager()
 
     def __str__(self):
         return f"{self.year}-{self.number}"
@@ -58,7 +68,7 @@ class Month(models.Model):
         return current_month if current_month else None
     
     # ---- Instance Methods ----
-    
+
     def populate_month(self):
         _populate_month(self)
 
