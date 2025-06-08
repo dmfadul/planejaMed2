@@ -2,6 +2,8 @@ from django.db import models
 from core.models import User
 from calendar import monthrange
 from datetime import datetime, timedelta
+from shifts.utils.calendar_utils import gen_date_row, gen_calendar_table
+from shifts.services.month_services import populate_month as _populate_month
 from core.constants import STR_DAY, END_DAY
 
 
@@ -15,6 +17,8 @@ class Month(models.Model):
     def __str__(self):
         return f"{self.year}-{self.number}"
     
+    # ---- Properties ----
+
     @property
     def start_date(self):
         if self.number == 1:
@@ -32,9 +36,14 @@ class Month(models.Model):
         _, last_day = monthrange(self.start_date.year, self.start_date.month)
         return datetime(self.start_date.year, self.start_date.month, last_day)
 
+    # ---- Class Methods ----
+
     @classmethod
     def new_month(cls, number, year):
         from core.constants import LEADER
+        check = cls.objects.filter(year=year, number=number).first()
+        if check:
+            raise ValueError(f"Month {year}-{number} already exists.")
 
         new_month = cls(year=year, number=number)
         new_month.leader = User.objects.get(crm=LEADER.get('crm'))
@@ -48,80 +57,16 @@ class Month(models.Model):
         
         return current_month if current_month else None
     
+    # ---- Instance Methods ----
+    
     def populate_month(self):
-        from . import Shift, TemplateShift
-        
-        print(f"Populating month {self}...")
-
-        year, month = self.year, self.number
-        first_day = datetime(year, month, 1)
-        first_wday = first_day.weekday()  # Monday is 0
-
-        prv_year, prv_month = self.start_date.year, self.start_date.month
-        prv_first_day = datetime(prv_year, prv_month, 1)
-        prv_first_wday = prv_first_day.weekday()  # Monday is 0
-
-        templates = TemplateShift.objects.filter(user__is_active=True)
-
-        for t in templates:
-            day_offset_curr = (t.weekday - first_wday + 7) % 7
-            day_offset_prv = (t.weekday - prv_first_wday + 7) % 7
-
-            first_ocurrence_curr = first_day + timedelta(days=day_offset_curr)
-            first_ocurrence_prv = prv_first_day + timedelta(days=day_offset_prv)
-
-
-            target_date_curr = first_ocurrence_curr + timedelta(weeks=t.index-1)
-            target_date_prv = first_ocurrence_prv + timedelta(weeks=t.index-1)
-
-            if self.start_date <= target_date_curr <= self.end_date:
-                new_shift = Shift.objects.create(
-                    user=t.user,
-                    center=t.center,
-                    month=self,
-                    day=target_date_curr.day,
-                    start_time=t.start_time,
-                    end_time=t.end_time
-                )
-            
-            if self.start_date <= target_date_prv <= self.end_date:
-                new_shift = Shift.objects.create(
-                    user=t.user,
-                    center=t.center,
-                    month=self,
-                    day=target_date_prv.day,
-                    start_time=t.start_time,
-                    end_time=t.end_time
-                )
-
-        print(f"Month {self} populated.")
+        _populate_month(self)
 
     def gen_date_row(self):
-        start_date = self.start_date
-        end_date = self.end_date
-        
-        dates = []
-        while start_date <= end_date:
-            dates.append(start_date)
-            start_date += timedelta(days=1)
-
-        return dates
+        return gen_date_row(self.start_date, self.end_date)
 
     def gen_calendar_table(self):
-        cal_table = []
-        week = [""] * 7
-        current_date = self.start_date
-
-        while current_date <= self.end_date:
-            weekday = current_date.weekday()
-            week[weekday] = current_date.day
-            if weekday == 6:  # Sunday
-                cal_table.append(week)
-                week = [""] * 7
-            current_date += timedelta(days=1)
-        if any(week):
-            cal_table.append(week)
-        return cal_table
+        return gen_calendar_table(self.start_date, self.end_date)
 
 
 
