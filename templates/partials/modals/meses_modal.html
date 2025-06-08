@@ -1,37 +1,30 @@
-<div class="modal fade" id="mesesModal" tabindex="-1" aria-labelledby="mesesModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content bg-light text-dark">
-        <div class="modal-header">
-          <h5 class="modal-title" id="mesesModalLabel">Selecionar Mês</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="mesesForm">
-            <div class="mb-3">
-              <label for="centroSelect" class="form-label">Centro</label>
-              <select class="form-select" id="centroSelect" name="centro">
-
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="mesSelect" class="form-label">Mês</label>
-              <select class="form-select" id="mesSelect" name="mes">
-
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="anoSelect" class="form-label">Ano</label>
-              <select class="form-select" id="anoSelect" name="ano">
-
-              </select>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary" id="submitMesesBtn">Confirmar</button>
-        </div>
+<div class="modal fade" id="monthsModal" tabindex="-1" aria-labelledby="monthsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-light text-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="monthsModalLabel">Select Month</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="monthsForm">
+          <div class="mb-3">
+            <label for="centerSelect" class="form-label">Center</label>
+            <select class="form-select" id="centerSelect" name="center"></select>
+          </div>
+          <div class="mb-3">
+            <label for="monthSelect" class="form-label">Month</label>
+            <select class="form-select" id="monthSelect" name="month"></select>
+          </div>
+          <div class="mb-3">
+            <label for="yearSelect" class="form-label">Year</label>
+            <select class="form-select" id="yearSelect" name="year"></select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="submitMonthsBtn">Confirm</button>
       </div>
     </div>
   </div>
-  
+</div>

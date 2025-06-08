@@ -1,12 +1,11 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    console.log("Injecting modal script...");
-  const centroSelect = document.getElementById("centroSelect");
-  const mesSelect = document.getElementById("mesSelect");
-  const anoSelect = document.getElementById("anoSelect");
+  const centerSelect = document.getElementById("centerSelect");
+  const monthSelect = document.getElementById("monthSelect");
+  const yearSelect = document.getElementById("yearSelect");
+  const confirmBtn = document.getElementById("submitMonthsBtn");
 
-  // Generic function to populate a <select> element
   const populateSelect = (selectElement, data, valueKey, textKey) => {
-    selectElement.innerHTML = ''; // Clear previous options if needed
+    selectElement.innerHTML = '';
     data.forEach(item => {
       const option = document.createElement("option");
       option.value = item[valueKey];
@@ -16,28 +15,34 @@ document.addEventListener("DOMContentLoaded", async function () {
   };
 
   try {
-    // Fetch and populate Centros
-    const centrosResponse = await fetch("/api/centros/");
-    const centrosData = await centrosResponse.json();
-    populateSelect(centroSelect, centrosData, "id", "nome");
+    const [centersRes, monthsRes, yearsRes] = await Promise.all([
+      fetch("/api/centers/"),
+      fetch("/api/months/"),
+      fetch("/api/years/")
+    ]);
 
-    // Fetch and populate Meses
-    const mesesResponse = await fetch("/api/meses/");
-    const mesesData = await mesesResponse.json();
-    populateSelect(mesSelect, mesesData, "numero", "nome");
+    const centersData = await centersRes.json();
+    const monthsData = await monthsRes.json();
+    const yearsData = await yearsRes.json();
 
-    // Fetch and populate Anos
-    const anosResponse = await fetch("/api/anos/");
-    const anosData = await anosResponse.json();
-    anosData.forEach(ano => {
-      const option = document.createElement("option");
-      option.value = ano;
-      option.textContent = ano;
-      anoSelect.appendChild(option);
-    });
-  } catch (error) {
-    console.error("Failed to load select options:", error);
-    // Optionally, show a user-friendly alert or fallback UI
+    populateSelect(centerSelect, centersData, "abbr", "abbr");
+    populateSelect(monthSelect, monthsData, "number", "name");
+    populateSelect(yearSelect, yearsData, "year", "year");
+
+  } catch (err) {
+    console.error("Failed to load dropdown data:", err);
   }
-});
 
+  confirmBtn.addEventListener("click", function () {
+    const center = centerSelect.value;
+    const month = monthSelect.value;
+    const year = yearSelect.value;
+
+    if (center && month && year) {
+      const url = `/monthtable/${center}/${month}/${year}/`;
+      window.location.href = url;
+    } else {
+      alert("Please select all fields.");
+    }
+  });
+});
