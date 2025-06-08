@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const year = yearSelect.value;
 
     if (center && month && year) {
-      const url = `/monthtable/${center}/${month}/${year}/`;
+      const url = `${window.location.origin}/shifts/monthtable/${center}/${month}/${year}/`;
       window.location.href = url;
     } else {
       alert("Please select all fields.");
