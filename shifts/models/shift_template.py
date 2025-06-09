@@ -1,11 +1,16 @@
 from django.db import models
 from shifts.models.shift_abstract import AbstractShift
+from core.constants import DIAS_SEMANA
 
 
 class TemplateShift(AbstractShift):
     center = models.ForeignKey('Center', on_delete=models.CASCADE, related_name='base_shifts')
     weekday = models.IntegerField()
     index = models.IntegerField()
+
+    def __str__(self):
+        day = f"{DIAS_SEMANA[self.weekday]}({self.index})"
+        return f"{self.center.abbreviation} - {self.user.abbr_name} - {day} - {self.start_time} to {self.end_time}"
     
     @classmethod
     def add(cls, doctor, center, week_day, week_index, start_time, end_time):   
