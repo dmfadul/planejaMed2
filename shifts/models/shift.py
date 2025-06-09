@@ -8,6 +8,10 @@ class Shift(AbstractShift):
     month = models.ForeignKey(Month, on_delete=models.CASCADE, related_name='shifts')
     day = models.IntegerField()
 
+    def __str__(self):
+        return f"{self.center.abbreviation} - {self.user.abbr_name} - {self.month.number} - {self.day} - {self.start_time} to {self.end_time}"
+    
+
 
     @classmethod
     def add(cls, doctor, center, month, day, start_time, end_time):
