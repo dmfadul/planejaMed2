@@ -25,9 +25,13 @@ def populate_month(month):
 
         curr_date = first_day + timedelta(days=day_offset_curr) + timedelta(weeks=t.index - 1)
         prv_date = prv_first_day + timedelta(days=day_offset_prv) + timedelta(weeks=t.index - 1)
+        
+        if "Print" in t.user.name and (curr_date.day == 4 or prv_date.day == 4):
+            print(t.weekday, t.index, curr_date, prv_date)
+
         # Avoid 5th week shifts from following month having a prv_date on the current month
-        if curr_date > last_day:
-            continue
+        # if curr_date > last_day and :
+        #     continue
 
         for target_date in [curr_date, prv_date]:
             if month.start_date <= target_date <= month.end_date:

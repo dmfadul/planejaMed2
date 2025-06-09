@@ -59,4 +59,21 @@ class TestMonthModel(TestCase):
             assert shift.center == center
             assert shift.month == month1
 
+    def test_double_registering(self):
+        # Setup users and center
+        active_user = User.objects.create_user(crm="111", name="Print", password="pass")
+        center = Center.objects.create(abbreviation="HUEM")
+        leader = User.objects.create_user(crm="33333", name="Leader", password="pass")
+        month = Month.objects.create(year=2025, number=2, leader=leader)
+
+        # Create possibly duplicating template shifts
+        ts1 = TS.add(active_user, center, week_day=1, week_index=1, start_time=7, end_time=13)
+        ts2 = TS.add(active_user, center, week_day=1, week_index=5, start_time=7, end_time=13)  # Same hours
+
+        # Act: populate month
+        month.populate_month()
+
+        # Assert: only one shift created for the same day and time
+        shifts = Shift.objects.filter(month=month, user=active_user, center=center)
+        assert shifts.count() == 1, f"Expected 1 shift, got {shifts.count()}"
 
