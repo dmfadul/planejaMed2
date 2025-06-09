@@ -9,7 +9,7 @@ class Shift(AbstractShift):
     day = models.IntegerField()
 
     def __str__(self):
-        return f"{self.center.abbreviation} - {self.user.abbr_name} - {self.month.number} - {self.day} - {self.start_time} to {self.end_time}"
+        return f"{self.center.abbreviation} - {self.user.abbr_name} - {self.month.number}/{self.day} - {self.start_time} to {self.end_time}"
     
 
 

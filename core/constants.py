@@ -27,3 +27,8 @@ DIAS_SEMANA = ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SABADO", "DOMI
 LEADER = {'name': "DR. VICTOR HUGO MARCASSA", 'crm': 5078}
 
 FIRST_MONTH, FIRST_YEAR = 1, 2025
+
+MESES = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+]

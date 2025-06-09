@@ -4,7 +4,7 @@ from calendar import monthrange
 from datetime import datetime, timedelta
 from shifts.utils.calendar_utils import gen_date_row, gen_calendar_table
 from shifts.services.month_services import populate_month as _populate_month
-from core.constants import STR_DAY, END_DAY
+from core.constants import STR_DAY, END_DAY, MESES
 
 
 class MonthManager(models.Manager):
@@ -29,7 +29,10 @@ class Month(models.Model):
         return f"{self.year}-{self.number}"
     
     # ---- Properties ----
-
+    @property
+    def name(self):
+        return MESES[self.number - 1]
+    
     @property
     def start_date(self):
         if self.number == 1:
