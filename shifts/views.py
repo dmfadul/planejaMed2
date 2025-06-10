@@ -129,7 +129,7 @@ def create_month(request):
 
     new_month = Month.new_month(next_number, next_year)
     new_month.populate_month()
-    # new_month.fix_users()
+    new_month.fix_users()
 
     logger.info(f'{request.user.crm} created a new month')
     messages.success(request, "Mês criado com sucesso.")

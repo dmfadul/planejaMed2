@@ -25,13 +25,13 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
 
     if template == "basetable":
         table_data["header1"], table_data["header2"] = gen_headers(template)
-        return build_basetable(center, table_data)
+        return build_basetable(center, table_data, template=template)
 
     if template == "month_table":
         table_data["header1"], table_data["header2"] = gen_headers(template, month)
         table_data["month"] = month.name.upper()
         table_data["year"] = month.year
-        return build_basetable(center, table_data, template=template)
+        return build_basetable(center, table_data, template=template, month=month)
     
     if template == "doctor_basetable":
         table_data["header1"], table_data["header2"] = gen_headers(template)
@@ -134,13 +134,16 @@ def build_sumtable(center, table_data, template, month=None):
     return table_data
 
 
-def build_basetable(center, table_data, template=None):
-    doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
+def build_basetable(center, table_data, template=None, month=None):
+    if template == "basetable":
+        doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
+    elif template == "month_table":
+        doctors = month.users.order_by("name").all()
 
     table_data["doctors"] = []
     for doctor in doctors:
         if template == "month_table":
-            all_shifts = Shift.objects.filter(user=doctor, center=center).all()
+            all_shifts = Shift.objects.filter(user=doctor, month=month, center=center).all()
         else:
             all_shifts = TS.objects.filter(user=doctor, center=center).all()
 
