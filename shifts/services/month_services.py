@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from django.db import transaction
-from core.constants import END_DAY
 
 
 def populate_month(month):
@@ -10,7 +9,6 @@ def populate_month(month):
     year, num = month.year, month.number
     first_day = datetime(year, num, 1)
     first_wday = first_day.weekday()
-    last_day = datetime(year, num, END_DAY)
 
     prv_year, prv_month = month.start_date.year, month.start_date.month
     prv_first_day = datetime(prv_year, prv_month, 1)
@@ -26,23 +24,21 @@ def populate_month(month):
         curr_date = first_day + timedelta(days=day_offset_curr) + timedelta(weeks=t.index - 1)
         prv_date = prv_first_day + timedelta(days=day_offset_prv) + timedelta(weeks=t.index - 1)
         
-        if "Print" in t.user.name and (curr_date.day == 4 or prv_date.day == 4):
-            print(t.weekday, t.index, curr_date, prv_date)
+        targets = []
+        if month.start_date <= prv_date <= month.break_date:
+            targets.append(prv_date)
+        if month.start_date <= curr_date <= month.end_date:
+            targets.append(curr_date)
 
-        # Avoid 5th week shifts from following month having a prv_date on the current month
-        # if curr_date > last_day and :
-        #     continue
-
-        for target_date in [curr_date, prv_date]:
-            if month.start_date <= target_date <= month.end_date:
-                shifts_to_create.append(Shift(
-                    user=t.user,
-                    center=t.center,
-                    month=month,
-                    day=target_date.day,
-                    start_time=t.start_time,
-                    end_time=t.end_time
-                ))
+        for target_date in targets:
+            shifts_to_create.append(Shift(
+                user=t.user,
+                center=t.center,
+                month=month,
+                day=target_date.day,
+                start_time=t.start_time,
+                end_time=t.end_time
+            ))
     with transaction.atomic():
         Shift.objects.bulk_create(shifts_to_create)
 
