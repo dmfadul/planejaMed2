@@ -1,14 +1,15 @@
 import logging
-import core.constants as constants
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.views.decorators.http import require_POST
-from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
 from core.models import User
-from .table_payload import process_table_payload
-from .table_builder import build_table_data
-from shifts.models import ShiftType, ShiftSnapshot, TemplateShift, Shift, Center, Month
+import core.constants as constants
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
+from shifts.services.table_services import process_table_payload, build_table_data
+from shifts.models import ShiftType, ShiftSnapshot, TemplateShift, Shift, Center, Month
+
+
 
 logger = logging.getLogger(__name__) 
 

@@ -1,7 +1,7 @@
 from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA
-from .services.table_services import translate_to_table, gen_headers
-from .models import Center, Month, Shift, TemplateShift
-from .models import TemplateShift as TS
+from .table_utils import translate_to_table, gen_headers
+from shifts.models import Center, Month, Shift, TemplateShift
+from shifts.models import TemplateShift as TS
 from core.models import User
 
 

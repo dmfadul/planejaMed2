@@ -1,8 +1,8 @@
 import json
 from core.models import User
-from .services.table_services import translate_to_table
-from .models import TemplateShift as TS
-from .models import Center, Month, Shift
+from .table_utils import translate_to_table
+from shifts.models import TemplateShift as TS
+from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 
 
