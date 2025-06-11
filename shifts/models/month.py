@@ -13,6 +13,14 @@ class MonthManager(models.Manager):
     
     def next(self):
         return self.filter(is_locked=True).first()
+    
+    def previous(self):
+        if self.number == 1:
+            prv_month, prv_year = 12, self.year - 1
+        else:
+            prv_month, prv_year = self.number - 1, self.year
+        
+        return self.filter(year=prv_year, number=prv_month).first()
 
 
 class Month(models.Model):
