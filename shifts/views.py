@@ -134,5 +134,8 @@ def create_month(request):
 
     logger.info(f'{request.user.crm} created a new month')
     messages.success(request, "Mês criado com sucesso.")
+    kwargs = {"center_abbr": "CCG",
+            "month_num": new_month.number,
+            "year": new_month.year}
 
-    return redirect(request.META.get("HTTP_REFERER", "/"))
+    return redirect("shifts:month_table", **kwargs)
