@@ -126,7 +126,12 @@ def create_month(request):
         raise ValueError(f"Já existe um mês {next_month} criado.")
     
     curr_month = Month.objects.current()
+    if not curr_month:
+        raise ValueError("Nenhum mês atual encontrado.")
+    
     ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)
+    ShiftSnapshot.take_snapshot(curr_month, ShiftType.ORIGINAL)
+       
     next_number, next_year = curr_month.next_number_year()
 
     new_month = Month.new_month(next_number, next_year)
@@ -159,6 +164,8 @@ def unlock_month(request):
     next_month.is_current = True
     
     next_month.save()
+
+    ShiftSnapshot.take_snapshot(next_month, ShiftType.REALIZED)
 
     messages.success(request, "Mês desbloqueado com sucesso.")
     logger.info(f'{request.user.crm} unlocked month {next_month}')
