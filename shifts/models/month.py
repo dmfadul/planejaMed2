@@ -12,7 +12,7 @@ class MonthManager(models.Manager):
         return self.filter(is_current=True).first()
     
     def next(self):
-        return self.filter(is_locked=True)
+        return self.filter(is_locked=True).first()
 
 
 class Month(models.Model):
