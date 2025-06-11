@@ -25,6 +25,9 @@ class ShiftSnapshot(models.Model):
         indexes = [
             models.Index(fields=['center', 'month', 'type']),
         ]
+
+    def __str__(self):
+        return f"{self.type} - {self.center.abbreviation} - {self.user.abbr_name}"
     
 
     @classmethod
@@ -33,7 +36,9 @@ class ShiftSnapshot(models.Model):
         if shift_type == ShiftType.BASE:
             tshifts = TemplateShift.objects.all()
 
-            current_month = Month.current()
+            current_month = Month.objects.current()
+            if not current_month:
+                raise ValueError("No current month found. (snapshots.py)")
             
             previous_snapshots = cls.objects.filter(month=current_month, type=ShiftType.BASE)
             
