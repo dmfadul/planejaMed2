@@ -120,6 +120,7 @@ def update(request):
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
 def create_month(request):
+    print("Creating new month...")
     next_month = Month.objects.next()
     if next_month:
         raise ValueError(f"Já existe um mês {next_month} criado.")
@@ -134,8 +135,29 @@ def create_month(request):
 
     logger.info(f'{request.user.crm} created a new month')
     messages.success(request, "Mês criado com sucesso.")
-    kwargs = {"center_abbr": "CCG",
-            "month_num": new_month.number,
-            "year": new_month.year}
 
+    kwargs = {"center_abbr": "CCG",
+              "month_num": new_month.number,
+              "year": new_month.year}
+
+    return redirect("shifts:month_table", **kwargs)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+@require_POST
+def unlock_month(request):
+    print("Unlocking month...")
+    next_month = Month.objects.filter(is_locked=True).first()
+    if not next_month:
+        raise ValueError("Nenhum mês bloqueado encontrado.")
+    next_month.is_locked = False
+    next_month.save()
+
+    messages.success(request, "Mês desbloqueado com sucesso.")
+    logger.info(f'{request.user.crm} unlocked month {next_month}')
+
+    kwargs = {"center_abbr": "CCG",
+              "month_num": next_month.number,
+              "year": next_month.year}
+    
     return redirect("shifts:month_table", **kwargs)

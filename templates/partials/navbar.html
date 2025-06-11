@@ -60,8 +60,11 @@
             Admin
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'shifts:create_month' %}" data-bs-toggle="modal" data-bs-target="#confirmCreateMonth">Criar Mês</a></li>
-            <li><a class="dropdown-item" href="#">Destrancar Mês</a></li>
+            {% if not lck_month_exists %}
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#confirmCreateMonth">Criar Mês</a></li>
+            {% else %}
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#confirmUnlockMonth">Destrancar Mês</a></li>
+            {% endif %}
             <li><a class="dropdown-item" href="{% url 'shifts:sum_doctors_base' %}">Horas-Médico (Bases)</a></li>
             <li><a class="dropdown-item" href="#">Horas-Médico (Mês)</a></li>
           </ul>

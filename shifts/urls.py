@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import month_table, basetable, doctor_basetable
 from .views import sum_days_base, sum_days_month, sum_doctors_base, sum_doctors_month
-from .views import update, create_month
+from .views import update, create_month, unlock_month
 
 app_name = "shifts"
 
@@ -17,5 +17,6 @@ urlpatterns = [
     path("sum-doctors/<int:month_num>/<int:year>/", sum_doctors_month, name="sum_doctors_month"),
     
     path("update", update, name="update"), 
-    path("create_month", create_month, name="create_month"),
+    path("create_month/", create_month, name="create_month"),
+    path("unlock_month/", unlock_month, name="unlock_month"),
     ]
