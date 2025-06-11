@@ -64,10 +64,7 @@ class ShiftSnapshot(models.Model):
 
     @classmethod
     def delete_snapshot(cls, month, shift_type):
-        if shift_type == ShiftType.BASE:
-            cls.objects.filter(month=month, type=ShiftType.BASE).delete()
-        else:
-            cls.objects.filter(month=month, type=shift_type).delete()
+        cls.objects.filter(month=month, type=shift_type).delete()
         return True
 
     @classmethod
