@@ -33,7 +33,7 @@ function addListeners() {
             if (tableData.template == "basetable") {
                 window.location.href = `/shifts/sum-days/${tableData.center}/`;
             }else if (tableData.template == "month_table") {
-                window.location.href = `/shifts/sum-days/${tableData.center}/${tableData.month}/${tableData.year}/`;
+                window.location.href = `/shifts/sum-days/${tableData.center}/${tableData.month_number}/${tableData.year}/`;
             }else{
                 console.error("Unknown template type:", tableData.template);
             }

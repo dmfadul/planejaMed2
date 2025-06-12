@@ -30,6 +30,7 @@ def month_table(request, center_abbr, month_num, year):
 
     table_data["status"] = status
     context = {"table_data": table_data}
+    print(table_data.keys())
 
     return render(request, "shifts/table.html", context)
 
