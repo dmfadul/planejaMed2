@@ -19,6 +19,8 @@ def month_table(request, center_abbr, month_num, year):
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month = get_object_or_404(Month, number=month_num, year=year)
 
+    status = "ORIGIANAL" if month.is_locked else "REALIZADO"
+
     table_data = build_table_data(
         center=center,
         table_type="MONTH",
@@ -26,6 +28,7 @@ def month_table(request, center_abbr, month_num, year):
         month=month
     )
 
+    table_data["status"] = status
     context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)

@@ -11,7 +11,7 @@
     <div class="flex-grow-1 text-center">
         <strong>{{ table_data.center }}</strong> &nbsp; |
         {% if table_data.template == "month_table" %}
-            &nbsp; <strong>{{ table_data.month }} - {{ table_data.year }}</strong>
+            &nbsp; <strong>{{ table_data.month }} - {{ table_data.year }} &nbsp; | &nbsp; {{ table_data.status }}</strong>
         {% else %}
             &nbsp; <strong>{{ table_data.table_type }}</strong>
         {% endif %}
