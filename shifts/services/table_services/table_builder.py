@@ -45,7 +45,9 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
         return build_sumtable(center, table_data, template=template)
     
     if template == "sum_days_month":
-        return []
+        table_data["header1"], table_data["header2"] = gen_headers(template, month)
+        table_data["show_back_button"] = 1
+        return build_sumtable(center, table_data, template=template, month=month)
     
     if template == "sum_doctors_base":
         table_data["header1"], table_data["header2"] = gen_headers(template)
@@ -112,25 +114,29 @@ def build_doctors_sumtable(table_data, template, month=None):
 
 def build_sumtable(center, table_data, template, month=None):
     if template == "sum_days_base":
-        base_shifts = TemplateShift.objects.filter(center=center)
+        shifts = TemplateShift.objects.filter(center=center)
+    elif template == "sum_days_month":
+        shifts = Shift.objects.filter(center=center, month=month).all()
         
-        hours_by_day = {}
-        for bs in base_shifts:
-            if f"{bs.weekday}-{bs.index}" not in hours_by_day:
-                hours_by_day[f"{bs.weekday}-{bs.index}"] = {"day": 0, "night": 0}
-            bs_hours = bs.get_hours_count()
-
-            hours_by_day[f"{bs.weekday}-{bs.index}"]["day"] += bs_hours.get("day")
-            hours_by_day[f"{bs.weekday}-{bs.index}"]["night"] += bs_hours.get("night")
-
-        # add zeroes for missing days
-        for i in range(7):
-            for j in range(1, 6):
-                key = f"{i}-{j}"
-                if key not in hours_by_day:
-                    hours_by_day[key] = {"day": 0, "night": 0}
-
-        table_data["days"] = hours_by_day
+    hours_by_day = {}
+    for s in shifts:
+        if template == "sum_days_base":
+            key = f"{s.weekday}-{s.index}"
+        elif template == "sum_days_month":
+            key = f"{s.day}"
+        
+        if key not in hours_by_day:
+            hours_by_day[key] = {"day": 0, "night": 0}
+        s_hours = s.get_hours_count()
+        hours_by_day[key]["day"] += s_hours.get("day")
+        hours_by_day[key]["night"] += s_hours.get("night")
+    # add zeroes for missing days
+    for i in range(7):
+        for j in range(1, 6):
+            key = f"{i}-{j}"
+            if key not in hours_by_day:
+                hours_by_day[key] = {"day": 0, "night": 0}
+    table_data["days"] = hours_by_day
     
     return table_data
 

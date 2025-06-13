@@ -104,7 +104,12 @@ def sum_days_month(request, center_abbr, month_num, year):
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month = get_object_or_404(Month, number=month_num, year=year)
 
-    table_data = build_table_data()
+    table_data = build_table_data(
+        center=center,
+        month=month,
+        table_type=f"HORAS-DIA ({month.name.upper()})",
+        template="sum_days_month"
+    )
     
     context = {"table_data": table_data}
 

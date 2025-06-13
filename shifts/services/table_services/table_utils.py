@@ -32,7 +32,7 @@ def gen_headers(template, month=None):
             header1.append({"cellID": f"{(i-1)%7}-{indeces[i]}", "label": day, "title": DIAS_SEMANA[(i-1)%7]})
             header2.append({"cellID": f"index-{indeces[i]}", "label": indeces[i], "title": indeces[i]})
 
-    elif template == "month_table":
+    elif template in ["month_table", "sum_days_month"]:
         if month is None:
             raise ValueError("Month must be provided for month_table template.")
         
