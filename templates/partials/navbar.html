@@ -26,7 +26,7 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#monthsModal">Meses</a>
+          <a class="nav-link open-month-modal" href="#" data-bs-toggle="modal" data-bs-target="#monthsModal" data-mode="monthtable">Meses</a>
         </li>
         
         {% if user.is_staff %}
@@ -66,7 +66,7 @@
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#confirmUnlockMonth">Destrancar Mês</a></li>
             {% endif %}
             <li><a class="dropdown-item" href="{% url 'shifts:sum_doctors_base' %}">Horas-Médico (Bases)</a></li>
-            <li><a class="dropdown-item" href="#">Horas-Médico (Mês)</a></li>
+            <li><a class="dropdown-item open-month-modal" href="#" data-bs-toggle="modal" data-bs-target="#monthsModal" data-mode="sum-doctors" >Horas-Médico (Mês)</a></li>
           </ul>
         </li>
         {% endif %}

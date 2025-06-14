@@ -81,7 +81,10 @@ def sum_doctors_base(request):
 
 @login_required
 def sum_doctors_month(request, month_num, year):
-    pass
+
+    context = {"table_data": {}}
+
+    return render(request, "shifts/table.html", context)
 
 
 @login_required

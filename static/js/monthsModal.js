@@ -1,8 +1,30 @@
+const centerGroup = centerSelect.closest(".mb-3");
+
+document.querySelectorAll(".open-month-modal").forEach(el => {
+  el.addEventListener("click", function () {
+    if (this.getAttribute("data-mode") === "sum-doctors") {
+      centerGroup.style.display = "none";
+    } else {
+      centerGroup.style.display = "";
+    }
+  });
+});
+
+
+
 document.addEventListener("DOMContentLoaded", async function () {
   const centerSelect = document.getElementById("centerSelect");
   const monthSelect = document.getElementById("monthSelect");
   const yearSelect = document.getElementById("yearSelect");
   const confirmBtn = document.getElementById("submitMonthsBtn");
+
+  let currentMode = "monthtable"; // default
+
+  document.querySelectorAll(".open-month-modal").forEach(el => {
+    el.addEventListener("click", function () {
+      currentMode = this.getAttribute("data-mode");
+    });
+  });
 
   const populateSelect = (selectElement, data, valueKey, textKey) => {
     selectElement.innerHTML = '';
@@ -38,8 +60,16 @@ document.addEventListener("DOMContentLoaded", async function () {
     const month = monthSelect.value;
     const year = yearSelect.value;
 
-    if (center && month && year) {
-      const url = `${window.location.origin}/shifts/monthtable/${center}/${month}/${year}/`;
+    console.log("Selected Center:", currentMode);
+    if (month && year && (currentMode === "sum-doctors" || center)) {
+      let url;
+
+      if (currentMode === "monthtable") {
+        url = `${window.location.origin}/shifts/monthtable/${center}/${month}/${year}/`;
+      } else if (currentMode === "sum-doctors") {
+        url = `${window.location.origin}/shifts/sum-doctors/${month}/${year}/`;
+      }
+
       window.location.href = url;
     } else {
       alert("Please select all fields.");
