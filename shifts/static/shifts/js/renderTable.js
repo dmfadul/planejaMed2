@@ -2,7 +2,7 @@ function renderTable(tableData){
     const table = document.getElementById('shift-table');
     table.innerHTML = ''; // Clear any previous content
 
-    if (["basetable", "month_table", "sum_doctors_base"].includes(tableData.template)) {
+    if (["basetable", "month_table", "sum_doctors_base", "sum_doctors_month"].includes(tableData.template)) {
         renderNormalTable(tableData, table);
     } else if (["sum_days_base", "sum_days_month"].includes(tableData.template)){ 
         renderSumTable(tableData, table);
