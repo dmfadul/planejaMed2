@@ -108,7 +108,6 @@ def build_doctors_sumtable(table_data, template, month=None):
                                       "crm": doctor.crm,
                                       "shifts": shifts,})
     
-    print(table_data["doctors"])
     return table_data
 
 
@@ -130,12 +129,20 @@ def build_sumtable(center, table_data, template, month=None):
         s_hours = s.get_hours_count()
         hours_by_day[key]["day"] += s_hours.get("day")
         hours_by_day[key]["night"] += s_hours.get("night")
+    
     # add zeroes for missing days
-    for i in range(7):
-        for j in range(1, 6):
-            key = f"{i}-{j}"
+    if template == "sum_days_base":
+        for i in range(7):
+            for j in range(1, 6):
+                key = f"{i}-{j}"
+                if key not in hours_by_day:
+                    hours_by_day[key] = {"day": 0, "night": 0}
+    elif template == "sum_days_month":
+        for i in range(1, month.size + 1):
+            key = f"{i}"
             if key not in hours_by_day:
                 hours_by_day[key] = {"day": 0, "night": 0}
+
     table_data["days"] = hours_by_day
     
     return table_data

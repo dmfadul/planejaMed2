@@ -42,7 +42,11 @@ def gen_headers(template, month=None):
                 header2.append({"cellID": "corner2", "label": ""})
                 continue
             
-            header1.append({"cellID": f"wday-{date.day}", "label": dias_semana[date.weekday()]})
+            if template == "month_table":
+                header1.append({"cellID": f"wday-{date.day}", "label": dias_semana[date.weekday()]})
+            elif template == "sum_days_month":
+                header1.append({"cellID": f"{date.day}", "label": dias_semana[date.weekday()]})
+
             header2.append({"cellID": f"mday-{date.day}", "label": date.day})
 
     elif template == "sum_doctors_base":
