@@ -36,7 +36,8 @@ def gen_headers(template, month=None):
         if month is None:
             raise ValueError("Month must be provided for month_table template.")
         
-        for i, date in enumerate(month.gen_date_row()):
+        date_row = [""] + month.gen_date_row()
+        for i, date in enumerate(date_row):
             if i == 0:
                 header1.append({"cellID": "corner1", "label": ""})
                 header2.append({"cellID": "corner2", "label": ""})

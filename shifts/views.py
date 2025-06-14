@@ -86,7 +86,6 @@ def sum_doctors_month(request, month_num, year):
         month=month
     )
 
-    print(table_data["header1"])
     context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)
