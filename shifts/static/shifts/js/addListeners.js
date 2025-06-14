@@ -4,6 +4,7 @@ function addListeners() {
     const addButton = document.getElementById('edit-add-button');
     const remButton = document.getElementById('edit-rem-button');
     const sumButton = document.getElementById('sum-hours-button');
+    const backButton = document.getElementById('back-button');
 
     console.log("✅ addListeners running after table render. Found:", cells.length);
 
@@ -25,6 +26,18 @@ function addListeners() {
 
     if (remButton) {
         remButton.addEventListener('click', () => executeEdit('remove'));
+    }
+
+    if (backButton) {
+        backButton.addEventListener('click', () => {
+            if (tableData.template == "sum_days_base") {
+                window.location.href = `/shifts/basetable/${tableData.center}/`;
+            } else if (tableData.template == "sum_days_month") {
+                window.location.href = `/shifts/monthtable/${tableData.center}/${tableData.month_number}/${tableData.year}/`;
+            } else {
+                console.error("Unknown template type:", tableData.template);
+            }
+        });
     }
 
     if (sumButton) {
