@@ -33,30 +33,11 @@ class ShiftSnapshot(models.Model):
     @classmethod
     def take_snapshot(cls, month, shift_type):
         cls.delete_snapshot(month, shift_type)
+
         if shift_type == ShiftType.BASE:
             tshifts = TemplateShift.objects.all()
-
-            current_month = Month.objects.current()
-            if not current_month:
-                raise ValueError("No current month found. (snapshots.py)")
-            
-            previous_snapshots = cls.objects.filter(month=current_month, type=ShiftType.BASE)
-            
-            def shift_key(shift):
-                return (shift.user.id, shift.center.id, shift.weekday, shift.index)
-            
-            def shift_data(shift):
-                return (shift.start_time, shift.end_time)
-            
-            prev_map = {shift_key(s): shift_data(s) for s in previous_snapshots}
-            
-            snapshots = []
-            for shift in tshifts:
-                key = shift_key(shift)
-                data = shift_data(shift)
-                
-                if key not in prev_map or prev_map[key] != data:
-                    snapshots.append(cls(
+            snapshots = [
+                cls(
                     user=shift.user,
                     center=shift.center,
                     month=month,
@@ -65,22 +46,10 @@ class ShiftSnapshot(models.Model):
                     weekday=shift.weekday,
                     index=shift.index,
                     type=ShiftType.BASE
-                ))
-        else:
-            shifts = Shift.objects.filter(month=month)
-            snapshots = [
-                cls(
-                    user=shift.user,
-                    center=shift.center,
-                    month=month,
-                    start_time=shift.start_time,
-                    end_time=shift.end_time,
-                    day=shift.day,
-                    type=shift_type
                 )
-                for shift in shifts
+                for shift in tshifts
             ]
-        cls.objects.bulk_create(snapshots)
+            cls.objects.bulk_create(snapshots)
         return True
 
     @classmethod
