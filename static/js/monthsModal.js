@@ -26,12 +26,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   });
 
-  const populateSelect = (selectElement, data, valueKey, textKey) => {
+  const populateSelect = (selectElement, data, valueKey, textKey, currentKey="current") => {
     selectElement.innerHTML = '';
     data.forEach(item => {
       const option = document.createElement("option");
       option.value = item[valueKey];
       option.textContent = item[textKey];
+      if (item[currentKey]) {
+        option.selected = true;
+      }
       selectElement.appendChild(option);
     });
   };
@@ -60,7 +63,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const month = monthSelect.value;
     const year = yearSelect.value;
 
-    console.log("Selected Center:", currentMode);
     if (month && year && (currentMode === "sum-doctors" || center)) {
       let url;
 
