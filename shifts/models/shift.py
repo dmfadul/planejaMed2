@@ -1,5 +1,7 @@
 from django.db import models
+from datetime import datetime
 from shifts.models.month import Month
+from core.constants import STR_DAY, END_DAY
 from shifts.models.shift_abstract import AbstractShift
   
   
@@ -10,8 +12,6 @@ class Shift(AbstractShift):
 
     def __str__(self):
         return f"{self.center.abbreviation} - {self.user.abbr_name} - {self.month.number}/{self.day} - {self.start_time} to {self.end_time}"
-    
-
 
     @classmethod
     def add(cls, doctor, center, month, day, start_time, end_time):
@@ -47,3 +47,28 @@ class Shift(AbstractShift):
         
         new_shift.save()
         return new_shift
+
+
+    def get_date(self):
+        """Returns the date of the shift as a datetime object."""
+
+        if END_DAY <= self.day <= 31:
+            actual_month, actual_year = self.month.prv_number_year()
+        else:
+            actual_month, actual_year = self.month.number, self.month.year
+        return datetime(actual_year, actual_month, self.day)
+
+    def get_overtime_count(self):
+        """Returns a dict of overtime and normal hours."""
+        actual_date = self.get_date()
+
+        # TODO: Implement logic to determine if the shift is a holiday or not
+        if actual_date.weekday in [5, 6]:  # Saturday or Sunday
+            return {"normal": 0, "overtime": len(self.hour_list)}
+        
+        # For weekdays, calculate overtime based on night hours
+        day_night_hours = self.get_hours_count()
+        return {
+            "normal": day_night_hours["day"],
+            "overtime": day_night_hours["night"]
+        }

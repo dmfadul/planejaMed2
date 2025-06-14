@@ -49,7 +49,7 @@ def gen_headers(template, month=None):
 
             header2.append({"cellID": f"mday-{date.day}", "label": date.day})
 
-    elif template == "sum_doctors_base":
+    elif template in ["sum_doctors_base", "sum_doctors_month"]:
         centers = [None] + [
             abbr for c in Center.objects.filter(is_active=True)
             for abbr in [c.abbreviation, c.abbreviation]

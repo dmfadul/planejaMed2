@@ -93,6 +93,12 @@ class Month(models.Model):
         else:
             return self.number + 1, self.year
         
+    def prv_number_year(self):
+        if self.number == 1:
+            return 12, self.year - 1
+        else:
+            return self.number - 1, self.year
+        
     def fix_users(self):
         active_users = User.objects.filter(is_active=True, is_invisible=False)
         self.users.set(active_users)

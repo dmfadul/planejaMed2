@@ -19,8 +19,6 @@ def month_table(request, center_abbr, month_num, year):
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month = get_object_or_404(Month, number=month_num, year=year)
 
-    status = "ORIGIANAL" if month.is_locked else "REALIZADO"
-
     table_data = build_table_data(
         center=center,
         table_type="MONTH",
@@ -28,9 +26,8 @@ def month_table(request, center_abbr, month_num, year):
         month=month
     )
 
-    table_data["status"] = status
+    table_data["status"] = "ORIGINAL" if month.is_locked else "REALIZADO"
     context = {"table_data": table_data}
-    print(table_data.keys())
 
     return render(request, "shifts/table.html", context)
 
@@ -81,8 +78,15 @@ def sum_doctors_base(request):
 
 @login_required
 def sum_doctors_month(request, month_num, year):
+    month = get_object_or_404(Month, number=month_num, year=year)
 
-    context = {"table_data": {}}
+    table_data = build_table_data(
+        table_type=f"HORAS-MÉDICO ({month.name.upper()}-{month.year})",
+        template="sum_doctors_month",
+        month=month
+    )
+
+    context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)
 
