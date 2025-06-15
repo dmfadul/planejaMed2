@@ -6,6 +6,7 @@ let state = JSON.parse(localStorage.getItem('tableState')) || {
     center: null,
     month: null,
     year: null,
+    status: null, // 'BASE, 'ORIGINAL' or 'REALIZED'
     selectedCells: [],
 };
 
@@ -145,6 +146,7 @@ function getData() {
     state.center = tableData["center"];
     state.month = tableData["month"];
     state.year = tableData["year"];
+    state.status = tableData["status"];
     
     saveState(); // Save state to localStorage
 }
