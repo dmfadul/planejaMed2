@@ -109,7 +109,28 @@ function clickName(name) {
 }
 
 function clickHeader(header) {
-    console.log("Header clicked:", header.textContent);
+    const columnIndex = Array.from(header.parentElement.children).indexOf(header);
+    const table = header.closest("table");
+
+    if (!table) return;
+
+    const rows= table.rows;
+
+    hasHoliday = false;
+    if (header.classList.contains("holiday")) {
+        hasHoliday = true;
+    }
+
+    for (let i = 0; i < rows.length; i++) {
+        const cell = rows[i].cells[columnIndex];
+        if (!cell) continue;
+
+        if (hasHoliday) {
+            cell.classList.remove('holiday');
+        } else {
+            cell.classList.add('holiday');
+        }
+    }
 }
 
 function clearSelectedCells() {

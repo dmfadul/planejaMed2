@@ -196,3 +196,8 @@ td.normal-col {
 th.first-col, td.first-col {
     width: 220px;
 }
+
+th.holiday,
+td.holiday {
+    background-color: #b8d0e9; /* Soft pale blue, kept for special occasion */
+}
