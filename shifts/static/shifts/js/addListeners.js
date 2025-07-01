@@ -1,6 +1,7 @@
 function addListeners() {
     const cells = document.querySelectorAll('.cell-col');
     const names = document.querySelectorAll('.name-col');
+    const h_days = document.querySelectorAll('.header');
     const addButton = document.getElementById('edit-add-button');
     const remButton = document.getElementById('edit-rem-button');
     const sumButton = document.getElementById('sum-hours-button');
@@ -16,9 +17,18 @@ function addListeners() {
 
     names.forEach(name => {
         name.addEventListener('click', () => {
+            console.log("name");
             clickName(name);
         });
     });
+    
+    if (h_days.length > 0) {
+        h_days.forEach(header => {
+            header.addEventListener('click', () => {
+                clickHeader(header);
+            });
+        });
+    }
 
     if (addButton) {
         addButton.addEventListener('click', () => executeEdit('add'));

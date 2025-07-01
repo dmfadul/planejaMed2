@@ -135,6 +135,13 @@ def update(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
+def update_holiday(request):
+    print("holiday", request.POST)
+    # Placeholder for holiday update logic
+    pass
+
+@user_passes_test(lambda u: u.is_superuser)
+@require_POST
 def create_month(request):
     print("Creating new month...")
     next_month = Month.objects.next()
