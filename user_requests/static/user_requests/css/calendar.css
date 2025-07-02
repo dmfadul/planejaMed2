@@ -1,3 +1,8 @@
+.calendar-panel {
+
+    background-color: #f8f9fa43; /* Light gray, Bootstrap-like */
+}
+
 .calendar-container {
     display: flex;
     justify-content: center;
