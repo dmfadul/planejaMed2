@@ -1,7 +1,37 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load static %}
 
+{% block css %}
+    <link rel="stylesheet" href="{% static 'user_requests/css/calendar.css' %}">
+
+{% endblock %}
 
 
 {% block content %}
-calendar
+    <div class="calendar-container">
+        <div class="calendar-wrapper">
+            <table class="calendar">
+                <tr class="calendar-header">
+                    <th colspan="7">{{ month_name }} {{ year }} {{ open_center }}</th>
+                </tr>
+                <tr>
+                    <td>Seg</td>
+                    <td>Ter</td>
+                    <td>Qua</td>
+                    <td>Qui</td>
+                    <td>Sex</td>
+                    <td>Sab</td>
+                    <td>Dom</td>
+                </tr>
+                {% for week in table %}
+                <tr>
+                    {% for day in week %}
+                    <td>{{ day }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+            <div id="dictData"></div>
+        </div>
+    </div>
 {% endblock %}

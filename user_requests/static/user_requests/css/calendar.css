@@ -1,0 +1,82 @@
+.calendar-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.calendar-wrapper {
+    margin: 0 auto;
+    padding: 0 20px; /* fallback padding for smaller screens */
+}
+
+/* Calendar block itself */
+.calendar {
+    width: 100%;
+    max-width: 420px;
+    background-color: white;
+    color: black;
+    border-collapse: collapse;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 1rem;
+}
+
+/* Calendar Header Styling */
+.calendar-header th {
+    background-color: #f0f0f0;
+    color: #222;
+    font-size: 1.2rem;
+    padding: 15px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+
+/* Days of the week */
+.calendar tr:nth-child(2) td {
+    background-color: #eaeaea;
+    font-weight: bold;
+}
+
+/* Calendar cells */
+.calendar td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #ddd;
+    height: 50px;
+    width: 50px;
+}
+
+/* Optional hover effect */
+.calendar td:hover {
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+/* Weekend and holiday styles (reuse your classes) */
+td.holiday {
+    background-color: #b8d0e9 !important;
+}
+
+td.weekend {
+    background-color: #a4c4df !important;
+}
+
+/* Responsiveness (optional tweak) */
+@media (max-width: 480px) {
+    .calendar {
+        width: 95%;
+        font-size: 0.9rem;
+    }
+
+    .calendar td {
+        padding: 10px;
+    }
+
+    .calendar-header th {
+        font-size: 1rem;
+    }
+}
