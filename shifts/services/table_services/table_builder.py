@@ -61,7 +61,6 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
     
     if template == "sum_doctors_month":
         table_data["header1"], table_data["header2"] = gen_headers(template)
-        print(table_data["header1"], table_data["header2"])
         table_data["center"] = ""
         return build_doctors_sumtable(table_data, template=template, month=month)
 
