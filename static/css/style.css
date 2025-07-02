@@ -201,3 +201,8 @@ th.holiday,
 td.holiday {
     background-color: #b8d0e9; /* Soft pale blue, kept for special occasion */
 }
+
+th.weekend,
+td.weekend {
+    background-color: #a4c4df; /* Soft blue for weekends */
+}

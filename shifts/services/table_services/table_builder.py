@@ -18,6 +18,8 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
         "hour_range": [f"{x:02d}:00" for x in HOUR_RANGE],
         "hour_values": {f"{x:02d}:00": x for x in HOUR_RANGE},
         "show_back_button": 0,
+        "holidays": [],
+        "weekends": [],
     }
     if center:
         table_data["center"] = center.abbreviation
@@ -32,6 +34,8 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
         table_data["month"] = month.name.upper()
         table_data["month_number"] = month.number
         table_data["year"] = month.year
+
+        
         return build_basetable(center, table_data, template=template, month=month)
     
     if template == "doctor_basetable":
