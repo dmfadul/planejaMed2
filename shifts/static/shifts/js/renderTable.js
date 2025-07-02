@@ -70,6 +70,9 @@ function renderNormalTable(data, table) {
             const td = document.createElement('td');
             td.id = cellId;
             td.className = 'normal-col cell-col';
+            if (['SAB', 'DOM'].includes(cell.label)) {
+                td.className += ' weekend';
+            }
             let txtContent = null;
             if (doctor.shifts[cellId] === undefined) {
                 txtContent = '';
