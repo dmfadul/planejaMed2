@@ -25,5 +25,5 @@ urlpatterns = [
     path('', include('core.urls')),
     path('shifts/', include('shifts.urls')),
     path('requests/', include('user_requests.urls')),
-    path('', calendar, name='home'),
+    path('<str:center_abbr>/', calendar, name='home'),
 ]

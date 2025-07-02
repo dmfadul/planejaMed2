@@ -4,5 +4,5 @@ from .views import calendar
 app_name = "requests"
 
 urlpatterns = [
-    path("calendar/", calendar, name="calendar"),
+    path("calendar/<str:center_abbr>/", calendar, name="calendar"),
 ]

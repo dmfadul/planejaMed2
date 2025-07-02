@@ -10,7 +10,7 @@ from django.contrib.auth.views import LoginView
 class CustomLoginView(LoginView):
     template_name = "core/login.html"
     redirect_authenticated_user = True  # Redirects already logged-in users
-    success_url = reverse_lazy("user_requests:calendar")  # Change this to the actual landing page
+    success_url = reverse_lazy("home", kwargs={'center_abbr': "CCG"})  # Change this to the actual landing page
 
 
 class CustomLogoutView(View):
