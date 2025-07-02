@@ -20,6 +20,9 @@ function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
         th.id = cell.cellID;
         if (idx === 0) th.classList.add('first-col', 'corner');
         else th.classList.add('normal-col', 'header');
+        
+        if (['SAB', 'DOM'].includes(cell.label)) th.classList.add('weekend');
+        
         if (showTitle) {
             th.title = cell.title || '';
         }
@@ -36,6 +39,10 @@ function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
             th.id = cell.cellID;
             if (idx === 0) th.classList.add('first-col', 'corner');
             else th.classList.add('normal-col', 'header');
+
+            const header1Text = thead.rows[0].cells[idx].textContent;    
+            if (['SAB', 'DOM'].includes(header1Text)) th.classList.add('weekend');
+
             row2.appendChild(th);
         });
         
