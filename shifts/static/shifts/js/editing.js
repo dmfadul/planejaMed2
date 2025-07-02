@@ -119,7 +119,7 @@ async function clickHeader(header) {
         center: tableData.center,
         monthNumber: tableData.month_number,
         year: tableData.year,
-        day: header.textContent.trim(),
+        day: header.id.split('-')[1],
     };
     try {
         const response = await fetch('/shifts/update-holiday', {

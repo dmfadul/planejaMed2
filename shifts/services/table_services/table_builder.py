@@ -20,10 +20,10 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
         "show_back_button": 0,
         "holidays": [],
     }
+
     if center:
         table_data["center"] = center.abbreviation
     
-
     if template == "basetable":
         table_data["header1"], table_data["header2"] = gen_headers(template)
         return build_basetable(center, table_data, template=template)

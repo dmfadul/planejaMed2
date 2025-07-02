@@ -15,6 +15,8 @@ function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
     const thead = document.createElement('thead');
     const row1 = document.createElement('tr');
     data.header1.forEach((cell, idx) => {
+        const cellDay = cell.cellID.split('-')[1];
+        
         const th = document.createElement('th');
         th.textContent = cell.label;
         th.id = cell.cellID;
@@ -22,6 +24,7 @@ function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
         else th.classList.add('normal-col', 'header');
         
         if (['SAB', 'DOM'].includes(cell.label)) th.classList.add('weekend');
+        if (cellDay && data.holidays.includes(Number(cellDay))) th.classList.add('holiday');
         
         if (showTitle) {
             th.title = cell.title || '';
@@ -34,6 +37,8 @@ function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
     if (twoHeaders) {
         const row2 = document.createElement('tr');
         data.header2.forEach((cell, idx) => {
+            const cellDay = cell.cellID.split('-')[1];
+
             const th = document.createElement('th');
             th.textContent = cell.label;
             th.id = cell.cellID;
@@ -42,6 +47,7 @@ function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
 
             const header1Text = thead.rows[0].cells[idx].textContent;    
             if (['SAB', 'DOM'].includes(header1Text)) th.classList.add('weekend');
+            if (cellDay && data.holidays.includes(Number(cellDay))) th.classList.add('holiday');
 
             row2.appendChild(th);
         });
@@ -73,13 +79,16 @@ function renderNormalTable(data, table) {
         tr.appendChild(nameTd);
 
         data.header1.slice(1).forEach(cell => {
+            const cellDay = cell.cellID.split('-')[1];
+
             const cellId = `cell-${doctor.crm}-${cell.cellID}`;
             const td = document.createElement('td');
             td.id = cellId;
+            
             td.className = 'normal-col cell-col';
-            if (['SAB', 'DOM'].includes(cell.label)) {
-                td.className += ' weekend';
-            }
+            if (['SAB', 'DOM'].includes(cell.label)) td.className += ' weekend';
+            if (cellDay && data.holidays.includes(Number(cellDay))) td.classList.add('holiday');
+            
             let txtContent = null;
             if (doctor.shifts[cellId] === undefined) {
                 txtContent = '';

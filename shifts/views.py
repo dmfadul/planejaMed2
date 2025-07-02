@@ -28,6 +28,8 @@ def month_table(request, center_abbr, month_num, year):
     )
 
     table_data["status"] = "ORIGINAL" if month.is_locked else "REALIZADO"
+    table_data["holidays"] = [h.day for h in month.holidays.all()]
+
     context = {"table_data": table_data}
 
     return render(request, "shifts/table.html", context)
