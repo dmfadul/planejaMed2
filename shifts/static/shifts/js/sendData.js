@@ -34,7 +34,6 @@ async function sendData() {
     } finally {
         setTimeout(() => {
             clearSelectedCells();
-        }, 500);
-        
+        }, 500); 
     }
 }

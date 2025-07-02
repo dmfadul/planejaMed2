@@ -136,9 +136,13 @@ def update(request):
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
 def update_holiday(request):
-    print("holiday", request.POST)
-    # Placeholder for holiday update logic
-    pass
+    try:
+        # Placeholder for holiday update logic
+        print("holiday", request.body)
+
+        return JsonResponse({"status": "success"})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
 
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST

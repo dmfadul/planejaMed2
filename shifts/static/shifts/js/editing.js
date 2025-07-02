@@ -106,18 +106,40 @@ function clickName(name) {
     window.location.href = `/shifts/basetable/${tableData.center}/${name.id}/`;
 }
 
-function clickHeader(header) {
+async function clickHeader(header) {
     const columnIndex = Array.from(header.parentElement.children).indexOf(header);
     const table = header.closest("table");
 
     if (!table) return;
+    if (["SAB", "DOM"].includes(header.textContent.trim())) return; // Ignore weekend headers
+    
+    try {
+        const response = await fetch('/shifts/update-holiday', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify(header.textContent.trim()),
+        });
 
-    const rows= table.rows;
-
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Server responded with status ${response.status}`);
+        }
+        console.log("Holiday status updated successfully!");
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message);  // 🟥 Shows backend error message here
+        return; // Exit if there's an error
+    }
+    
     hasHoliday = false;
     if (header.classList.contains("holiday")) {
         hasHoliday = true;
     }
+
+    const rows= table.rows;
 
     for (let i = 0; i < rows.length; i++) {
         const cell = rows[i].cells[columnIndex];
