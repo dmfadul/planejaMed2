@@ -91,8 +91,10 @@ class Month(models.Model):
         if not (1 <= day <= 31):
             raise ValueError("Day must be between 1 and 31.")
         
-        if day in self.holidays.all():
-            return
+        if day in [h.day for h in self.holidays.all()]:
+            # If the holiday already exists, remove it
+            self.holidays.filter(day=day).delete()
+            return True
         
         new_holiday = Holiday(month=self, day=day)
         new_holiday.save()
@@ -140,3 +142,6 @@ class Month(models.Model):
 class Holiday(models.Model):
     month = models.ForeignKey(Month, on_delete=models.CASCADE, related_name='holidays')
     day = models.IntegerField()
+
+    class Meta:
+        unique_together = ('month', 'day')  # Ensures (month, day) is unique
