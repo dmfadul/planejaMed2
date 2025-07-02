@@ -111,8 +111,16 @@ async function clickHeader(header) {
     const table = header.closest("table");
 
     if (!table) return;
+    if (tableData.table_type === "BASE") return;
+    // if (!state.editing) return; // uncomment this line after testing
     if (["SAB", "DOM"].includes(header.textContent.trim())) return; // Ignore weekend headers
     
+    const data = {
+        center: tableData.center,
+        monthNumber: tableData.month_number,
+        year: tableData.year,
+        day: header.textContent.trim(),
+    };
     try {
         const response = await fetch('/shifts/update-holiday', {
             method: 'POST',
@@ -120,7 +128,7 @@ async function clickHeader(header) {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken'),
             },
-            body: JSON.stringify(header.textContent.trim()),
+            body: JSON.stringify(data),
         });
 
         if (!response.ok) {

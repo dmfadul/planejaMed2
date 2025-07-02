@@ -75,6 +75,7 @@ class Month(models.Model):
         
         return current_month if current_month else None
     
+    
 
     def get_previous(self):
         if self.number == 1:
@@ -86,6 +87,17 @@ class Month(models.Model):
     
 
     # ---- Instance Methods ----
+    def toggle_holiday(self, day):
+        if not (1 <= day <= 31):
+            raise ValueError("Day must be between 1 and 31.")
+        
+        if day in self.holidays.all():
+            return
+        
+        new_holiday = Holiday(month=self, day=day)
+        new_holiday.save()
+        
+        return True
 
     def next_number_year(self):
         if self.number == 12:

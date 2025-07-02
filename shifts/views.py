@@ -1,3 +1,4 @@
+import json
 import logging
 from core.models import User
 import core.constants as constants
@@ -137,8 +138,16 @@ def update(request):
 @require_POST
 def update_holiday(request):
     try:
-        # Placeholder for holiday update logic
-        print("holiday", request.body)
+        data = json.loads(request.body)
+        month_number = data.get("monthNumber")
+        year = data.get("year")
+        holiday = data.get("day")
+
+        if not holiday or not month_number or not year:
+            return JsonResponse({"error": "Dados insuficientes."}, status=400)
+
+        month = get_object_or_404(Month, number=month_number, year=year)
+        month.toggle_holiday(int(holiday))
 
         return JsonResponse({"status": "success"})
     except Exception as e:
