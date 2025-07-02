@@ -102,10 +102,8 @@ function clickCell(cell) {
 }
 
 function clickName(name) {
-    // Save state before navigating
-    saveState();
+    saveState(); // Save state before navigating
     window.location.href = `/shifts/basetable/${tableData.center}/${name.id}/`;
-    // TODO: this is the cause of the return button bug
 }
 
 function clickHeader(header) {

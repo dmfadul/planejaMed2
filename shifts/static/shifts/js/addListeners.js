@@ -44,6 +44,8 @@ function addListeners() {
                 window.location.href = `/shifts/basetable/${tableData.center}/`;
             } else if (tableData.template == "sum_days_month") {
                 window.location.href = `/shifts/monthtable/${tableData.center}/${tableData.month_number}/${tableData.year}/`;
+            } else if (tableData.template == "doctor_basetable") {
+                window.location.href = `/shifts/basetable/${tableData.center}/`;
             } else {
                 console.error("Unknown template type:", tableData.template);
             }
