@@ -61,13 +61,12 @@
     cursor: pointer;
 }
 
-/* Weekend and holiday styles (reuse your classes) */
-td.holiday {
-    background-color: #b8d0e9 !important;
+.day-clicked {
+    box-shadow: 0px 0px 10px #000; /* Example shadow effect */
 }
 
-td.weekend {
-    background-color: #a4c4df !important;
+.card {
+    user-select: none;
 }
 
 /* Responsiveness (optional tweak) */
