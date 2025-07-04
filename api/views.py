@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from shifts.models import Center, Month
+from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 
@@ -27,11 +27,20 @@ def year_list(request):
     years = [{"year": year, "current": year == Month.objects.current().year} for year in range(2025, 2031)]
     return JsonResponse(years, safe=False)
 
+
 @require_GET
-def day_schedule(request, center_abbr, month_number, year):
+def day_schedule(request, center_abbr, year, month_number, day):
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month = get_object_or_404(Month, number=month_number, year=year)
 
+    day_shifts = Shift.objects.filter(
+        center=center,
+        month=month,
+        day=day
+    ).order_by('user') 
+
+    print(day_shifts)
+    
     schedule_data = {
     }
 

@@ -1,5 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('handleClick.js loaded');
+    const dataEl = document.getElementById("calendarData");
+
+    const openCenter = dataEl.dataset.openCenter;
+    const monthNumber = parseInt(dataEl.dataset.monthNumber);
+    const year = parseInt(dataEl.dataset.year);
+    
     function handleDayClick(event) {
         const clickedDay = event.target;
         // Check if clicked element is a day (a TD element with a number)
@@ -9,24 +14,22 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             clickedDay.classList.add('day-clicked');   
-            day = clickedDay.innerText;
+            day = parseInt(clickedDay.innerText);
 
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', `/get-day-data?day=${encodeURIComponent(day)}&center=${encodeURIComponent(openCenter)}`, true);
-
-            xhr.onload = function() {
-                if (this.status === 200) {
-                    const response = JSON.parse(this.responseText);
-                    // console.log(response);
-                    displayDayData(response);
-                } else {
-                    console.error('Error fetching day data');
+            fetch(`/api/day_schedule/${openCenter}/${year}/${monthNumber}/${day}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-                xhr.onerror = function() {
-                    console.error('Error fetching day data');
-                }
-            }
-            xhr.send();
+                return response.json();
+            })
+            .then(data => {
+                console.log("Received data:", data);
+                // You can now use `data` however you want
+              })
+              .catch(error => {
+                console.error("Fetch error:", error);
+              });
         }
     }
 

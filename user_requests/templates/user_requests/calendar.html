@@ -8,7 +8,11 @@
 
 
 {% block content %}
-    <div class="calendar-container">
+    <div class="calendar-container"
+        id="calendarData"
+        data-open-center="{{ open_center }}"
+        data-month-number="{{ month_number }}"
+        data-year="{{ year }}">
         <div class="calendar-panel shadow-sm rounded-3 p-4">
             <div class="calendar-wrapper">
                 <table class="calendar">
@@ -36,7 +40,7 @@
             </div>
         </div>
     </div>
-{% block script %}
-    <script src="{% static 'user_requests/js/handleClick.js' %}"></script>
-{% endblock %}
+    {% block script %}
+        <script src="{% static 'user_requests/js/handleClick.js' %}"></script>
+    {% endblock %}
 {% endblock %}
