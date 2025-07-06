@@ -37,17 +37,34 @@ def day_schedule(request, center_abbr, year, month_number, day):
         center=center,
         month=month,
         day=day
-    ).order_by('user') 
+    )
 
-    schedule_data = {}
+    schedule_dict = {}
     for shift in day_shifts:
-        if shift.user.crm not in schedule_data:
-            schedule_data[shift.user.crm] = {
-                "name": shift.user.name,
+        if shift.user.crm not in schedule_dict:
+            schedule_dict[shift.user.crm] = {
+                "user": shift.user,
                 "shifts": []
             }
         shfit_str = f"{shift.start_time:02d}:00 - {shift.end_time:02d}:00"
-        schedule_data[shift.user.crm]["shifts"].append(shfit_str)
+        schedule_dict[shift.user.crm]["shifts"].append(shfit_str)
+
+    # Convert the schedule dictionary to a list of dictionaries
+    schedule_data = []
+    for values in schedule_dict.values():
+        user_name = values["user"].name
+        shifts_str = "<br>".join(values["shifts"])
+        card_line = user_name + "<br>" + shifts_str
+        schedule_data.append({
+            "name": user_name,
+            "crm": values["user"].crm,
+            "cardLine": card_line,
+        })
+
+    schedule_data = sorted(schedule_data, key=lambda x: x["name"].lower())
         
-    return JsonResponse(schedule_data)
+    return JsonResponse({
+        "status": "ok",
+        "schedule": schedule_data,
+    })
 

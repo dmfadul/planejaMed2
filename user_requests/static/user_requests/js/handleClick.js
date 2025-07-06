@@ -1,4 +1,5 @@
 function displayDaySchedule(dayDict) {
+    dayArray = dayDict["schedule"];
     let output = '<ul>'
     output += `
     <li id="item-0" class="card">
@@ -9,18 +10,30 @@ function displayDaySchedule(dayDict) {
             </div>
         </div>
     </li>`;
+    
+    
 
-    for (const [crm, info] of Object.entries(dayDict)) {
-        console.log(`${crm}: `);
-        for (const [key, values] of Object.entries(info)) {
-            console.log(`${key}: ${values}`);
-        }
-    }
+    dayArray.forEach(info => {
+        const cardContent = info["cardLine"];
+        const crm = info["crm"];
+        
+        output += `
+        <li id="${crm}" class="card">
+            ${cardContent}
+            <div class="kebab-menu">
+                <div class="kebab-content">
+                <a href="#" onclick="processCalRequest('${crm}', 'exclude')" data-action="exclude">Exclusão</a>
+                <a href="#" onclick="processCalRequest('${crm}', 'donate')" data-action="donation">Doação</a>
+                <a href="#" onclick="processCalRequest('${crm}', 'exchange')" data-action="exchange">Troca</a>
+                </div>
+            </div>
+        </li>`;
+    });
 
     output += '</ul>';  // Close the unordered list
-    
     document.getElementById('dictData').innerHTML = output;
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const dataEl = document.getElementById("calendarData");
