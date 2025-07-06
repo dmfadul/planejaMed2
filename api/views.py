@@ -39,10 +39,15 @@ def day_schedule(request, center_abbr, year, month_number, day):
         day=day
     ).order_by('user') 
 
-    print(day_shifts)
-    
-    schedule_data = {
-    }
-
+    schedule_data = {}
+    for shift in day_shifts:
+        if shift.user.crm not in schedule_data:
+            schedule_data[shift.user.crm] = {
+                "name": shift.user.name,
+                "shifts": []
+            }
+        shfit_str = f"{shift.start_time:02d}:00 - {shift.end_time:02d}:00"
+        schedule_data[shift.user.crm]["shifts"].append(shfit_str)
+        
     return JsonResponse(schedule_data)
 
