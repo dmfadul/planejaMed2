@@ -73,3 +73,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const calendarTable = document.querySelector('.calendar');
     calendarTable.addEventListener('click', handleDayClick);
 });
+
+document.addEventListener('click', function(event) {
+    let card = event.target.closest('.card');
+    let openMenus = document.querySelectorAll('.kebab-content');
+    let allCards = document.querySelectorAll('#dictData li');
+
+    // Hide all menus and remove active class from all cards
+    for (let menu of openMenus) {
+        menu.style.display = 'none';
+    }
+    for (let li of allCards) {
+        li.classList.remove('active');
+    }
+
+    // If clicked inside a card, show its kebab-content and add active class
+    if (card) {
+        let kebab = card.querySelector('.kebab-content');
+        if (kebab) {
+            kebab.style.display = 'block';
+            card.classList.add('active'); // Add active class to parent li
+        }
+    }
+});

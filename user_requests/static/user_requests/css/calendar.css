@@ -71,6 +71,7 @@
     max-width: 420px;          /* Match calendar max-width */
     margin-left: auto;
     margin-right: auto;
+    z-index: 0;          /* Explicit base level */
 }
 
 #dictData ul {
@@ -81,28 +82,40 @@
 
 #dictData li {
     width: 100%;
-    background-color: #f9f9f9;  /* Light grey background */
-    border: 1px solid #e0e0e0;  /* Border around each card */
-    padding: 10px 15px;  /* Padding inside each card */
-    margin: 10px 0;  /* Space between cards */
-    border-radius: 5px;  /* Rounded corners */
-    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);  /* A slight shadow for depth */
-    transition: transform 0.2s;  /* Smooth transformation transition */
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s; /* Only transition box-shadow */
+    position: relative; /* Ensure stacking context for children */
+    z-index: 1; /* Base z-index */
 }
 
 #dictData li:hover {
-    transform: translateY(-3px);  /* Lift the card up slightly */
-    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.15);  /* Increase the shadow depth */
+    /* Remove transform */
+    /* transform: translateY(-3px); */
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.15);
+    z-index: 2; /* Keep z-index for layering */
+}
+
+#dictData li.active {
+    z-index: 1001; /* Higher than all other cards and kebab-content */
 }
 
 .card {
     user-select: none;
+    overflow: visible;   /* Allow dropdown to overflow */
+    position: relative; /* Ensure the card creates a stacking context */
+    z-index: 1; /* Base z-index for cards */
 }
 
 .kebab-menu {
-    position: relative;
+    position: absolute;
     display: inline-block;
-    float: none;
+    top: 10px;  /* Position the kebab menu button */
+    right: 10px;  /* Position the kebab menu button */
     /* Position the menu to the right side of the list item */
 }
 
@@ -110,13 +123,31 @@
     display: none;
     position: absolute;
     right: 0;
-    /* Align the dropdown to the right */
+    top: 100%;
     background-color: #f9f9f9;
     min-width: 120px;
     border: 1px solid #e0e0e0;
     border-radius: 5px;
     box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
-    z-index: 1;
+    z-index: 1000; /* Still high, but below .active li */
+}
+
+.kebab-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.kebab-content a:last-child {
+    border-bottom: none;
+    /* Remove border for the last item */
+}
+
+.kebab-content a:hover {
+    background-color: #e0e0e0;
+    /* Slightly darker grey on hover */
 }
 
 /* Responsiveness (optional tweak) */
