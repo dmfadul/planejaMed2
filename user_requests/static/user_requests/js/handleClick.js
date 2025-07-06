@@ -1,3 +1,27 @@
+function displayDaySchedule(dayDict) {
+    let output = '<ul>'
+    output += `
+    <li id="item-0" class="card">
+        INCLUSÃO
+        <div class="kebab-menu">
+            <div class="kebab-content">
+                <a href="#" onclick="processCalRequest('0', 'include')" data-action="include">Inclusão</a>
+            </div>
+        </div>
+    </li>`;
+
+    for (const [crm, info] of Object.entries(dayDict)) {
+        console.log(`${crm}: `);
+        for (const [key, values] of Object.entries(info)) {
+            console.log(`${key}: ${values}`);
+        }
+    }
+
+    output += '</ul>';  // Close the unordered list
+    
+    document.getElementById('dictData').innerHTML = output;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const dataEl = document.getElementById("calendarData");
 
@@ -24,8 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                console.log("Received data:", data);
-                // You can now use `data` however you want
+                displayDaySchedule(data);
               })
               .catch(error => {
                 console.error("Fetch error:", error);

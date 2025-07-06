@@ -65,8 +65,58 @@
     box-shadow: 0px 0px 10px #000; /* Example shadow effect */
 }
 
+#dictData {
+    margin-top: 20px;
+    width: 100%;               /* Take full width of .calendar-panel */
+    max-width: 420px;          /* Match calendar max-width */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#dictData ul {
+    list-style-type: none;  /* Remove bullet points */
+    padding: 0;
+    margin: 0;
+}
+
+#dictData li {
+    width: 100%;
+    background-color: #f9f9f9;  /* Light grey background */
+    border: 1px solid #e0e0e0;  /* Border around each card */
+    padding: 10px 15px;  /* Padding inside each card */
+    margin: 10px 0;  /* Space between cards */
+    border-radius: 5px;  /* Rounded corners */
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);  /* A slight shadow for depth */
+    transition: transform 0.2s;  /* Smooth transformation transition */
+}
+
+#dictData li:hover {
+    transform: translateY(-3px);  /* Lift the card up slightly */
+    box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.15);  /* Increase the shadow depth */
+}
+
 .card {
     user-select: none;
+}
+
+.kebab-menu {
+    position: relative;
+    display: inline-block;
+    float: none;
+    /* Position the menu to the right side of the list item */
+}
+
+.kebab-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    /* Align the dropdown to the right */
+    background-color: #f9f9f9;
+    min-width: 120px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1;
 }
 
 /* Responsiveness (optional tweak) */
