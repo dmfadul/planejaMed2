@@ -16,7 +16,7 @@
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#">Meus Horários</a></li>
             {% for center in centers %}
-              <li><a class="dropdown-item" href="#">{{ center }}</a></li>
+              <li><a class="dropdown-item" href="{% url 'requests:calendar' center_abbr=center %}">{{ center }}</a></li>
             {% endfor %}
           </ul>
         </li>
