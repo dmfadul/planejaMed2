@@ -42,5 +42,10 @@
     </div>
     {% block script %}
         <script src="{% static 'user_requests/js/handleClick.js' %}"></script>
+        <script src="{% static 'user_requests/js/calendarRequests.js' %}"></script>
+
+        <script>
+            const currentUserCrm = {{ current_user_crm|safe }};
+        </script>
     {% endblock %}
 {% endblock %}

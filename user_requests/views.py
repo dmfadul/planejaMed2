@@ -15,6 +15,7 @@ def calendar(request, center_abbr):
         return render(request, "user_requests/error.html", {"message": "No current month available."})
 
     calendar_data  = {
+        "current_user_crm": request.user.crm,
         "open_center": center,
         "month_number": month.number,
         "month_name": month.name,
