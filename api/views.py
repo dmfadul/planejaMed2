@@ -1,8 +1,20 @@
+from core.models import User
 from django.http import JsonResponse
 from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 
+
+@require_GET
+def users_list(request):
+    users = [
+        {
+            "crm": user.crm,
+            "name": user.name
+        }
+        for user in User.objects.filter(is_active=True, is_invisible=False).order_by('name')
+    ]
+    return JsonResponse(users, safe=False)
 
 @require_GET
 def centers_list(request):

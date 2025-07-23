@@ -5,6 +5,7 @@ app_name = "api"
 
 
 urlpatterns = [
+    path("users/", views.users_list, name="api-users"),
     path("centers/", views.centers_list, name="api-centers"),
     path("months/", views.month_list, name="api-months"),
     path("years/", views.year_list, name="api-years"),
