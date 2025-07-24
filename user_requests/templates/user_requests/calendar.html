@@ -12,7 +12,8 @@
         id="calendarData"
         data-open-center="{{ open_center }}"
         data-month-number="{{ month_number }}"
-        data-year="{{ year }}">
+        data-year="{{ year }}"
+        data-current-user-crm="{{ current_user_crm }}">
         <div class="calendar-panel shadow-sm rounded-3 p-4">
             <div class="calendar-wrapper">
                 <table class="calendar">
@@ -48,9 +49,5 @@
     {% block script %}
         <script src="{% static 'user_requests/js/handleClick.js' %}"></script>
         <script src="{% static 'user_requests/js/calendarRequests.js' %}"></script>
-
-        <script>
-            const currentUserCrm = {{ current_user_crm|safe }};
-        </script>
     {% endblock %}
 {% endblock %}
