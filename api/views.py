@@ -87,3 +87,21 @@ def day_schedule(request, center_abbr, year, month_number, day):
         "schedule": schedule_data,
     })
 
+@require_GET
+def get_hours(request):
+    crm          = request.GET.get("crm")
+    center_abbr  = request.GET.get("center_abbr")
+    year         = int(request.GET.get("year", 0))
+    month_number = int(request.GET.get("month_number", 0))
+    day          = int(request.GET.get("day", 0))
+    split        = request.GET.get("split", "false").lower() == "true"
+
+    return JsonResponse({
+        "status": "ok",
+        "crm": crm,
+        "center_abbr": center_abbr,
+        "year": year,
+        "month_number": month_number,
+        "day": day,
+        "message": "This feature is not implemented yet."
+    })
