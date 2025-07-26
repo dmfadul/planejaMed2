@@ -89,13 +89,34 @@ def day_schedule(request, center_abbr, year, month_number, day):
 
 @require_GET
 def get_hours(request):
-    crm          = request.GET.get("crm")
-    center_abbr  = request.GET.get("center_abbr")
-    year         = int(request.GET.get("year", 0))
-    month_number = int(request.GET.get("month_number", 0))
-    day          = int(request.GET.get("day", 0))
-    split        = request.GET.get("split", "false").lower() == "true"
+    crm = request.GET.get("crm")
+    filter_kwargs = {
+        "user__crm": crm,
+    }
 
+    center_abbr = request.GET.get("center_abbr")
+    if center_abbr:
+        filter_kwargs["center__abbreviation"] = center_abbr
+    print("center_abbr:", center_abbr)
+    
+    year = request.GET.get("year", 0)
+    if year and year.isdigit():
+        filter_kwargs["month__year"] = int(year)
+
+    month_number = request.GET.get("month_number", 0)
+    if month_number and month_number.isdigit():
+        filter_kwargs["month__number"] = int(month_number)
+    
+    day = request.GET.get("day", 0)
+    if day and day.isdigit():
+        filter_kwargs["day"] = int(day)
+
+    split = request.GET.get("split", "false").lower() == "true"
+
+    shitfs = Shift.objects.filter(**filter_kwargs).all()
+
+    for s in shitfs:
+        print("shifts:", s)
     return JsonResponse({
         "status": "ok",
         "crm": crm,
