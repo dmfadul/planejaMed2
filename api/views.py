@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
+from core.constants import SHIFTS_MAP, SHIFT_CODES, HOUR_RANGE, MORNING_START
 
 
 @require_GET
@@ -87,42 +88,59 @@ def day_schedule(request, center_abbr, year, month_number, day):
         "schedule": schedule_data,
     })
 
+def format_hours(start:int, end:int, redudant:bool=False) -> list:
+    """Split and format hours into a redundant list of string representations."""
+    shifts_map = SHIFTS_MAP
+
+    print(shifts_map)
+    output = []
+    for code, (s, e) in shifts_map.items():
+        if s == start and e == end:
+            output.append((code, (s, e)))
+
+    if not output:
+        return []
+    
+    formatted_hours = []
+    for code, (start, end) in output:
+        formatted_hours.append(f"{code}: {start:02d}:00 - {end:02d}:00")
+
+    return formatted_hours
+
+
 @require_GET
 def get_hours(request):
     crm = request.GET.get("crm")
+    year = request.GET.get("year")
+    month_number = request.GET.get("month")
+    split = request.GET.get("split", "false").lower() == "true"
+
     filter_kwargs = {
         "user__crm": crm,
+        "month__year": year,
+        "month__number": month_number
     }
 
-    center_abbr = request.GET.get("center_abbr")
+    center_abbr = request.GET.get("center")
     if center_abbr:
         filter_kwargs["center__abbreviation"] = center_abbr
-    print("center_abbr:", center_abbr)
-    
-    year = request.GET.get("year", 0)
-    if year and year.isdigit():
-        filter_kwargs["month__year"] = int(year)
-
-    month_number = request.GET.get("month_number", 0)
-    if month_number and month_number.isdigit():
-        filter_kwargs["month__number"] = int(month_number)
     
     day = request.GET.get("day", 0)
     if day and day.isdigit():
         filter_kwargs["day"] = int(day)
 
-    split = request.GET.get("split", "false").lower() == "true"
-
     shitfs = Shift.objects.filter(**filter_kwargs).all()
 
+    data = {}
     for s in shitfs:
-        print("shifts:", s)
-    return JsonResponse({
+        if s.user.crm not in data:
+            data[s.user.crm] = {
+                "name": s.user.name,
+                "hours": format_hours(s.start_time, s.end_time, redudant=split)
+            }
+
+    response = {
         "status": "ok",
-        "crm": crm,
-        "center_abbr": center_abbr,
-        "year": year,
-        "month_number": month_number,
-        "day": day,
-        "message": "This feature is not implemented yet."
-    })
+        "data": data,
+        }
+    return JsonResponse(response)
