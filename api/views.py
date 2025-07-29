@@ -88,25 +88,6 @@ def day_schedule(request, center_abbr, year, month_number, day):
         "schedule": schedule_data,
     })
 
-def format_hours(start:int, end:int, redudant:bool=False) -> list:
-    """Split and format hours into a redundant list of string representations."""
-    shifts_map = SHIFTS_MAP
-
-    print(shifts_map)
-    output = []
-    for code, (s, e) in shifts_map.items():
-        if s == start and e == end:
-            output.append((code, (s, e)))
-
-    if not output:
-        return []
-    
-    formatted_hours = []
-    for code, (start, end) in output:
-        formatted_hours.append(f"{code}: {start:02d}:00 - {end:02d}:00")
-
-    return formatted_hours
-
 
 @require_GET
 def get_hours(request):
@@ -136,7 +117,7 @@ def get_hours(request):
         if s.user.crm not in data:
             data[s.user.crm] = {
                 "name": s.user.name,
-                "hours": format_hours(s.start_time, s.end_time, redudant=split)
+                "hours": Shift.format_hours(s.start_time, s.end_time, redudant=split)
             }
 
     response = {

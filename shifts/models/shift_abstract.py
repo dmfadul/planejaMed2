@@ -34,6 +34,32 @@ class AbstractShift(models.Model):
         """Convert hour string to tuple of integers."""
         return SHIFTS_MAP.get(code, (0, 0))
 
+    @classmethod
+    def format_hours(cls, start:int, end:int, redudant:bool=True) -> list:
+        """Split and format hours into a redundant list of string representations."""
+        shifts_map = SHIFTS_MAP
+
+        output = {}
+        for hour in cls.gen_hour_list(start, end):
+            for code in shifts_map.keys():
+                if code not in output:
+                    output[code] = []
+                if hour in cls.gen_hour_list(*shifts_map[code]):
+                    output[code].append(hour)
+
+        print("Output:", output)
+        # for code, (s, e) in shifts_map.items():
+        #     if s == start and e == end:
+        #         output.append((code, (s, e)))
+
+        if not output:
+            return []
+
+        formatted_hours = []
+        # for code, (start, end) in output:
+        #     formatted_hours.append(f"{code}: {start:02d}:00 - {end:02d}:00")
+
+        return formatted_hours
 
     @classmethod
     def convert_to_code(cls, start:int, end:int) -> str:
