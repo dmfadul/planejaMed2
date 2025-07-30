@@ -94,7 +94,6 @@ def get_hours(request):
     crm = request.GET.get("crm")
     year = request.GET.get("year")
     month_number = request.GET.get("month")
-    split = request.GET.get("split", "false").lower() == "true"
 
     filter_kwargs = {
         "user__crm": crm,
@@ -117,7 +116,7 @@ def get_hours(request):
         if s.user.crm not in data:
             data[s.user.crm] = {
                 "name": s.user.name,
-                "hours": Shift.format_hours(s.start_time, s.end_time, redudant=split)
+                "hours": Shift.format_hours(s.start_time, s.end_time)
             }
 
     response = {

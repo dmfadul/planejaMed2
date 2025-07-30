@@ -35,7 +35,7 @@ class AbstractShift(models.Model):
         return SHIFTS_MAP.get(code, (0, 0))
 
     @classmethod
-    def format_hours(cls, start:int, end:int, redudant:bool=True) -> list:
+    def format_hours(cls, start:int, end:int) -> list:
         """Split and format hours into a redundant list of string representations."""
         shifts_map = SHIFTS_MAP
 
@@ -47,18 +47,20 @@ class AbstractShift(models.Model):
                 if hour in cls.gen_hour_list(*shifts_map[code]):
                     output[code].append(hour)
 
-        print("Output:", output)
-        # for code, (s, e) in shifts_map.items():
-        #     if s == start and e == end:
-        #         output.append((code, (s, e)))
-
         if not output:
             return []
 
         formatted_hours = []
-        # for code, (start, end) in output:
-        #     formatted_hours.append(f"{code}: {start:02d}:00 - {end:02d}:00")
+        for code, hours in output.items():
+            if not hours:
+                continue
+            
+            start, end = hours[0], hours[-1] + 1  # +1 to include the last hour in the range
+            formatted_hours.append(f"{code}: {start:02d}:00 - {end:02d}:00")
 
+        code_order = SHIFT_CODES
+        order_map = {val: idx for idx, val in enumerate(code_order)}
+        formatted_hours.sort(key=lambda x: order_map.get(x, len(code_order)))
         return formatted_hours
 
     @classmethod
