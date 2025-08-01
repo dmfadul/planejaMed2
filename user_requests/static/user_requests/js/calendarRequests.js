@@ -1,4 +1,23 @@
-
+function populateSelect(selectId, options, values = []) {
+    const container = document.getElementById('dynamicInputs');
+    container.innerHTML = '';               // 1) clear out any old <select>
+    
+    const select = document.createElement('select');
+    select.className = 'form-select mb-3';  // Bootstrap styling
+    select.id = selectId;
+    select.name = selectId;
+  
+    // 2) proper forEach callback signature
+    options.forEach((item, index) => {
+      const opt = document.createElement('option');
+      // 3) if values[index] exists use it, otherwise fall back to the label
+      opt.value = values[index] !== undefined ? values[index] : item;
+      opt.textContent = item;
+      select.appendChild(opt);
+    });
+  
+    container.appendChild(select);
+  }
 
 function processCalRequest(crm, action, center, year, monthNumber, day) {
     const currentUserCrm = parseInt(document.getElementById('calendarData').dataset.currentUserCrm, 10);
@@ -48,17 +67,26 @@ function handleOfferingDonation(ctx) {
 
 function handleRequestingDonation(ctx) {
 
-
-    
-    fetch(`/api/day_schedule/${ctx.center}/${ctx.year}/${ctx.monthNumber}/${ctx.day}/`)
+    fetch(`/api/hours/?crm=${ctx.cardCrm}&year=${ctx.year}&month=${ctx.monthNumber}&center=${ctx.center}&day=${ctx.day}/`)
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
         return response.json();
     })
-    .then(data => {
-        displayDaySchedule(data);
+    .then(rawData => {
+        let data = rawData.data;
+        let modal = new bootstrap.Modal(document.getElementById('modalRequests'));
+
+        const modalLabel = document.getElementById('modalRequestsLabel');
+        modalLabel.textContent = "Escolha a hora que deseja pedir: ";
+
+        populateSelect('requestHours', data[ctx.cardCrm]["hours"], data[ctx.cardCrm]["hours"]);
+        modal.show();
+
+        console.log(data, "data");
+
+        // displayDaySchedule(data);
       })
       .catch(error => {
         console.error("Fetch error:", error);
@@ -66,4 +94,6 @@ function handleRequestingDonation(ctx) {
 }
 
 function handleCalExchange(ctx) {
+    let modal = new bootstrap.Modal(document.getElementById('modalRequests'));
+    modal.show();
 }
