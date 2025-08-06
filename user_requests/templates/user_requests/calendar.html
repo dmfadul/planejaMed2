@@ -41,13 +41,13 @@
             <div id="dictData"></div>
         </div>
     </div>
+{% endblock %}
 
-    {% block modal %}
-        {% include "user_requests/partials/modals/modalRequests.html"%}
-    {% endblock %}
-    
-    {% block script %}
-        <script src="{% static 'user_requests/js/handleClick.js' %}"></script>
-        <script src="{% static 'user_requests/js/calendarRequests.js' %}"></script>
-    {% endblock %}
+{% block modal %}
+    {% include "user_requests/partials/modals/modalRequests.html"%}
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'user_requests/js/handleClick.js' %}"></script>
+    <script src="{% static 'user_requests/js/calendarRequests.js' %}"></script>
 {% endblock %}
