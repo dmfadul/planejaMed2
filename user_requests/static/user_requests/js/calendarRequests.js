@@ -84,7 +84,14 @@ function handleRequestingDonation(ctx) {
         populateSelect('requestHours', data[ctx.cardCrm]["hours"], data[ctx.cardCrm]["hours"]);
         modal.show();
 
-        console.log(data, "data");
+        const submitButton = document.getElementById('submitRequestButton');
+        submitButton.onclick = function() {
+            const selectElement = document.getElementById('requestHours');
+            const selectedHour = selectElement.value;
+            console.log(`Requesting hour: ${selectedHour} from CRM: ${ctx.cardCrm}`);
+            // Here you can add the logic to send the request to the server
+            modal.hide();
+        };
 
         // displayDaySchedule(data);
       })
