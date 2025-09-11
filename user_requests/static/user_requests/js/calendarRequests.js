@@ -85,13 +85,43 @@ function handleRequestingDonation(ctx) {
         modal.show();
 
         const submitButton = document.getElementById('submitRequestButton');
-        submitButton.onclick = function() {
+        submitButton.onclick = async function() {
             const selectElement = document.getElementById('requestHours');
             const selectedHour = selectElement.value;
+
             console.log(`Requesting hour: ${selectedHour} from CRM: ${ctx}`);
             console.log(`Context:`, ctx);
-            // Here you can add the logic to send the request to the server
-            modal.hide();
+
+            try {
+                const resp = await fetch('/api/submit_user_request/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')  // Ensure CSRF token is included
+                    },
+                    credentials: 'same-origin', // Include cookies in the request
+                    body: JSON.stringify({
+                        selectedHour: selectedHour,
+                        ctx: ctx,
+                    }),
+                });
+                
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    console.error("Server error:", err);
+                    alert("Failed to submit request.");
+                    
+                    return;
+                }
+
+                const data = await resp.json();
+                console.log("subimitted:", data);
+                // Handle success (e.g., show a success message)
+                modal.hide();
+            } catch (error) {
+                alert("Error submitting request.");
+                console.error("Fetch error:", error);
+            }
         };
 
         // displayDaySchedule(data);

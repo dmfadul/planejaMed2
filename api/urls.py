@@ -5,6 +5,7 @@ app_name = "api"
 
 
 urlpatterns = [
+    path("submit_user_request/", views.SubmitUserRequestView.as_view(), name="api-submit-user-request"),
     path("users/", views.users_list, name="api-users"),
     path("centers/", views.centers_list, name="api-centers"),
     path("months/", views.month_list, name="api-months"),
