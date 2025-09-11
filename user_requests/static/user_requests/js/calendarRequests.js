@@ -88,7 +88,8 @@ function handleRequestingDonation(ctx) {
         submitButton.onclick = function() {
             const selectElement = document.getElementById('requestHours');
             const selectedHour = selectElement.value;
-            console.log(`Requesting hour: ${selectedHour} from CRM: ${ctx.cardCrm}`);
+            console.log(`Requesting hour: ${selectedHour} from CRM: ${ctx}`);
+            console.log(`Context:`, ctx);
             // Here you can add the logic to send the request to the server
             modal.hide();
         };
