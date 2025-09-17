@@ -1,10 +1,11 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = "api"
 
 
 urlpatterns = [
+    path('', views.apiOverview, name="api-overview"),
     path("submit_user_request/", views.SubmitUserRequestView.as_view(), name="api-submit-user-request"),
     path("users/", views.users_list, name="api-users"),
     path("centers/", views.centers_list, name="api-centers"),

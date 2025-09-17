@@ -5,9 +5,27 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from core.constants import SHIFTS_MAP, SHIFT_CODES, HOUR_RANGE, MORNING_START
 
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
+
+from django.http import JsonResponse
+
+
+@api_view(['GET'])
+def apiOverview(request):
+    api_urls = {
+        "Submit User Request": "/api/submit_user_request/",
+        "Users": "/api/users/",
+        "Centers": "/api/centers/",
+        "Months": "/api/months/",
+        "Years": "/api/years/",
+        "Hours": "/api/hours/?crm=&year=&month=&center=&day="
+    }
+    
+    return Response(api_urls)
+
 
 class SubmitUserRequestView(APIView):
     permission_classes = [permissions.IsAuthenticated]
