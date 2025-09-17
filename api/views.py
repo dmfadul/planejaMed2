@@ -1,4 +1,5 @@
 from core.models import User
+from user_requests.models import userRequest
 from django.http import JsonResponse
 from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
@@ -21,17 +22,20 @@ def apiOverview(request):
         "Centers": "/api/centers/",
         "Months": "/api/months/",
         "Years": "/api/years/",
-        "Hours": "/api/hours/?crm=&year=&month=&center=&day="
+        "Hours": "/api/hours/"
     }
     
     return Response(api_urls)
 
 
-class SubmitUserRequestView(APIView):
+class userRequestCreate(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
-        print(request.data)
+        selected_hour = request.data.get("selectedHour")
+        context = request.data.get("ctx")
+        print(selected_hour)
+        print(context)
 
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
 
