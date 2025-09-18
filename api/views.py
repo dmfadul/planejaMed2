@@ -32,10 +32,28 @@ class userRequestCreate(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
-        selected_hour = request.data.get("selectedHour")
         context = request.data.get("ctx")
+        parameters = {
+            "requester_crm": context.get("currentUserCrm"),
+    
+            "request_type": "donation",
+
+        }
+        
+        selected_hour = request.data.get("selectedHour")
+        center_abbr = context.get("center")
+        year = context.get("year")
+        month_number = context.get("monthNumber")
+        current_user_crm = context.get("currentUserCrm")
+        card_crm = context.get("cardCrm")
+
+        if current_user_crm == card_crm:
+            pass
+        else:
+            pass
+
         print(selected_hour)
-        print(context)
+        print(center_abbr, year, month_number, current_user_crm, card_crm)
 
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
 

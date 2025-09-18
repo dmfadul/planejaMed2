@@ -1,3 +1,73 @@
+const API = (() => {
+    const ENDPOINT = '/api/submit_user_request/';
+
+    // build payload
+    function buildPayload({ action, ctx, selectedHour = null, meta = {}}) {
+        // meta is for future use
+        return {
+            action,
+            ctx,
+            selectedHour,
+            ...meta
+        };
+    }
+
+    // POST helper with CSRF, timeout, uniform error handling
+    async function post(body, { timeout = 10000, signal } = {}) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeout);
+
+        try {
+            const resp = await fetch(ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')  // Ensure CSRF token is included
+                },
+                credentials: 'same-origin', // Include cookies in the request
+                body: JSON.stringify(body),
+                signal: signal ?? controller.signal,
+            });
+
+            const raw = await resp.text();
+            const data = raw ? JSON.parse(raw) : null;
+
+            if (!resp.ok) {
+                const err = new Error((data && (data.detail || data.errors)) || resp.statusText);
+                err.status = resp.status;
+                err.data = data;
+                throw err;
+            }
+            return data;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
+    // Convenience wrapper specialized for user requests
+    async function submitUserRequest({action, ctx, selectedHour = null, meta = {}, options = {} }) {
+        const payload = buildPayload({ action, ctx, selectedHour, meta });
+        return post(payload, options);
+    }
+
+    return { submitUserRequest, buildPayload, post };
+})();
+
+function withBusyButton(btn, fn) {
+  return async (...args) => {
+    const prev = btn.disabled;
+    btn.disabled = true;
+    btn.dataset.originalText = btn.textContent;
+    btn.textContent = 'Sending...';
+    try {
+      return await fn(...args);
+    } finally {
+      btn.disabled = prev;
+      btn.textContent = btn.dataset.originalText || 'Submit';
+    }
+  };
+}
+
 function populateSelect(selectId, options, values = []) {
     const container = document.getElementById('dynamicInputs');
     container.innerHTML = '';               // 1) clear out any old <select>
@@ -85,44 +155,20 @@ function handleRequestingDonation(ctx) {
         modal.show();
 
         const submitButton = document.getElementById('submitRequestButton');
-        submitButton.onclick = async function() {
+
+        
+        submitButton.onclick = withBusyButton(submitButton, async function () {
             const selectElement = document.getElementById('requestHours');
             const selectedHour = selectElement.value;
 
-            console.log(`Requesting hour: ${selectedHour} from CRM: ${ctx}`);
-            console.log(`Context:`, ctx);
+            console.log("requesting donation for hour: ", selectedHour, " ctx: ", ctx);
 
             try {
-                const resp = await fetch('/api/submit_user_request/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')  // Ensure CSRF token is included
-                    },
-                    credentials: 'same-origin', // Include cookies in the request
-                    body: JSON.stringify({
-                        selectedHour: selectedHour,
-                        ctx: ctx,
-                    }),
-                });
-                
-                if (!resp.ok) {
-                    const err = await resp.json().catch(() => ({}));
-                    console.error("Server error:", err);
-                    alert("Failed to submit request.");
-                    
-                    return;
-                }
 
-                const data = await resp.json();
-                console.log("subimitted:", data);
-                // Handle success (e.g., show a success message)
-                modal.hide();
-            } catch (error) {
-                alert("Error submitting request.");
-                console.error("Fetch error:", error);
+            } catch (e) {
+
             }
-        };
+        });
 
         // displayDaySchedule(data);
       })
