@@ -154,23 +154,29 @@ function handleRequestingDonation(ctx) {
         populateSelect('requestHours', data[ctx.cardCrm]["hours"], data[ctx.cardCrm]["hours"]);
         modal.show();
 
-        const submitButton = document.getElementById('submitRequestButton');
-
-        
+        const submitButton = document.getElementById('submitRequestButton');       
         submitButton.onclick = withBusyButton(submitButton, async function () {
             const selectElement = document.getElementById('requestHours');
             const selectedHour = selectElement.value;
 
-            console.log("requesting donation for hour: ", selectedHour, " ctx: ", ctx);
+            console.log("requesting donation for hour: ", selectedHour, "ctx: ", ctx);
 
             try {
+                const result = await API.submitUserRequest({
+                    action: 'donation_request',
+                    ctx: ctx,
+                    selectedHour: selectedHour,
+                    options: { timeout: 15000 }
+                });
+            
+                console.log("submitted donation request, result: ", result);
+                modal.hide();
 
             } catch (e) {
-
+                console.error("server error:", e);
+                alert(e.data?.detail || "Um erro ocorreu ao enviar o pedido. Tente novamente mais tarde.");
             }
         });
-
-        // displayDaySchedule(data);
       })
       .catch(error => {
         console.error("Fetch error:", error);
