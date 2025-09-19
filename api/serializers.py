@@ -1,5 +1,7 @@
 from core.models import User
+from rest_framework import serializers
 from django.shortcuts import get_object_or_404
+from shifts.models import Center, Month, Shift
 from user_requests.models import DonationRequest
 
 
@@ -18,3 +20,4 @@ def userRequestSerializer(requester_crm, request_type, **kwargs):
         raise ValueError("Unsupported request type")
 
 
+# class DonationRequestSerializer(serializers.ModelSerializer)

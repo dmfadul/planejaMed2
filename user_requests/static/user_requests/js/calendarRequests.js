@@ -2,12 +2,28 @@ const API = (() => {
     const ENDPOINT = '/api/submit_user_request/';
 
     // build payload
-    function buildPayload({ action, ctx, selectedHour = null, meta = {}}) {
+    function buildPayload({ action, requesteeCRM, ctx, selectedHour = null, meta = {}}) {
         // meta is for future use
+        const timePart = selectedHour.substring(selectedHour.indexOf(" ") + 1).trim(); 
+        const [start, end] = timePart.split(' - ').map(h => h.trim());       
+    
+        const center = ctx.center;
+        const year = ctx.year;
+        const monthNumber = ctx.monthNumber;
+        const day = ctx.day;
+
+        const startHour = parseInt(start.split(":")[0], 10);
+        const endHour   = parseInt(end.split(":")[0], 10);
+        
         return {
             action,
-            ctx,
-            selectedHour,
+            requesteeCRM,
+            center,
+            year,
+            monthNumber,
+            day,
+            startHour,
+            endHour,
             ...meta
         };
     }
@@ -136,7 +152,6 @@ function handleOfferingDonation(ctx) {
 }
 
 function handleRequestingDonation(ctx) {
-
     fetch(`/api/hours/?crm=${ctx.cardCrm}&year=${ctx.year}&month=${ctx.monthNumber}&center=${ctx.center}&day=${ctx.day}/`)
     .then(response => {
         if (!response.ok) {
@@ -158,12 +173,14 @@ function handleRequestingDonation(ctx) {
         submitButton.onclick = withBusyButton(submitButton, async function () {
             const selectElement = document.getElementById('requestHours');
             const selectedHour = selectElement.value;
+            const requesteeCRM = ctx.cardCrm;
 
             console.log("requesting donation for hour: ", selectedHour, "ctx: ", ctx);
 
             try {
                 const result = await API.submitUserRequest({
-                    action: 'donation_request',
+                    action: 'donation',
+                    requesteeCRM: requesteeCRM,
                     ctx: ctx,
                     selectedHour: selectedHour,
                     options: { timeout: 15000 }
