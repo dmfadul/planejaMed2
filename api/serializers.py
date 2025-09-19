@@ -5,19 +5,30 @@ from shifts.models import Center, Month, Shift
 from user_requests.models import DonationRequest
 
 
-def userRequestSerializer(requester_crm, request_type, **kwargs):
-    requester = get_object_or_404(User, crm=requester_crm)
+def userRequestSerializer(request_type, requester, parameters):
+    center_abbr = parameters.get('center')
+    center = get_object_or_404(Center, abbreviation=center_abbr)
 
-    if request_type == 'donation':
-        requestee_crm = kwargs.get('requestee_crm')
-        requestee = get_object_or_404(User, crm=requestee_crm) if requestee_crm else None
+    month_number = parameters.get('monthNumber')
+    year = parameters.get('year')
+    month = get_object_or_404(Month, number=month_number, year=year)
 
-        if not requestee:
-            raise ValueError("requestee is required for donation requests")
-        return "donation request created"
-        # return DonationRequest(requester=requester, requestee=requestee)
-    else:
-        raise ValueError("Unsupported request type")
+    attrs = {
+        'requester': requester,
+        'center': center,
+        'month': month,
+    }
+    print(request_type)
+    print(requester)
+    print(parameters)
 
+    return None
 
-# class DonationRequestSerializer(serializers.ModelSerializer)
+class DonationRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DonationRequest
+        fields = '__all__'
+
+    def validate(self, attrs):
+        # Custom validation logic
+        return attrs

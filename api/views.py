@@ -5,6 +5,7 @@ from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from core.constants import SHIFTS_MAP, SHIFT_CODES, HOUR_RANGE, MORNING_START
+from .serializers import userRequestSerializer
 
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -32,30 +33,11 @@ class userRequestCreate(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
-        data = request.data
-        print(data)
-        # context = request.data.get("ctx")
-
-        # current_user_crm = context.get("currentUserCrm")
-        # card_crm = context.get("cardCrm")
-
+        requester = request.user
+        parameters = request.data
+        request_type = parameters.get('action')
         
-        # parameters = {
-        #     "request_type": request.data.get("action"),
-        #     "requestee_crm": None,
-        #     "requester_crm": context.get("currentUserCrm"),
-        #     "center_abbr": context.get("center"),
-        #     "month_number": context.get("monthNumber"),
-        #     "year": context.get("year"),
-        #     "selected_shift": request.data.get("selectedHour"),
-        #     # find shift details by selected_shift
-        # }
-        
-
-        # if current_user_crm == card_crm:
-        #     pass
-        # else:
-        #     parameters["requestee_crm"] = card_crm
+        userRequest = userRequestSerializer(request_type, requester, parameters)
 
 
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)

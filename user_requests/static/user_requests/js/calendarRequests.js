@@ -61,8 +61,8 @@ const API = (() => {
     }
 
     // Convenience wrapper specialized for user requests
-    async function submitUserRequest({action, ctx, selectedHour = null, meta = {}, options = {} }) {
-        const payload = buildPayload({ action, ctx, selectedHour, meta });
+    async function submitUserRequest({action, requesteeCRM, ctx, selectedHour = null, meta = {}, options = {} }) {
+        const payload = buildPayload({ action, requesteeCRM, ctx, selectedHour, meta });
         return post(payload, options);
     }
 
@@ -179,7 +179,7 @@ function handleRequestingDonation(ctx) {
 
             try {
                 const result = await API.submitUserRequest({
-                    action: 'donation',
+                    action: 'donation_required', // vs 'donation_offered'
                     requesteeCRM: requesteeCRM,
                     ctx: ctx,
                     selectedHour: selectedHour,
