@@ -21,6 +21,8 @@ class DonationRequest(AbstractUserRequest):
     donor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='donations_made', null=True, blank=True)
     donee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='donations_received', null=True, blank=True)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE, related_name='donation_requests', null=True, blank=True)
+    start_hour = models.IntegerField(null=True, blank=True)
+    end_hour = models.IntegerField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.action = 'donation'

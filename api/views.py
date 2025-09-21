@@ -36,9 +36,11 @@ class userRequestCreate(APIView):
         requester = request.user
         parameters = request.data
         request_type = parameters.get('action')
-        print("PARAMS", parameters)
         
         userRequest = userRequestSerializer(request_type, requester, parameters)
+
+        if not userRequest:
+            return Response({"status": "error", "message": "Invalid request data"}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
 
