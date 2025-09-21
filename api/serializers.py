@@ -5,22 +5,47 @@ from shifts.models import Center, Month, Shift
 from user_requests.models import DonationRequest
 
 
-def userRequestSerializer(request_type, requester, parameters):
-    center_abbr = parameters.get('center')
-    center = get_object_or_404(Center, abbreviation=center_abbr)
+def userRequestSerializer(request_type, requester, params):
+    if request_type in ['donation_required', 'donation_offered']:
+        requestee = User.objects.filter(crm=params.get('requesteeCRM')).first()
+        center = Center.objects.filter(abbreviation=params.get('center')).first()
+        month = Month.objects.filter(year=params.get('year'), number=params.get('monthNumber')).first()
+        day = params.get('day')
+        start_hour = params.get('startHour')
+        end_hour = params.get('endHour')
+        
+        if request_type == 'donation_required':
+            donor = requestee
+            donee = requester
+        else:
+            donor = requester
+            donee = requestee
+        
+        shift = Shift.objects.filter(
+            user=donor,
+            center=center,
+            month=month,
+            day=day,
+            start_time=start_hour,
+            end_time=end_hour
+        ).first()
 
-    month_number = parameters.get('monthNumber')
-    year = parameters.get('year')
-    month = get_object_or_404(Month, number=month_number, year=year)
-
-    attrs = {
-        'requester': requester,
-        'center': center,
-        'month': month,
-    }
-    print(request_type)
-    print(requester)
-    print(parameters)
+        if not shift:
+            return None
+        
+        payload = {
+            'action': 'donation',
+            'requester': requester.pk,
+            'requestee': requestee.pk,
+            'donor': donor.pk,
+            'donee': donee.pk,
+            'shift': shift.pk,
+        }
+        
+        serializer = DonationRequestSerializer(data=payload)
+        if serializer.is_valid():
+            serializer.save()
+            return serializer.instance
 
     return None
 
@@ -28,7 +53,3 @@ class DonationRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = DonationRequest
         fields = '__all__'
-
-    def validate(self, attrs):
-        # Custom validation logic
-        return attrs

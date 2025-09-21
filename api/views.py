@@ -38,7 +38,7 @@ class userRequestCreate(APIView):
         request_type = parameters.get('action')
         
         userRequest = userRequestSerializer(request_type, requester, parameters)
-
+        print(userRequest)
 
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
 
