@@ -5,6 +5,12 @@ from shifts.models import Center, Month, Shift
 from user_requests.models import DonationRequest
 
 
+class ShiftSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shift
+        fields = '__all__'
+
+
 def userRequestSerializer(request_type, requester, params):
     if request_type in ['donation_required', 'donation_offered']:
         requestee = User.objects.filter(crm=params.get('requesteeCRM')).first()

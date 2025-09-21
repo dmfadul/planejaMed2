@@ -2,26 +2,17 @@ const API = (() => {
     const ENDPOINT = '/api/submit_user_request/';
 
     // build payload
-    function buildPayload({ action, requesteeCRM, ctx, selectedHour = null, meta = {}}) {
+    function buildPayload({ action, requesteeCRM, selectedHour = null, meta = {}}) {
         // meta is for future use
-        const timePart = selectedHour.substring(selectedHour.indexOf(" ") + 1).trim(); 
-        const [start, end] = timePart.split(' - ').map(h => h.trim());       
-    
-        const center = ctx.center;
-        const year = ctx.year;
-        const monthNumber = ctx.monthNumber;
-        const day = ctx.day;
-
-        const startHour = parseInt(start.split(":")[0], 10);
-        const endHour   = parseInt(end.split(":")[0], 10);
         
+        const [shift, startHourStr, endHourStr] = selectedHour.split("|").map(s => s.trim());
+        const startHour = parseInt(startHourStr.split(":")[0], 10);
+        const endHour   = parseInt(endHourStr.split(":")[0], 10);
+
         return {
             action,
             requesteeCRM,
-            center,
-            year,
-            monthNumber,
-            day,
+            shift,
             startHour,
             endHour,
             ...meta
@@ -61,8 +52,8 @@ const API = (() => {
     }
 
     // Convenience wrapper specialized for user requests
-    async function submitUserRequest({action, requesteeCRM, ctx, selectedHour = null, meta = {}, options = {} }) {
-        const payload = buildPayload({ action, requesteeCRM, ctx, selectedHour, meta });
+    async function submitUserRequest({action, requesteeCRM, selectedHour = null, meta = {}, options = {} }) {
+        const payload = buildPayload({ action, requesteeCRM, selectedHour, meta });
         return post(payload, options);
     }
 
@@ -85,6 +76,7 @@ function withBusyButton(btn, fn) {
 }
 
 function populateSelect(selectId, options, values = []) {
+    console.log("selID", selectId, "opt", options, "vals", values);
     const container = document.getElementById('dynamicInputs');
     container.innerHTML = '';               // 1) clear out any old <select>
     
@@ -151,8 +143,9 @@ function handleOfferingDonation(ctx) {
     modal.show();
 }
 
+
 function handleRequestingDonation(ctx) {
-    fetch(`/api/hours/?crm=${ctx.cardCrm}&year=${ctx.year}&month=${ctx.monthNumber}&center=${ctx.center}&day=${ctx.day}/`)
+    fetch(`/api/hours/?crm=${ctx.cardCrm}&year=${ctx.year}&month=${ctx.monthNumber}&center=${ctx.center}&day=${ctx.day}`)
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -160,13 +153,14 @@ function handleRequestingDonation(ctx) {
         return response.json();
     })
     .then(rawData => {
-        let data = rawData.data;
+        let data = rawData;
         let modal = new bootstrap.Modal(document.getElementById('modalRequests'));
 
         const modalLabel = document.getElementById('modalRequestsLabel');
         modalLabel.textContent = "Escolha a hora que deseja pedir: ";
 
-        populateSelect('requestHours', data[ctx.cardCrm]["hours"], data[ctx.cardCrm]["hours"]);
+        const hoursArray = formatHourRange(data);
+        populateSelect('requestHours', hoursArray[0], hoursArray[1]);
         modal.show();
 
         const submitButton = document.getElementById('submitRequestButton');       
@@ -181,7 +175,6 @@ function handleRequestingDonation(ctx) {
                 const result = await API.submitUserRequest({
                     action: 'donation_required', // vs 'donation_offered'
                     requesteeCRM: requesteeCRM,
-                    ctx: ctx,
                     selectedHour: selectedHour,
                     options: { timeout: 15000 }
                 });

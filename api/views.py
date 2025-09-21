@@ -5,9 +5,9 @@ from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from core.constants import SHIFTS_MAP, SHIFT_CODES, HOUR_RANGE, MORNING_START
-from .serializers import userRequestSerializer
+from .serializers import ShiftSerializer, userRequestSerializer
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -36,9 +36,9 @@ class userRequestCreate(APIView):
         requester = request.user
         parameters = request.data
         request_type = parameters.get('action')
+        print("PARAMS", parameters)
         
         userRequest = userRequestSerializer(request_type, requester, parameters)
-        print(userRequest)
 
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
 
@@ -126,7 +126,7 @@ def day_schedule(request, center_abbr, year, month_number, day):
     })
 
 
-@require_GET
+@api_view(["GET"])
 def get_hours(request):
     crm = request.GET.get("crm")
     year = request.GET.get("year")
@@ -147,17 +147,6 @@ def get_hours(request):
         filter_kwargs["day"] = int(day)
 
     shitfs = Shift.objects.filter(**filter_kwargs).all()
+    serializer = ShiftSerializer(shitfs, many=True)
 
-    data = {}
-    for s in shitfs:
-        if s.user.crm not in data:
-            data[s.user.crm] = {
-                "name": s.user.name,
-                "hours": Shift.format_hours(s.start_time, s.end_time)
-            }
-
-    response = {
-        "status": "ok",
-        "data": data,
-        }
-    return JsonResponse(response)
+    return Response(serializer.data)
