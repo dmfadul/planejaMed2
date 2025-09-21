@@ -28,11 +28,9 @@ def userRequestSerializer(request_type, requester, params):
             return None
 
         if request_type == 'donation_required':
-            donor = requestee
-            donee = requester
+            donor, donee = requestee, requester
         else:
-            donor = requester
-            donee = requestee
+            donor, donee = requester, requestee
                 
         payload = {
             'action': 'donation',
