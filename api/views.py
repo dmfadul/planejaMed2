@@ -1,5 +1,5 @@
 from core.models import User
-from user_requests.models import userRequest
+from user_requests.models import UserRequest
 from django.http import JsonResponse
 from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
@@ -34,16 +34,39 @@ class userRequestCreate(APIView):
     
     def post(self, request):
         requester = request.user
-        parameters = request.data
-        request_type = parameters.get('action')
 
-        print(parameters)
-        
-        # userRequest = UserRequestSerializer(request_type, requester, parameters)
-        user_request = None
+        data = request.data
+        request_type = data.get('action')
 
-        if not userRequest:
-            return Response({"status": "error", "message": "Invalid request data"}, status=status.HTTP_400_BAD_REQUEST)
+        parameters = {
+            'requester': requester.id,
+        }
+
+        if request_type in ["donation_required", "donation_offered"]:
+            requesteeCRM = data.get('requesteeCRM')
+            requestee = get_object_or_404(User, crm=requesteeCRM)
+            shift = int(data.get('shift'))
+            start_hour = int(data.get('startHour'))
+            end_hour = int(data.get('endHour'))
+
+            if request_type == "donation_required":
+                donor, donee = requestee, requester
+            else:
+                donor, donee = requester, requestee
+
+            parameters['request_type'] = 'donation'
+            parameters['requestee'] = requestee.id
+            parameters['donor'] = donor.id
+            parameters['donee'] = donee.id
+            parameters['shift'] = shift
+            parameters['start_hour'] = start_hour
+            parameters['end_hour'] = end_hour
+
+        serializer = UserRequestSerializer(data=parameters)
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
 
@@ -53,9 +76,8 @@ class notificationsList(APIView):
 
     def get(self, request):
         user = request.user
-        notifications = userRequest.objects.filter(responder=user, is_open=True).order_by('-created_at')
-        serializer = UserRequestSerializer(notifications, many=True)
-        return Response(serializer.data)
+
+        return Response([])
 
 
 @api_view(["GET"])

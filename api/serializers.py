@@ -2,7 +2,7 @@ from core.models import User
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from shifts.models import Center, Month, Shift
-from user_requests.models import userRequest
+from user_requests.models import UserRequest
 
 
 class ShiftSerializer(serializers.ModelSerializer):
@@ -13,6 +13,6 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 class UserRequestSerializer(serializers.ModelSerializer):
     class Meta:
-        model = userRequest
+        model = UserRequest
         fields = '__all__'
 
