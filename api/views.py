@@ -7,7 +7,7 @@ from django.views.decorators.http import require_GET
 from core.constants import SHIFTS_MAP, SHIFT_CODES, HOUR_RANGE, MORNING_START
 from .serializers import ShiftSerializer, userRequestSerializer
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -45,6 +45,42 @@ class userRequestCreate(APIView):
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
 
 
+class notificationsList(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        notifications = userRequest.objects.filter(responder=user, is_open=True).order_by('-created_at')
+        serializer = userRequestSerializer(notifications, many=True)
+        return Response(serializer.data)
+
+
+@api_view(["GET"])
+def get_hours(request):
+    crm = request.GET.get("crm")
+    year = request.GET.get("year")
+    month_number = request.GET.get("month")
+
+    filter_kwargs = {
+        "user__crm": crm,
+        "month__year": year,
+        "month__number": month_number
+    }
+
+    center_abbr = request.GET.get("center")
+    if center_abbr:
+        filter_kwargs["center__abbreviation"] = center_abbr
+    
+    day = request.GET.get("day", 0)
+    if day and day.isdigit():
+        filter_kwargs["day"] = int(day)
+
+    shitfs = Shift.objects.filter(**filter_kwargs).all()
+    serializer = ShiftSerializer(shitfs, many=True)
+
+    return Response(serializer.data)
+    
+
 @require_GET
 def users_list(request):
     exclude_curr = request.GET.get('exclude_curr_user', 'false').lower() == 'true'
@@ -62,6 +98,7 @@ def users_list(request):
         for user in users_qs.order_by('name')
     ]
     return JsonResponse(users, safe=False)
+
 
 @require_GET
 def centers_list(request):
@@ -126,29 +163,3 @@ def day_schedule(request, center_abbr, year, month_number, day):
         "status": "ok",
         "schedule": schedule_data,
     })
-
-
-@api_view(["GET"])
-def get_hours(request):
-    crm = request.GET.get("crm")
-    year = request.GET.get("year")
-    month_number = request.GET.get("month")
-
-    filter_kwargs = {
-        "user__crm": crm,
-        "month__year": year,
-        "month__number": month_number
-    }
-
-    center_abbr = request.GET.get("center")
-    if center_abbr:
-        filter_kwargs["center__abbreviation"] = center_abbr
-    
-    day = request.GET.get("day", 0)
-    if day and day.isdigit():
-        filter_kwargs["day"] = int(day)
-
-    shitfs = Shift.objects.filter(**filter_kwargs).all()
-    serializer = ShiftSerializer(shitfs, many=True)
-
-    return Response(serializer.data)
