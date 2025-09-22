@@ -24,3 +24,8 @@ def calendar(request, center_abbr):
     }
     
     return render(request, "user_requests/calendar.html", context=calendar_data)
+
+
+@login_required
+def notifications(request):
+    return render(request, "user_requests/notifications.html", context={})
