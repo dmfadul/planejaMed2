@@ -53,4 +53,4 @@ class UserRequest(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.request_type} by {self.requester_id} at {self.created_at:%Y-%m-%d}"
+        return f"{self.request_type} requested by {self.requester}"
