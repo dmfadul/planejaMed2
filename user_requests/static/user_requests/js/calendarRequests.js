@@ -25,29 +25,37 @@ const API = (() => {
         const timer = setTimeout(() => controller.abort(), timeout);
 
         try {
-            const resp = await fetch(ENDPOINT, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')  // Ensure CSRF token is included
-                },
-                credentials: 'same-origin', // Include cookies in the request
-                body: JSON.stringify(body),
-                signal: signal ?? controller.signal,
-            });
-
-            const raw = await resp.text();
-            const data = raw ? JSON.parse(raw) : null;
-
-            if (!resp.ok) {
-                const err = new Error((data && (data.detail || data.errors)) || resp.statusText);
-                err.status = resp.status;
-                err.data = data;
-                throw err;
-            }
-            return data;
+          const resp = await fetch(ENDPOINT, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken'),
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(body),
+            signal: signal ?? controller.signal,
+          });
+      
+          // Try to parse JSON; server might return empty body on 201
+          let data = null;
+          const raw = await resp.text();
+          if (raw) {
+            try { data = JSON.parse(raw); } catch { /* keep as null */ }
+          }
+      
+          if (!resp.ok) {
+            // DRF commonly returns either a dict of field errors or {"detail": "..."} or {"errors": {...}}
+            const errors = data?.errors ?? data ?? { detail: resp.statusText };
+            const message = humanizeErrors(errors);
+            const err = new Error(message);
+            err.status = resp.status;
+            err.data = errors;
+            throw err;
+          }
+      
+          return data;
         } finally {
-            clearTimeout(timer);
+          clearTimeout(timer);
         }
     }
 
@@ -59,6 +67,27 @@ const API = (() => {
 
     return { submitUserRequest, buildPayload, post };
 })();
+
+function humanizeErrors(errors) {
+  if (!errors) return "Unknown error.";
+  if (typeof errors === "string") return errors;
+
+  // DRF sometimes puts a single message under "detail"
+  if (errors.detail) return Array.isArray(errors.detail) ? errors.detail.join("\n") : String(errors.detail);
+
+  // DRF field errors / non_field_errors
+  const out = [];
+  if (errors.non_field_errors) {
+    out.push([].concat(errors.non_field_errors).join("\n"));
+  }
+  // Other field-specific errors
+  for (const [field, msgs] of Object.entries(errors)) {
+    if (field === "non_field_errors") continue;
+    const line = `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : String(msgs)}`;
+    out.push(line);
+  }
+  return out.join("\n");
+}
 
 function withBusyButton(btn, fn) {
   return async (...args) => {
@@ -156,6 +185,12 @@ function handleRequestingDonation(ctx) {
         let data = rawData;
         let modal = new bootstrap.Modal(document.getElementById('modalRequests'));
 
+        const errorBox = document.getElementById('requestErrors');
+        
+        // ✅ Clear any previous error before sending request
+        errorBox.classList.add('d-none');
+        errorBox.textContent = '';
+
         const modalLabel = document.getElementById('modalRequestsLabel');
         modalLabel.textContent = "Escolha a hora que deseja pedir: ";
 
@@ -186,7 +221,8 @@ function handleRequestingDonation(ctx) {
 
             } catch (e) {
                 console.error("server error:", e);
-                alert(e.data?.detail || "Um erro ocorreu ao enviar o pedido. Tente novamente mais tarde.");
+                errorBox.textContent = e.message || "Um erro ocorreu ao enviar o pedido.";
+                errorBox.classList.remove('d-none');
             }
         });
       })
