@@ -1,5 +1,6 @@
 from django.db import models
 from core.models import User
+from django.db.models import Q
 from shifts.models import Shift
 
 
@@ -32,6 +33,14 @@ class UserRequest(models.Model):
     donee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='donations_received', null=True, blank=True)
 
     class Meta:
+        constraints = [
+            # one open request per requester / type / shift
+            models.UniqueConstraint(
+                fields=['requester', 'request_type', 'shift', 'start_hour', 'end_hour'],
+                condition=Q(is_open=True),
+                name='uniq_open_request_per_requester_type_shift',
+            ),
+        ]
         indexes = [
             models.Index(fields=['requester', 'is_open', 'created_at']),
             models.Index(fields=['responder', 'is_approved', 'created_at']),

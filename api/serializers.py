@@ -16,3 +16,25 @@ class UserRequestSerializer(serializers.ModelSerializer):
         model = UserRequest
         fields = '__all__'
 
+    def validate(self, attrs):
+        requester = attrs.get('requester') or getattr(self.instance, 'requester', None)
+        request_type = attrs.get('request_type') or getattr(self.instance, 'request_type', None)
+        shift = attrs.get('shift') or getattr(self.instance, 'shift', None)
+
+        if requester and request_type and shift:
+            exists = UserRequest.objects.filter(
+                requester=requester,
+                request_type=request_type,
+                shift=shift,
+                start_hour=attrs.get('start_hour') or getattr(self.instance, 'start_hour', None),
+                end_hour=attrs.get('end_hour') or getattr(self.instance, 'end_hour', None),
+                is_open=True
+            )
+            if self.instance:
+                exists = exists.exclude(pk=self.instance.pk)
+            if exists.exists():
+                raise serializers.ValidationError(
+                    {"non_field_errors": ["Você já tem um pedido aberto para este horário ou parte dele."]}
+                )
+        return attrs
+

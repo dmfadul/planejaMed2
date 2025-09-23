@@ -1,5 +1,5 @@
 from core.models import User
-from user_requests.models import UserRequest
+from user_requests.models import Notification
 from django.http import JsonResponse
 from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
@@ -65,6 +65,7 @@ class userRequestCreate(APIView):
         serializer = UserRequestSerializer(data=parameters)
         if serializer.is_valid():
             serializer.save()
+            # TODO: create Notification here
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

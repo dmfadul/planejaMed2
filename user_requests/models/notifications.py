@@ -22,3 +22,7 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification to {self.receiver.username}: {self.title}"
+
+
+# TODO: create Notification models here. add {{}} just like in jinja to 
+# the body field to allow dynamic content insertion.
