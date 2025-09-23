@@ -182,6 +182,8 @@ function handleRequestingDonation(ctx) {
                 console.log("submitted donation request, result: ", result);
                 modal.hide();
 
+                showToast("Pedido enviado com sucesso!", "success");
+
             } catch (e) {
                 console.error("server error:", e);
                 alert(e.data?.detail || "Um erro ocorreu ao enviar o pedido. Tente novamente mais tarde.");
