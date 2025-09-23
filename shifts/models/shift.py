@@ -13,6 +13,24 @@ class Shift(AbstractShift):
     def __str__(self):
         return f"{self.center.abbreviation} - {self.user.abbr_name} - {self.month.number}/{self.day} - {self.start_time} to {self.end_time}"
 
+
+    @classmethod
+    def check_conflict(cls, doctor, month, day, start_time, end_time):
+        """Check if a new shift conflicts with existing shifts for the same doctor."""
+        new_shift_hours = cls.gen_hour_list(start_time, end_time)
+
+        existing_shifts = cls.objects.filter(
+            user=doctor,
+            month=month,
+            day=day,
+        ).all()
+
+        for old_shift in existing_shifts:
+            if not set(old_shift.hour_list).isdisjoint(set(new_shift_hours)):
+                return old_shift  # Conflict found
+
+        return None  # No conflict
+
     @classmethod
     def add(cls, doctor, center, month, day, start_time, end_time):
         new_shift = cls(
