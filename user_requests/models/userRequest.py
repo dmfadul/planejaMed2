@@ -48,6 +48,9 @@ class UserRequest(models.Model):
         ]
         ordering = ['-created_at']
 
+    def __str__(self):
+        return f"{self.request_type} requested by {self.requester}"
+    
     def clean(self):
         # Minimal per-type rules; adjust to your business logic
         if self.request_type == self.RequestType.DONATION:
@@ -61,5 +64,33 @@ class UserRequest(models.Model):
         self.full_clean(exclude=None)
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"{self.request_type} requested by {self.requester}"
+    def notify_users(self):
+        from user_requests.models.notifications import Notification
+        # Notify the requestee
+        Notification.from_template(
+            template_key='request_pending',
+            sender=self.requester,
+            receiver=self.requestee,
+            context={
+                'request_type': self.get_request_type_display(),
+                'receiver_name': self.requestee.name,
+                'shift_label': str(self.shift),
+                'start_hour': self.start_hour,
+                'end_hour': self.end_hour,
+            },
+            related_obj=self,
+        )
+        # Send cancelable notification to requester
+        Notification.from_template(
+            template_key='request_submitted',
+            sender=self.requester,
+            receiver=self.requester,
+            context={
+                'request_type': self.get_request_type_display(),
+                'receiver_name': self.requestee.name,
+                'shift_label': str(self.shift),
+                'start_hour': self.start_hour,
+                'end_hour': self.end_hour,
+            },
+            related_obj=self,
+        )
