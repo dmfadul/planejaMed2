@@ -58,3 +58,86 @@ class Notification(models.Model):
 
 
     }
+
+
+ # ---- helpers -----------------------------------------------------------
+    @classmethod
+    def from_template(
+        cls,
+        *,
+        template_key: str,
+        sender: User,
+        receiver: User,
+        context: dict | None = None,
+        related_obj=None,
+    ) -> "Notification":
+        """
+        Factory method that:
+        - pulls the template,
+        - applies defaults,
+        - renders title/body with safe placeholders,
+        - persists the notification (returns saved instance).
+        """
+        context = context or {}
+        tmpl = cls.TEMPLATE_REGISTRY.get(template_key)
+        if not tmpl:
+            raise ValidationError(f"Unknown template_key: {template_key}")
+
+        # Fill defaults for optional phrases to avoid KeyError in format()
+        defaults = {
+            "cta_sentence": "",
+            "reason_sentence": "",
+            "requester_name": "",
+            "responder_name": "",
+            "receiver_name": "",
+            "request_type": "",
+            "shift_label": "",
+            "start_hour": "",
+            "end_hour": "",
+            "link": "",
+        }
+        data = {**defaults, **context}
+
+        title = tmpl['title'].format(**data)
+        body  = tmpl['body'].format(**data)
+        kind  = tmpl['kind']
+
+        instance = cls(
+            kind=kind,
+            sender=sender,
+            receiver=receiver,
+            template_key=template_key,
+            context=data,
+            title=title,
+            body=body,
+        )
+
+        if related_obj is not None:
+            instance.related_ct = ContentType.objects.get_for_model(related_obj)
+            instance.related_id = str(getattr(related_obj, "pk", related_obj))
+
+        instance.full_clean(exclude=['related_ct', 'related_id'])  # sanity
+        instance.save()
+        return instance
+
+    def mark_read(self):
+        if not self.is_read:
+            self.is_read = True
+            self.seen_at = timezone.now()
+            self.save(update_fields=['is_read', 'seen_at'])
+
+    def rerender(self):
+        """
+        Re-render title/body from stored template + context.
+        Useful if you changed TEMPLATE_REGISTRY copy or translations.
+        """
+        if not self.template_key:
+            return
+        tmpl = self.TEMPLATE_REGISTRY.get(self.template_key)
+        if not tmpl:
+            return
+        data = self.context or {}
+        self.title = tmpl['title'].format(**data)
+        self.body  = tmpl['body'].format(**data)
+        self.kind  = tmpl['kind']
+        self.save(update_fields=['title', 'body', 'kind'])
