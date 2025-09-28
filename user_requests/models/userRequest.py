@@ -89,17 +89,19 @@ class UserRequest(models.Model):
             },
             related_obj=self,
         )
+  
         # Send cancelable notification to requester
-        # Notification.from_template(
-        #     template_key='request_received',
-        #     sender=self.requester,
-        #     receiver=self.requester,
-        #     context={
-        #         'request_type': self.get_request_type_display(),
-        #         'receiver_name': self.requestee.name,
-        #         'shift_label': str(self.shift),
-        #         'start_hour': self.start_hour,
-        #         'end_hour': self.end_hour,
-        #     },
-        #     related_obj=self,
-        # )
+        Notification.from_template(
+            template_key='request_received',
+            sender=self.requester,
+            receiver=self.requester,
+            context={
+                'requestee_name': self.requestee.name,
+                'request_type': self.get_request_type_display().upper(),
+                'shift_center': self.shift.center.abbreviation,
+                'shift_date': self.shift.get_date().strftime("%d/%m/%y"),
+                'start_hour': f"{self.start_hour:02d}:00",
+                'end_hour': f"{self.end_hour:02d}:00",
+            },
+            related_obj=self,
+        )

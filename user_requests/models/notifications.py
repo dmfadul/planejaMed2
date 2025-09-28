@@ -45,7 +45,7 @@ class Notification(models.Model):
         ]
 
     def __str__(self):
-        return f"Notification to {self.receiver.username}: {self.title}"
+        return f"Notification to {self.receiver.name}: {self.title}"
 
 
 # ------------------- Template Registry ---------------------------------
@@ -57,18 +57,18 @@ class Notification(models.Model):
 # Sua SOLICITAÇÃO DE DOAÇÃO dos horários:
 # 07:00 - 19:00 no centro CCG no dia 17/08/25 (DE Roberto Talamini Espínola Filho) foi autorizada.
 
-# Você tem uma SOLICITAÇÃO PENDENTE de DOAÇÃO dos horários: 19:00 - 07:00 no centro CCG
-# no dia 26/08/25 (PARA Alberto David Fadul Filho).
-# Aperte Cancelar para cancelar a solicitação.
-
     TEMPLATE_REGISTRY = {
         # “Another user sent you a request for X.”
         'request_received': {
             'kind': Kind.ACTION,
-            'title': "New request from {requester_name}",
-            'body': "{requester_name} sent you a {request_type} request for {shift_label} "
-                    "({start_hour}–{end_hour}). {cta_sentence}",
+            'title': "Pending request with {requestee_name}",
+            'body': 
+                "Você tem uma SOLICITAÇÃO PENDENTE de {request_type} para {requestee_name} "
+                "dos horários: {start_hour} - {end_hour} "
+                "no centro {shift_center} no dia {shift_date}. "
+                "Aperte Cancelar para cancelar a solicitação.",
         },
+
         # “Your request is created and waiting for a response.”
         'request_pending_donation_required': {
             'kind': Kind.ACTION,
@@ -111,8 +111,6 @@ class Notification(models.Model):
         if not tmpl:
             raise ValidationError(f"Unknown template_key: {template_key}")
 
-        # print("from not: ", template_key, "|", sender, "|", receiver, "|", context, "|", related_obj)
-
         # # Fill defaults for optional phrases to avoid KeyError in format()
         # defaults = {
         #     "cta_sentence": "",
@@ -133,28 +131,23 @@ class Notification(models.Model):
         body  = tmpl['body'].format(**data)
         kind  = tmpl['kind']
 
-        print(body)
-        print("data:", data)
+        instance = cls(
+            kind=kind,
+            sender=sender,
+            receiver=receiver,
+            template_key=template_key,
+            context=data,
+            title=title,
+            body=body,
+        )
 
+        if related_obj is not None:
+            instance.related_ct = ContentType.objects.get_for_model(related_obj)
+            instance.related_id = str(getattr(related_obj, "pk", related_obj))
 
-
-        # instance = cls(
-        #     kind=kind,
-        #     sender=sender,
-        #     receiver=receiver,
-        #     template_key=template_key,
-        #     context=data,
-        #     title=title,
-        #     body=body,
-        # )
-
-        # if related_obj is not None:
-        #     instance.related_ct = ContentType.objects.get_for_model(related_obj)
-        #     instance.related_id = str(getattr(related_obj, "pk", related_obj))
-
-        # instance.full_clean(exclude=['related_ct', 'related_id'])  # sanity
-        # instance.save()
-        # return instance
+        instance.full_clean(exclude=['related_ct', 'related_id'])  # sanity
+        instance.save()
+        return instance
 
     def mark_read(self):
         if not self.is_read:
