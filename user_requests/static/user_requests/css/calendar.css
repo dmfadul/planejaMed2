@@ -150,6 +150,12 @@
     /* Slightly darker grey on hover */
 }
 
+a.disabled {
+  pointer-events: none;
+  color: #6c757d; /* Bootstrap’s gray */
+  text-decoration: none;
+}
+
 /* Responsiveness (optional tweak) */
 @media (max-width: 480px) {
     .calendar {

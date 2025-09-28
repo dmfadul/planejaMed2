@@ -68,7 +68,7 @@
                 <div class="kebab-content">
                     <a href="#" data-action="exclude">Exclusão</a>
                     <a href="#" data-action="donate">Doação</a>
-                    <a href="#" data-action="exchange">Troca</a>
+                    <a href="#" data-action="exchange" class="disabled">Troca</a>
                 </div>
             </div>
         `).join('');
