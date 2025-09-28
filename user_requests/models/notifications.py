@@ -51,14 +51,39 @@ class Notification(models.Model):
 # ------------------- Template Registry ---------------------------------
 # Placeholders correspond to context keys
 
+# Marcela Vogel Paracatu de Oliveira solicitou DOAÇÃO dos horários:
+# 19:00 - 07:00 no centro CCG no dia 26/08/25 (PARA Alberto David Fadul Filho)
+
+# Sua SOLICITAÇÃO DE DOAÇÃO dos horários:
+# 07:00 - 19:00 no centro CCG no dia 17/08/25 (DE Roberto Talamini Espínola Filho) foi autorizada.
+
+# Você tem uma SOLICITAÇÃO PENDENTE de DOAÇÃO dos horários: 19:00 - 07:00 no centro CCG
+# no dia 26/08/25 (PARA Alberto David Fadul Filho).
+# Aperte Cancelar para cancelar a solicitação.
+
     TEMPLATE_REGISTRY = {
+        # “Another user sent you a request for X.”
         'request_received': {
             'kind': Kind.ACTION,
-            'title': "Nova solicitação de {{ requester_name }}",
-            'body': "",
+            'title': "New request from {requester_name}",
+            'body': "{requester_name} sent you a {request_type} request for {shift_label} "
+                    "({start_hour}–{end_hour}). {cta_sentence}",
         },
-
-
+        # “Your request is created and waiting for a response.”
+        'request_pending_donation_required': {
+            'kind': Kind.ACTION,
+            'title': "Requisição pendente",
+            'body':
+                "{sender_name} solicitou para {{{receiver_id}}} a doação dos horários: "
+                "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
+        },
+            'request_pending_donation_offered': {
+            'kind': Kind.ACTION,
+            'title': "Requisição pendente",
+            'body':
+                "{sender_name} ofereceu para {{{receiver_id}}} a doação dos horários: "
+                "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
+        },
     }
 
 
@@ -80,47 +105,56 @@ class Notification(models.Model):
         - renders title/body with safe placeholders,
         - persists the notification (returns saved instance).
         """
+
         context = context or {}
         tmpl = cls.TEMPLATE_REGISTRY.get(template_key)
         if not tmpl:
             raise ValidationError(f"Unknown template_key: {template_key}")
 
-        # Fill defaults for optional phrases to avoid KeyError in format()
-        defaults = {
-            "cta_sentence": "",
-            "reason_sentence": "",
-            "requester_name": "",
-            "responder_name": "",
-            "receiver_name": "",
-            "request_type": "",
-            "shift_label": "",
-            "start_hour": "",
-            "end_hour": "",
-            "link": "",
-        }
-        data = {**defaults, **context}
+        # print("from not: ", template_key, "|", sender, "|", receiver, "|", context, "|", related_obj)
 
+        # # Fill defaults for optional phrases to avoid KeyError in format()
+        # defaults = {
+        #     "cta_sentence": "",
+        #     "reason_sentence": "",
+        #     "requester_name": "",
+        #     "responder_name": "",
+        #     "receiver_name": "",
+        #     "request_type": "",
+        #     "shift_label": "",
+        #     "start_hour": "",
+        #     "end_hour": "",
+        #     "link": "",
+        # }
+        # data = {**defaults, **context}
+
+        data = context
         title = tmpl['title'].format(**data)
         body  = tmpl['body'].format(**data)
         kind  = tmpl['kind']
 
-        instance = cls(
-            kind=kind,
-            sender=sender,
-            receiver=receiver,
-            template_key=template_key,
-            context=data,
-            title=title,
-            body=body,
-        )
+        print(body)
+        print("data:", data)
 
-        if related_obj is not None:
-            instance.related_ct = ContentType.objects.get_for_model(related_obj)
-            instance.related_id = str(getattr(related_obj, "pk", related_obj))
 
-        instance.full_clean(exclude=['related_ct', 'related_id'])  # sanity
-        instance.save()
-        return instance
+
+        # instance = cls(
+        #     kind=kind,
+        #     sender=sender,
+        #     receiver=receiver,
+        #     template_key=template_key,
+        #     context=data,
+        #     title=title,
+        #     body=body,
+        # )
+
+        # if related_obj is not None:
+        #     instance.related_ct = ContentType.objects.get_for_model(related_obj)
+        #     instance.related_id = str(getattr(related_obj, "pk", related_obj))
+
+        # instance.full_clean(exclude=['related_ct', 'related_id'])  # sanity
+        # instance.save()
+        # return instance
 
     def mark_read(self):
         if not self.is_read:

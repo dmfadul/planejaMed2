@@ -6,10 +6,10 @@ from shifts.models import Shift
 
 class UserRequest(models.Model):
     class RequestType(models.TextChoices):
-        DONATION = 'donation', 'Donation'
-        EXCHANGE = 'exchange', 'Exchange'
-        INCLUDE = 'include', 'Include'
-        EXCLUDE = 'exclude', 'Exclude'
+        DONATION = 'donation', 'Doação'
+        EXCHANGE = 'exchange', 'Troca'
+        INCLUDE = 'include', 'Incluir'
+        EXCLUDE = 'exclude', 'Excluir'
 
     requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_made')
     requestee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_received', null=True, blank=True)
@@ -66,31 +66,40 @@ class UserRequest(models.Model):
 
     def notify_users(self):
         from user_requests.models.notifications import Notification
+
+        if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
+            temp_key = f'request_pending_donation_offered'
+        elif self.request_type == self.RequestType.DONATION and self.donee == self.requester:
+            temp_key = f'request_pending_donation_required'
+        else:
+            temp_key = f'request_pending_{self.request_type}'
+
         # Notify the requestee
         Notification.from_template(
-            template_key='request_pending',
+            template_key=temp_key,
             sender=self.requester,
             receiver=self.requestee,
             context={
-                'request_type': self.get_request_type_display(),
-                'receiver_name': self.requestee.name,
-                'shift_label': str(self.shift),
-                'start_hour': self.start_hour,
-                'end_hour': self.end_hour,
+                'sender_name': self.requester.name,
+                'receiver_id': self.requestee.id,
+                'shift_center': self.shift.center.abbreviation,
+                'shift_date': self.shift.get_date().strftime("%d/%m/%y"),
+                'start_hour': f"{self.start_hour:02d}:00",
+                'end_hour': f"{self.end_hour:02d}:00",
             },
             related_obj=self,
         )
         # Send cancelable notification to requester
-        Notification.from_template(
-            template_key='request_submitted',
-            sender=self.requester,
-            receiver=self.requester,
-            context={
-                'request_type': self.get_request_type_display(),
-                'receiver_name': self.requestee.name,
-                'shift_label': str(self.shift),
-                'start_hour': self.start_hour,
-                'end_hour': self.end_hour,
-            },
-            related_obj=self,
-        )
+        # Notification.from_template(
+        #     template_key='request_received',
+        #     sender=self.requester,
+        #     receiver=self.requester,
+        #     context={
+        #         'request_type': self.get_request_type_display(),
+        #         'receiver_name': self.requestee.name,
+        #         'shift_label': str(self.shift),
+        #         'start_hour': self.start_hour,
+        #         'end_hour': self.end_hour,
+        #     },
+        #     related_obj=self,
+        # )
