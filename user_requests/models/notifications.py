@@ -10,6 +10,7 @@ class Notification(models.Model):
     class Kind(models.TextChoices):
         ACTION = 'action', 'Action'
         INFO = 'info', 'Info'
+        CANCEL = 'cancel', 'Cancel'
         ERROR = 'error', 'Error'
 
     # High-level category (visual style/badge color)

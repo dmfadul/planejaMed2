@@ -2,7 +2,7 @@ from core.models import User
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from shifts.models import Center, Month, Shift
-from user_requests.models import UserRequest
+from user_requests.models import UserRequest, Notification
 from django.utils.translation import gettext_lazy as _
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -10,6 +10,12 @@ from rest_framework.validators import UniqueTogetherValidator
 class ShiftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shift
+        fields = '__all__'
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
         fields = '__all__'
 
 

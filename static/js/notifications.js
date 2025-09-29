@@ -1,4 +1,7 @@
 (function () {
+  console.log("notifications.js loaded");
+  
+  // API endpoints
   const API_LIST = "/api/notifications/"; // GET list visible to current user
   const API_MARK_SEEN = "/api/notifications/mark-seen/"; // POST body: {ids: [..]}
   const notifDot = document.getElementById("notifDot");
@@ -17,6 +20,7 @@
       const res = await fetch(API_LIST, { credentials: "same-origin" });
       if (!res.ok) throw new Error("Fetch failed");
       const data = await res.json();
+      console.log("Fetched notifications:", data);
       // Expected shape: [{id, kind: "action"|"info", title, body, created_at, is_read, url}]
       const unseen = data.filter(n => !n.is_read);
       // Toggle dot

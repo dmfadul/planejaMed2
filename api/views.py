@@ -5,7 +5,7 @@ from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from core.constants import SHIFTS_MAP, SHIFT_CODES, HOUR_RANGE, MORNING_START
-from .serializers import ShiftSerializer, UserRequestSerializer
+from .serializers import ShiftSerializer, UserRequestSerializer, NotificationSerializer
 
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -65,7 +65,6 @@ class userRequestCreate(APIView):
         serializer = UserRequestSerializer(data=parameters)
         if serializer.is_valid():
             serializer.save()
-            # TODO: create Notification here
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -78,7 +77,18 @@ class notificationsList(APIView):
     def get(self, request):
         user = request.user
 
-        return Response([])
+        if user.is_staff:
+            notifications = Notification.objects.filter(is_deleted=False).order_by('-created_at')
+        elif user.is_superuser:
+            notifications = []  # TODO: Fetch superuser notifications (receiver=None)
+        else:
+            notifications = Notification.objects.filter(receiver=user,
+                                                        is_read=False).order_by('-created_at')
+        
+        serializer = NotificationSerializer(notifications, many=True)
+        print("Serialized notifications:", serializer.data)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

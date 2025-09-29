@@ -10,6 +10,11 @@ html, body {
     overflow-x: hidden;
 }
 
+.dropdown-menu .card {
+    box-shadow: none;
+    border: 0;
+  }
+
 /* ========== SIGN-IN CONTAINER STYLES ========== */
 .container.signin-container {
     margin-top: 10%;
