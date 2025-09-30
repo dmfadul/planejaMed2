@@ -86,8 +86,6 @@ class notificationsList(APIView):
                                                         is_read=False).order_by('-created_at')
         
         serializer = NotificationSerializer(notifications, many=True)
-        print("Serialized notifications:", serializer.data)
-        
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
