@@ -1,11 +1,16 @@
+{% extends 'base.html' %}
 {% load static %}
 
 
-<!-- notifications.html -->
-<div class="container py-4">
-  <h2 class="mb-3">Notifications</h2>
-  <div id="notifList" class="vstack gap-3"></div>
-</div>
+{% block content %}
 
-<script src="{% static 'user_requests/js/displayNotifications.js' %}"></script>
+    <!-- notifications.html -->
+    <div class="container py-4">
+      <h2 class="mb-3">Notifications</h2>
+      <div id="notifList" class="vstack gap-3"></div>
+    </div>
+{% endblock %}
 
+{% block script %}
+    <script src="{% static 'user_requests/js/displayNotifications.js' %}"></script>
+{% endblock %}
