@@ -65,28 +65,29 @@ class userRequestCreate(APIView):
         serializer = UserRequestSerializer(data=parameters)
         if serializer.is_valid():
             serializer.save()
+            serializer.instance.notify_users()
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
 
 
-class notificationsList(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+# class notificationsList(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
+#     def get(self, request):
+#         user = request.user
 
-        if user.is_staff:
-            notifications = Notification.objects.filter(is_deleted=False).order_by('-created_at')
-        elif user.is_superuser:
-            notifications = []  # TODO: Fetch superuser notifications (receiver=None)
-        else:
-            notifications = Notification.objects.filter(receiver=user,
-                                                        is_read=False).order_by('-created_at')
+#         if user.is_staff:
+#             notifications = Notification.objects.filter(is_deleted=False).order_by('-created_at')
+#         elif user.is_superuser:
+#             notifications = []  # TODO: Fetch superuser notifications (receiver=None)
+#         else:
+#             notifications = Notification.objects.filter(receiver=user,
+#                                                         is_read=False).order_by('-created_at')
         
-        serializer = NotificationSerializer(notifications, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+#         serializer = NotificationSerializer(notifications, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

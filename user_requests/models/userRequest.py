@@ -67,6 +67,7 @@ class UserRequest(models.Model):
     def notify_users(self):
         from user_requests.models.notifications import Notification
 
+        print("Notifying users about request creation...")
         if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
             temp_key = f'request_pending_donation_offered'
         elif self.request_type == self.RequestType.DONATION and self.donee == self.requester:
