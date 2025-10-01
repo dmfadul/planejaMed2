@@ -21,6 +21,7 @@ from user_requests.views import calendar
 
 urlpatterns = [
     path('api/', include('api.urls')),
+    path('api/user_requests/', include('user_requests.api.urls')),
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('shifts/', include('shifts.urls')),

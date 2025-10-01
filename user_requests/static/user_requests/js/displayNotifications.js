@@ -1,5 +1,5 @@
 (function () {
-  const LIST = "/api/notifications/";
+  const LIST = "/api/user_requests/notifications/";
   const RESPOND = (id) => `/api/notifications/${id}/respond/`; // POST {action:"accept"|"refuse"}
   const DELETE = (id) => `/api/notifications/${id}/`;           // DELETE (archive for user)
   const MARK_READ = (id) => `/api/notifications/${id}/read/`;   // PATCH {is_read:true}
