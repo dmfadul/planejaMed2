@@ -1,8 +1,8 @@
 (function () {
   const LIST = "/api/user_requests/notifications/";
-  const RESPOND = (id) => `/api/notifications/${id}/respond/`; // POST {action:"accept"|"refuse"}
-  const DELETE = (id) => `/api/notifications/${id}/`;           // DELETE (archive for user)
-  const MARK_READ = (id) => `/api/notifications/${id}/read/`;   // PATCH {is_read:true}
+  const RESPOND = (id) => `/api/user_requests/notifications/${id}/respond/`; // POST {action:"accept"|"refuse"}
+  const DELETE = (id) => `/api/user_requests/notifications/${id}/`;           // DELETE (archive for user)
+  const MARK_READ = (id) => `/api/user_requests/notifications/${id}/read/`;   // PATCH {is_read:true}
   const csrftoken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)')||[]).pop()||"";
   const listEl = document.getElementById("notifList");
 
@@ -84,7 +84,7 @@
         await del(DELETE(id));
       }
       // Optimistically mark read
-      await patch(MARK_READ(id), { is_read: true });
+      await post(MARK_READ(id), { is_read: true });
     } finally {
       load();
     }

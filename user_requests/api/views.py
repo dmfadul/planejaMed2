@@ -21,6 +21,8 @@ class NotificationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def respond(self, request, pk=None):
         notif = self.get_object()
+        print("Responding to notification:", notif)
+        print("Request data:", request.data)
         # custom logic to handle a response (e.g. accept/decline)
         # return an appropriate result (e.g. status 204)
         return Response(status=status.HTTP_204_NO_CONTENT)
