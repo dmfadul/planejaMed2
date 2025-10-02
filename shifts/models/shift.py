@@ -13,6 +13,15 @@ class Shift(AbstractShift):
     def __str__(self):
         return f"{self.center.abbreviation} - {self.user.abbr_name} - {self.month.number}/{self.day} - {self.start_time} to {self.end_time}"
 
+    def change_user(self, new_user):
+        # TODO: check for conflicts before changing user
+        self.user = new_user
+        self.save(update_fields=['user'])
+    
+    def split(self, split_start, split_end):
+        """Split the shift into two parts"""
+        # TODO: implement split logic
+        pass
 
     @classmethod
     def check_conflict(cls, doctor, month, day, start_time, end_time):

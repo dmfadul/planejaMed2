@@ -102,10 +102,10 @@ class UserRequest(models.Model):
         self.save(update_fields=['is_open', 'is_approved', 'responder', 'closing_date'])
         self.remove_notifications()
         
-        # send notification to requester about refusal
+        # TODO: send notification to requester about refusal
 
     def remove_notifications(self):
-        # Archive related notifications
+        """Archive related notifications"""
         related_notifications = Notification.objects.filter(
             related_ct__model='userrequest',
             related_id=str(self.pk),
@@ -127,7 +127,6 @@ class UserRequest(models.Model):
             raise ValueError("Invalid response type for notification.")
 
     def notify_request(self):
-        print("Notifying users about request creation...")
         if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
             temp_key = f'request_pending_donation_offered'
         elif self.request_type == self.RequestType.DONATION and self.donee == self.requester:

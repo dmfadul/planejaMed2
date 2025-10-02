@@ -34,6 +34,7 @@ class AbstractShift(models.Model):
         """Convert hour string to tuple of integers."""
         return SHIFTS_MAP.get(code, (0, 0))
 
+
     @classmethod
     def format_hours(cls, start:int, end:int) -> list:
         """Split and format hours into a redundant list of string representations."""
@@ -105,7 +106,21 @@ class AbstractShift(models.Model):
         code = "".join(codes)
 
         return code
-    
+        
+
+    def get_hours_count(self):
+        shifts_map = SHIFTS_MAP
+        day_range = self.gen_hour_list(*shifts_map['d'])
+        night_range = self.gen_hour_list(*shifts_map['n'])
+
+        hours_count = {"day": 0, "night": 0}
+        for hour in self.hour_list:
+            if hour in day_range:
+                hours_count["day"] += 1
+            elif hour in night_range:
+                hours_count["night"] += 1
+
+        return hours_count
 
     @classmethod
     def merge(cls, shift1, shift2):
@@ -135,18 +150,3 @@ class AbstractShift(models.Model):
         )
         
         return merged_shift
-    
-
-    def get_hours_count(self):
-        shifts_map = SHIFTS_MAP
-        day_range = self.gen_hour_list(*shifts_map['d'])
-        night_range = self.gen_hour_list(*shifts_map['n'])
-
-        hours_count = {"day": 0, "night": 0}
-        for hour in self.hour_list:
-            if hour in day_range:
-                hours_count["day"] += 1
-            elif hour in night_range:
-                hours_count["night"] += 1
-
-        return hours_count

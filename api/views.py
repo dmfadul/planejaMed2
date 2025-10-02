@@ -30,6 +30,7 @@ def apiOverview(request):
 
 
 class userRequestCreate(APIView):
+    # TODO: change frontend to simplify the request creation
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
