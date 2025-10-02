@@ -65,7 +65,7 @@ class userRequestCreate(APIView):
         serializer = UserRequestSerializer(data=parameters)
         if serializer.is_valid():
             serializer.save()
-            serializer.instance.notify_users()
+            serializer.instance.notify_request()
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

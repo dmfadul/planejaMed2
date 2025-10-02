@@ -24,7 +24,8 @@ class NotificationViewSet(viewsets.ModelViewSet):
         response = request.data.get('action')
         
         if response == 'accept':
-            # custom logic to handle acceptance
+            # notif.related_obj.accept(request.user)  # assuming related_obj is a UserRequest
+            # notif.archive()  # mark notification as deleted
             pass
         elif response == 'refuse':
             notif.related_obj.refuse(request.user)  # assuming related_obj is a UserRequest

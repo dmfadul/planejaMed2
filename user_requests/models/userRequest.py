@@ -68,35 +68,40 @@ class UserRequest(models.Model):
         super().save(*args, **kwargs)
 
     def accept(self, responder):
-        # transfer shift if donation
-        # check for conflicts
-        # check for other requests on same shift and hours
-        # if there are, refuse them automatically
+
+        if self.request_type == self.RequestType.DONATION:
+            if not (self.responder == self.requestee) and not self.responder.is_staff:
+                raise PermissionError("Only the requestee or staff can accept a donation request.")
+
+            if not (self.shift and self.donor) or not self.shift.user == self.donor:
+                raise ValueError("The donor must be the current assignee of the shift.")
+
+            # check if donne is available (no overlapping shifts)
+            # if not, refuse automatically and notify
+            
+            # self.shift.split(self.start_hour, self.end_hour, new_user=self.donee)
+            # Notify both parties about the successful donation
+        else:
+            # check for conflicts
+            # check for other requests on same shift and hours
+            # if there are, refuse them automatically
+            pass
+
         self.is_open = False
         self.is_approved = True
         self.responder = responder
         self.closing_date = timezone.now()
         self.save(update_fields=['is_open', 'is_approved', 'responder', 'closing_date'])
-
-        # Apply the request effect (e.g., update Shift assignments)
-        if self.request_type == self.RequestType.DONATION:
-            if self.donor and self.donee and self.shift:
-                # Example logic: reassign shift from donor to donee
-                if self.shift.assigned_user == self.donor:
-                    self.shift.assigned_user = self.donee
-                    self.shift.save(update_fields=['assigned_user'])
-                # Notify both parties about the successful donation
-                # (Notification logic would go here)
-
-        # Additional logic for other request types can be added here
-        
+        self.remove_notifications()
+    
     def refuse(self, responder):
         self.is_open = False
         self.is_approved = False
         self.responder = responder
         self.closing_date = timezone.now()
         self.save(update_fields=['is_open', 'is_approved', 'responder', 'closing_date'])
-
+        self.remove_notifications()
+        
         # send notification to requester about refusal
 
     def remove_notifications(self):
@@ -109,7 +114,19 @@ class UserRequest(models.Model):
 
         related_notifications.update(is_deleted=True)
 
-    def notify_users(self):
+    def notify_response(self, response):
+        # TODO: implement notification logic based on response type
+        if response == "accept":
+            pass
+        elif response == "refuse":
+            pass
+        elif response == "cancel":
+            pass
+        else:
+            print("Response:", response)
+            raise ValueError("Invalid response type for notification.")
+
+    def notify_request(self):
         print("Notifying users about request creation...")
         if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
             temp_key = f'request_pending_donation_offered'

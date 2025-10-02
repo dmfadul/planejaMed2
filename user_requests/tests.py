@@ -42,14 +42,14 @@
 #         self.ur.save()
 
 #     @patch("user_requests.models.notifications.Notification.from_template")
-#     def test_notify_users_sends_two_notifications_with_correct_payload(self, mock_from_template):
+#     def test_notify_request_sends_two_notifications_with_correct_payload(self, mock_from_template):
 #         """
-#         notify_users() must:
+#         notify_request() must:
 #         - Send 'request_pending' to the requestee
 #         - Send 'request_submitted' to the requester
 #         - Include correct context and related_obj in both calls
 #         """
-#         self.ur.notify_users()
+#         self.ur.notify_request()
 
 #         # Should be called exactly twice
 #         self.assertEqual(mock_from_template.call_count, 2)
@@ -108,16 +108,16 @@
 #         self.assertIs(second_kwargs["related_obj"], self.ur)
 
 #     @patch("user_requests.models.notifications.Notification.from_template")
-#     def test_notify_users_does_not_mutate_request_state(self, mock_from_template):
+#     def test_notify_request_does_not_mutate_request_state(self, mock_from_template):
 #         """
-#         notify_users() should not flip is_open/is_approved/closing_date.
+#         notify_request() should not flip is_open/is_approved/closing_date.
 #         """
 #         original = {
 #             "is_open": self.ur.is_open,
 #             "is_approved": self.ur.is_approved,
 #             "closing_date": self.ur.closing_date,
 #         }
-#         self.ur.notify_users()
+#         self.ur.notify_request()
 #         self.ur.refresh_from_db()
 #         self.assertEqual(self.ur.is_open, original["is_open"])
 #         self.assertEqual(self.ur.is_approved, original["is_approved"])

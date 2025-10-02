@@ -64,7 +64,7 @@ class Notification(models.Model):
     TEMPLATE_REGISTRY = {
         # “Another user sent you a request for X.”
         'request_received': {
-            'kind': Kind.ACTION,
+            'kind': Kind.CANCEL,
             'title': "Pending request with {requestee_name}",
             'body': 
                 "Você tem uma SOLICITAÇÃO PENDENTE de {request_type} para {requestee_name} "
@@ -81,7 +81,7 @@ class Notification(models.Model):
                 "{sender_name} solicitou para {{{receiver_id}}} a doação dos horários: "
                 "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
         },
-            'request_pending_donation_offered': {
+        'request_pending_donation_offered': {
             'kind': Kind.ACTION,
             'title': "Requisição pendente",
             'body':
