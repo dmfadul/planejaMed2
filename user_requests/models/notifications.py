@@ -48,6 +48,9 @@ class Notification(models.Model):
     def __str__(self):
         return f"Notification to {self.receiver.name}: {self.title}"
 
+    def archive(self):
+        self.is_deleted = True
+        self.save(update_fields=['is_deleted'])
 
 # ------------------- Template Registry ---------------------------------
 # Placeholders correspond to context keys

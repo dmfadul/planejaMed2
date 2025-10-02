@@ -16,4 +16,4 @@ from user_requests.models import UserRequest, Notification
 
 # Example logic:
 req = UserRequest.objects.first()
-req.notify_users()
+req.remove_notifications()

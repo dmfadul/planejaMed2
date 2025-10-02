@@ -21,10 +21,17 @@ class NotificationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def respond(self, request, pk=None):
         notif = self.get_object()
-        print("Responding to notification:", notif)
-        print("Request data:", request.data)
-        # custom logic to handle a response (e.g. accept/decline)
-        # return an appropriate result (e.g. status 204)
+        response = request.data.get('action')
+        
+        if response == 'accept':
+            # custom logic to handle acceptance
+            pass
+        elif response == 'refuse':
+            notif.related_obj.refuse(request.user)  # assuming related_obj is a UserRequest
+            notif.archive()  # mark notification as deleted
+        else:
+            return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'])

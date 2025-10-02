@@ -83,8 +83,8 @@
       } else if (act === "delete") {
         await del(DELETE(id));
       }
-      // Optimistically mark read
-      await post(MARK_READ(id), { is_read: true });
+      // Optimistically mark read, better to move mark-read to the when the user opens the page
+      await post(MARK_READ(id), { is_read: true }); // PATCH would be more correct but POST is easier to handle in DRF
     } finally {
       load();
     }

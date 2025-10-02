@@ -2,6 +2,9 @@ from django.db import models
 from core.models import User
 from django.db.models import Q
 from shifts.models import Shift
+from django.utils import timezone
+from user_requests.models.notifications import Notification
+
 
 
 class UserRequest(models.Model):
@@ -64,9 +67,49 @@ class UserRequest(models.Model):
         self.full_clean(exclude=None)
         super().save(*args, **kwargs)
 
-    def notify_users(self):
-        from user_requests.models.notifications import Notification
+    def accept(self, responder):
+        # transfer shift if donation
+        # check for conflicts
+        # check for other requests on same shift and hours
+        # if there are, refuse them automatically
+        self.is_open = False
+        self.is_approved = True
+        self.responder = responder
+        self.closing_date = timezone.now()
+        self.save(update_fields=['is_open', 'is_approved', 'responder', 'closing_date'])
 
+        # Apply the request effect (e.g., update Shift assignments)
+        if self.request_type == self.RequestType.DONATION:
+            if self.donor and self.donee and self.shift:
+                # Example logic: reassign shift from donor to donee
+                if self.shift.assigned_user == self.donor:
+                    self.shift.assigned_user = self.donee
+                    self.shift.save(update_fields=['assigned_user'])
+                # Notify both parties about the successful donation
+                # (Notification logic would go here)
+
+        # Additional logic for other request types can be added here
+        
+    def refuse(self, responder):
+        self.is_open = False
+        self.is_approved = False
+        self.responder = responder
+        self.closing_date = timezone.now()
+        self.save(update_fields=['is_open', 'is_approved', 'responder', 'closing_date'])
+
+        # send notification to requester about refusal
+
+    def remove_notifications(self):
+        # Archive related notifications
+        related_notifications = Notification.objects.filter(
+            related_ct__model='userrequest',
+            related_id=str(self.pk),
+            is_deleted=False
+        )
+
+        related_notifications.update(is_deleted=True)
+
+    def notify_users(self):
         print("Notifying users about request creation...")
         if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
             temp_key = f'request_pending_donation_offered'
