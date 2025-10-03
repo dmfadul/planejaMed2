@@ -79,7 +79,11 @@ class UserRequest(models.Model):
             # check if donne is available (no overlapping shifts)
             # if not, refuse automatically and notify
             
-            # self.shift.split(self.start_hour, self.end_hour, new_user=self.donee)
+            # new_shift = self.shift.split(self.start_hour, self.end_hour, new_user=self.donee)
+            # conflict = new_shift.change_user(self.donee)
+            
+            # if conflict:
+                # self.refuse(responder) # send notification about refusal due to conflict
             # Notify both parties about the successful donation
         else:
             # check for conflicts

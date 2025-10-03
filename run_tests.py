@@ -13,7 +13,18 @@ django.setup()
 
 # Now safe to import your models
 from user_requests.models import UserRequest, Notification
+from shifts.models import Shift
+from core.models import User
 
 # Example logic:
-req = UserRequest.objects.first()
-req.remove_notifications()
+shift1 = Shift.objects.first()
+shift2 = Shift.objects.last()
+user1 = User.objects.filter(crm=42173).first()
+print(shift1)
+print(shift2)
+print(user1)
+
+c = shift1.change_user(user1)
+print(c)
+# req = UserRequest.objects.first()
+# req.remove_notifications()

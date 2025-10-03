@@ -14,9 +14,20 @@ class Shift(AbstractShift):
         return f"{self.center.abbreviation} - {self.user.abbr_name} - {self.month.number}/{self.day} - {self.start_time} to {self.end_time}"
 
     def change_user(self, new_user):
-        # TODO: check for conflicts before changing user
+        # check for conflicts before changing user
+        conflict = Shift.check_conflict(new_user,
+                                        self.month,
+                                        self.day,
+                                        self.start_time,
+                                        self.end_time)
+        
+        if conflict:
+            return conflict  # Return the conflicting shift if found
+        
         self.user = new_user
         self.save(update_fields=['user'])
+
+        return None  # No conflict, user changed successfully
     
     def split(self, split_start, split_end):
         """Split the shift into two parts"""
