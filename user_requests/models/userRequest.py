@@ -130,7 +130,7 @@ class UserRequest(models.Model):
 
         related_notifications.update(is_deleted=True)
 
-    # move to notifications.py?
+    # TODO: move to notifications.py
     def notify_response(self, response):
         # Notify the requester about the response
         was_solicited = (self.request_type == self.RequestType.DONATION) and (self.donee == self.requestee)
