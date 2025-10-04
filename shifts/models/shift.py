@@ -30,9 +30,46 @@ class Shift(AbstractShift):
         return None  # No conflict, user changed successfully
     
     def split(self, split_start, split_end):
-        """Split the shift into two parts"""
-        # TODO: implement split logic
-        pass
+        """Split the shift into two or three parts"""
+        
+        if not (split_start in self.hour_list and split_end-1 in self.hour_list):
+            return None  # Invalid split hours
+        
+        if split_start == self.start_time and split_end == self.end_time:
+            return self  # No split needed
+        
+        if not (split_start == self.start_time) and not (split_end == self.end_time):
+            # Split into three parts
+            
+            # create the end part
+            Shift.objects.create(
+                user=self.user,
+                center=self.center,
+                month=self.month,
+                day=self.day,
+                start_time=split_end,
+                end_time=self.end_time
+            )
+
+            # adjust the current shift to be the start part
+            self.end_time = split_start
+            self.save(update_fields=['end_time'])
+
+            # create the middle part
+            middle_shift = Shift.objects.create(
+                user=self.user,
+                center=self.center,
+                month=self.month,
+                day=self.day,
+                start_time=split_start,
+                end_time=split_end
+            )
+            return middle_shift
+
+        self.start_time = split_start
+        self.end_time = split_end
+        self.save(update_fields=['start_time', 'end_time'])
+        return self
 
     @classmethod
     def check_conflict(cls, doctor, month, day, start_time, end_time):
