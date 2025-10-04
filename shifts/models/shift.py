@@ -27,6 +27,7 @@ class Shift(AbstractShift):
         self.user = new_user
         self.save(update_fields=['user'])
 
+        # TODO: delete existing user requests for this shift
         return None  # No conflict, user changed successfully
     
     @transaction.atomic
@@ -39,6 +40,7 @@ class Shift(AbstractShift):
         if split_start == self.start_time and split_end == self.end_time:
             return self  # No split needed
         
+        # TODO: handle user requests associated with this shift
         if not (split_start == self.start_time) and not (split_end == self.end_time):
             # Split into three parts
             

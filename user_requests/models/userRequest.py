@@ -108,6 +108,13 @@ class UserRequest(models.Model):
         
         # TODO: send notification to requester about refusal
 
+    def cancel(self):
+        pass
+
+    def invalidate(self):
+        """Mark as invalid (e.g. if shift is deleted or change users)"""
+        pass
+
     def remove_notifications(self):
         """Archive related notifications"""
         related_notifications = Notification.objects.filter(
@@ -121,10 +128,13 @@ class UserRequest(models.Model):
     def notify_response(self, response):
         # TODO: implement notification logic based on response type
         if response == "accept":
+            # "Sua SOLICITAÇÃO DE DOAÇÃO dos horários: 19:00 - 01:00 no centro CCG no dia 08/09/25 (PARA Marcela Vogel Paracatu de Oliveira) foi autorizada."
             pass
         elif response == "refuse":
+            # "Sua SOLICITAÇÃO DE DOAÇÃO dos horários: 07:00 - 19:00 no centro CCG no dia 04/09/25 (DE Alberto David Fadul Filho) foi negada."
             pass
         elif response == "cancel":
+            # maybe not needed, handled by remove_notifications()
             pass
         else:
             print("Response:", response)

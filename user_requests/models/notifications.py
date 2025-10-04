@@ -81,6 +81,7 @@ class Notification(models.Model):
                 "{sender_name} solicitou para {{{receiver_id}}} a doação dos horários: "
                 "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
         },
+        
         'request_pending_donation_offered': {
             'kind': Kind.ACTION,
             'title': "Requisição pendente",
