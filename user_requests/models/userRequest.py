@@ -67,7 +67,6 @@ class UserRequest(models.Model):
         self.full_clean(exclude=None)
         super().save(*args, **kwargs)
 
-
     def accept(self, responder):
         if self.request_type == self.RequestType.DONATION:
             if not (self.responder == self.requestee) and not self.responder.is_staff:
@@ -90,31 +89,37 @@ class UserRequest(models.Model):
             # check for other requests on same shift and hours
             # if there are, refuse them automatically
             pass
+        
 
-        self.is_open = False
+        self.close(responder)
         self.is_approved = True
-        self.responder = responder
-        self.closing_date = timezone.now()
-        self.save(update_fields=['is_open', 'is_approved', 'responder', 'closing_date'])
+        self.save(update_fields=['is_approved'])
         self.remove_notifications()
     
     def refuse(self, responder):
-        self.is_open = False
-        self.is_approved = False
-        self.responder = responder
-        self.closing_date = timezone.now()
-        self.save(update_fields=['is_open', 'is_approved', 'responder', 'closing_date'])
+        self.close(responder)
         self.remove_notifications()
-        
-        # TODO: send notification to requester about refusal
 
-    def cancel(self):
-        pass
+        self.notify_response("refuse")
+
+    def cancel(self, canceller):
+        self.close(canceller)
+        self.remove_notifications()
 
     def invalidate(self):
         """Mark as invalid (e.g. if shift is deleted or change users)"""
-        pass
+        self.close()
+        self.remove_notifications()
 
+    def close(self, closer=None):
+        """Close without action (e.g. if request is fulfilled outside the system)"""
+        self.is_open = False
+        self.responder = closer
+        self.closing_date = timezone.now()
+        self.save(update_fields=['is_open', 'responder', 'closing_date'])
+
+
+# move to notifications.py?
     def remove_notifications(self):
         """Archive related notifications"""
         related_notifications = Notification.objects.filter(

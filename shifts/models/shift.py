@@ -27,25 +27,40 @@ class Shift(AbstractShift):
         self.user = new_user
         self.save(update_fields=['user'])
 
-        # TODO: delete existing user requests for this shift
+        for req in self.user_requests.filter(is_open=True):
+            req.invalidate()  # Invalidate all associated user requests
+
         return None  # No conflict, user changed successfully
     
     @transaction.atomic
     def split(self, split_start, split_end):
-        """Split the shift into two or three parts"""
+        """
+        Split the current shift into:
+          • two parts if one split boundary coincides with current start or end; or
+          • three parts if both split boundaries are strictly inside.
+        Returns the 'middle' segment [split_start, split_end) as a new Shift when a split occurs.
+        Returns self if the split covers the whole shift (i.e., no split needed).
+        Returns None for invalid splits.
+        """
+
+
+        # Lock this row to avoid concurrent edits during the split
+        Shift.objects.select_for_update().get(pk=self.pk)
         
-        if not (split_start in self.hour_list and split_end-1 in self.hour_list):
-            return None  # Invalid split hours
+        original_hours = set(self.hour_list)
+
+        # must be aligned to existing discrete hours (inclusive start, exclusive end)
+        if not (split_start in original_hours and (split_end-1) in original_hours):
+            return None
         
+        # No split needed: requested middle covers entire shift
         if split_start == self.start_time and split_end == self.end_time:
-            return self  # No split needed
+            return self
         
-        # TODO: handle user requests associated with this shift
-        if not (split_start == self.start_time) and not (split_end == self.end_time):
-            # Split into three parts
-            
-            # create the end part
-            Shift.objects.create(
+        third_shift = None
+        # === Case A: split into three parts (both strictly inside)
+        if not (split_start == self.start_time) and not (split_end == self.end_time):            
+            third_shift = Shift.objects.create(
                 user=self.user,
                 center=self.center,
                 month=self.month,
@@ -59,7 +74,7 @@ class Shift(AbstractShift):
             self.save(update_fields=['end_time'])
 
             # create the middle part
-            middle_shift = Shift.objects.create(
+            new_shift = Shift.objects.create(
                 user=self.user,
                 center=self.center,
                 month=self.month,
@@ -67,26 +82,66 @@ class Shift(AbstractShift):
                 start_time=split_start,
                 end_time=split_end
             )
-            return middle_shift
 
-        if split_start == self.start_time:
+        # === Case B: split into two parts at the left edge
+        elif split_start == self.start_time:
             # adjust the current shift to be the end part
             self.start_time = split_end
             self.save(update_fields=['start_time'])
+
+            # new middle becomes the left-edge chunk
+            new_shift = Shift.objects.create(
+                user=self.user,
+                center=self.center,
+                month=self.month,
+                day=self.day,
+                start_time=split_start,
+                end_time=split_end,
+            )
+        # === Case C: split into two parts at the right edge
         elif split_end == self.end_time:
-            # adjust the current shift to be the start part
+            # turn current into the left part
             self.end_time = split_start
             self.save(update_fields=['end_time'])
 
-        # the new shift has the start and end split times
-        new_shift = Shift.objects.create(
-            user=self.user,
-            center=self.center,
-            month=self.month,
-            day=self.day,
-            start_time=split_start,
-            end_time=split_end
-        )
+            # new middle becomes the right-edge chunk
+            new_shift = Shift.objects.create(
+                user=self.user,
+                center=self.center,
+                month=self.month,
+                day=self.day,
+                start_time=split_start,
+                end_time=split_end,
+            )
+        else:
+            return None  # Should not reach here
+
+        # --- Reassign or invalidate open requests ---
+        # Build hour sets for membership checks to avoid confusion after mutations.
+        old_hours = set(range(self.start_time, self.end_time))
+        new_hours = set(range(new_shift.start_time, new_shift.end_time))
+        third_hours = set(range(third_shift.start_time, third_shift.end_time)) if third_shift else set()
+
+        # We treat a request as "fits" if its [start_hour, end_hour) is fully contained.
+        for r in self.user_requests.filter(is_open=True).select_for_update():
+            req_hours = set(range(r.start_hour, r.end_hour))
+
+            if req_hours.issubset(new_hours):
+                r.shift = new_shift
+                r.save(update_fields=['shift'])
+                continue
+
+            if third_shift and req_hours.issubset(third_hours):
+                r.shift = third_shift
+                r.save(update_fields=['shift'])
+                continue
+
+            if req_hours.issubset(old_hours):
+                # still fits current (left) part; no reassignment needed
+                continue
+
+            # otherwise, it no longer fits any segment -> invalidate
+            r.invalidate()
             
         return new_shift
 

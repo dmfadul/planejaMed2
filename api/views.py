@@ -82,7 +82,7 @@ class userRequestCreate(APIView):
 #         if user.is_staff:
 #             notifications = Notification.objects.filter(is_deleted=False).order_by('-created_at')
 #         elif user.is_superuser:
-#             notifications = []  # TODO: Fetch superuser notifications (receiver=None)
+#             notifications = []  # Fetch superuser notifications (receiver=None)
 #         else:
 #             notifications = Notification.objects.filter(receiver=user,
 #                                                         is_read=False).order_by('-created_at')
