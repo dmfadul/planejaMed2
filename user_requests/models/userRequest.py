@@ -75,6 +75,7 @@ class UserRequest(models.Model):
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The donor must be the current assignee of the shift.")
 
+            # TODO: implement accept logic
             # check if donne is available (no overlapping shifts)
             # if not, refuse automatically and notify
             
@@ -119,7 +120,6 @@ class UserRequest(models.Model):
         self.save(update_fields=['is_open', 'responder', 'closing_date'])
 
 
-# move to notifications.py?
     def remove_notifications(self):
         """Archive related notifications"""
         related_notifications = Notification.objects.filter(
@@ -130,20 +130,29 @@ class UserRequest(models.Model):
 
         related_notifications.update(is_deleted=True)
 
+    # move to notifications.py?
     def notify_response(self, response):
-        # TODO: implement notification logic based on response type
-        if response == "accept":
-            # "Sua SOLICITAÇÃO DE DOAÇÃO dos horários: 19:00 - 01:00 no centro CCG no dia 08/09/25 (PARA Marcela Vogel Paracatu de Oliveira) foi autorizada."
-            pass
-        elif response == "refuse":
-            # "Sua SOLICITAÇÃO DE DOAÇÃO dos horários: 07:00 - 19:00 no centro CCG no dia 04/09/25 (DE Alberto David Fadul Filho) foi negada."
-            pass
-        elif response == "cancel":
-            # maybe not needed, handled by remove_notifications()
-            pass
-        else:
-            print("Response:", response)
-            raise ValueError("Invalid response type for notification.")
+        # Notify the requester about the response
+        was_solicited = (self.request_type == self.RequestType.DONATION) and (self.donee == self.requestee)
+        Notification.from_template(
+            template_key="request_responded",
+            sender=self.requestee,
+            receiver=self.requester,
+            context={
+                'sender_name': self.requestee.name,
+                'receiver_id': self.requester.id,
+                'response': "ACEITOU" if response == "accept" else "NEGOU",
+                'verb': "SOLICITAÇÃO" if was_solicited else "OFERTA",
+                'req_type': self.get_request_type_display().upper(),
+                'shift_center': self.shift.center.abbreviation,
+                'shift_date': self.shift.get_date().strftime("%d/%m/%y"),
+                'start_hour': f"{self.start_hour:02d}:00",
+                'end_hour': f"{self.end_hour:02d}:00",
+            },
+            related_obj=self,
+        )
+
+        # Do I need to add Cancelable notification to requester?
 
     def notify_request(self):
         if self.request_type == self.RequestType.DONATION and self.donor == self.requester:

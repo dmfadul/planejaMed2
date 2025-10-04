@@ -81,12 +81,20 @@ class Notification(models.Model):
                 "{sender_name} solicitou para {{{receiver_id}}} a doação dos horários: "
                 "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
         },
-        
+
         'request_pending_donation_offered': {
             'kind': Kind.ACTION,
             'title': "Requisição pendente",
             'body':
                 "{sender_name} ofereceu para {{{receiver_id}}} a doação dos horários: "
+                "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
+        },
+
+        'request_responded': {
+            'kind': Kind.INFO,
+            'title': "Requisição respondida",
+            'body':
+                "{sender_name} {response} {{{receiver_id}}} {verb} DE {req_type}."
                 "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
         },
     }
