@@ -67,8 +67,8 @@ class UserRequest(models.Model):
         self.full_clean(exclude=None)
         super().save(*args, **kwargs)
 
-    def accept(self, responder):
 
+    def accept(self, responder):
         if self.request_type == self.RequestType.DONATION:
             if not (self.responder == self.requestee) and not self.responder.is_staff:
                 raise PermissionError("Only the requestee or staff can accept a donation request.")

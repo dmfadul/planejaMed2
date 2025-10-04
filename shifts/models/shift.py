@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from datetime import datetime
 from shifts.models.month import Month
 from core.constants import STR_DAY, END_DAY
@@ -29,6 +29,7 @@ class Shift(AbstractShift):
 
         return None  # No conflict, user changed successfully
     
+    @transaction.atomic
     def split(self, split_start, split_end):
         """Split the shift into two or three parts"""
         
@@ -66,10 +67,27 @@ class Shift(AbstractShift):
             )
             return middle_shift
 
-        self.start_time = split_start
-        self.end_time = split_end
-        self.save(update_fields=['start_time', 'end_time'])
-        return self
+        if split_start == self.start_time:
+            # adjust the current shift to be the end part
+            self.start_time = split_end
+            self.save(update_fields=['start_time'])
+        elif split_end == self.end_time:
+            # adjust the current shift to be the start part
+            self.end_time = split_start
+            self.save(update_fields=['end_time'])
+
+        # the new shift has the start and end split times
+        new_shift = Shift.objects.create(
+            user=self.user,
+            center=self.center,
+            month=self.month,
+            day=self.day,
+            start_time=split_start,
+            end_time=split_end
+        )
+            
+        return new_shift
+
 
     @classmethod
     def check_conflict(cls, doctor, month, day, start_time, end_time):
