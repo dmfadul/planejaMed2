@@ -30,17 +30,17 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def respond(self, request, pk=None):
         notif = self.get_object()
         response = request.data.get('action')
-
-        print("response:", response)
         
+        # assuming related_obj is a UserRequest
         if response == 'accept':
-            # TODO: implement accept logic
-            # notif.related_obj.accept(request.user)  # assuming related_obj is a UserRequest
-            # notif.archive()  # mark notification as deleted
-            pass
+            notif.related_obj.accept(request.user)
+            notif.archive()
         elif response == 'refuse':
-            notif.related_obj.refuse(request.user)  # assuming related_obj is a UserRequest
-            notif.archive()  # mark notification as deleted
+            notif.related_obj.refuse(request.user)
+            notif.archive()
+        elif response == 'cancel':
+            notif.related_obj.cancel(request.user)  
+            notif.archive()
         else:
             return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
 

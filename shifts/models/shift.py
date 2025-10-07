@@ -15,6 +15,7 @@ class Shift(AbstractShift):
 
     def change_user(self, new_user):
         # check for conflicts before changing user
+        # TODO: merge with existing shifts for new_user if needed
         conflict = Shift.check_conflict(new_user,
                                         self.month,
                                         self.day,

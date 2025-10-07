@@ -96,7 +96,7 @@ const link = n.url ? `<a href="${n.url}" class="stretched-link"></a>` : "";
     const id = btn.dataset.id;
     const act = btn.dataset.act;
     try {
-      if (act === "accept" || act === "refuse") {
+      if (act === "accept" || act === "refuse" || act === "cancel") {
         await post(RESPOND(id), { action: act });
       } else if (act === "delete") {
         await del(DELETE(id));

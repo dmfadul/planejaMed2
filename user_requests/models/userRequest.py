@@ -69,22 +69,19 @@ class UserRequest(models.Model):
 
     def accept(self, responder):
         if self.request_type == self.RequestType.DONATION:
-            if not (self.responder == self.requestee) and not self.responder.is_staff:
+            if not (responder == self.requestee) and not responder.is_staff:
                 raise PermissionError("Only the requestee or staff can accept a donation request.")
 
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The donor must be the current assignee of the shift.")
             
-            new_shift = self.shift.split(
-                self.start_hour,
-                self.end_hour,
-                new_user=self.donee
-                )
+            new_shift = self.shift.split(self.start_hour, self.end_hour)
             
             conflict = new_shift.change_user(self.donee)
                         
             if conflict:
-                self.refuse(responder) # send notification about refusal due to conflict
+                self.refuse(responder)
+                #TODO: send notification about refusal due to conflict
 
             self.notify_response("accept")
         else:
@@ -127,7 +124,6 @@ class UserRequest(models.Model):
         self.responder = closer
         self.closing_date = timezone.now()
         self.save(update_fields=['is_open', 'responder', 'closing_date'])
-
 
     def remove_notifications(self):
         """Archive related notifications"""
