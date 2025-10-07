@@ -1,6 +1,6 @@
 from django.db import models
 from shifts.models.shift_abstract import AbstractShift
-from core.constants import DIAS_SEMANA
+from core.constants import DIAS_SEMANA, HOUR_RANGE
 
 
 class TemplateShift(AbstractShift):
@@ -60,11 +60,31 @@ class TemplateShift(AbstractShift):
             "overtime": day_night_hours["night"]
         }
         
+    @classmethod
+    def merge(cls, shift1, shift2):
+        """Merge two shifts, if they complement each other.
+        Delete input shifts and returns the merged shift, if merge is possible
+        or return -1 if merge is not possible.
+        """
+        custom_order = HOUR_RANGE
+
+        hour_list_1 = shift1.hour_list
+        hour_list_2 = shift2.hour_list
+        merged_hours = list(set(hour_list_1) | set(hour_list_2))
+        merged_hours.sort(key=lambda x: custom_order.index(x))
+
+        # check if the merged hours are continuous
+        for i in range(len(merged_hours) - 1):
+            if custom_order.index(merged_hours[i]) + 1 != custom_order.index(merged_hours[i + 1]):
+                return -1
         
+        merged_shift = cls(
+            user=shift1.user,
+            center=shift1.center,
+            weekday=shift1.weekday,
+            index=shift1.index,
+            start_time=merged_hours[0],
+            end_time=merged_hours[-1] + 1 # +1 to include the last hour in the range
+        )
         
-        
-        
-        
-        
-        
-        
+        return merged_shift

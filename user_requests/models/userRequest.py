@@ -75,13 +75,18 @@ class UserRequest(models.Model):
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The donor must be the current assignee of the shift.")
             
-            new_shift = self.shift.split(self.start_hour, self.end_hour)
-            
-            conflict = new_shift.change_user(self.donee)
-                        
+            conflict = Shift.check_conflict(self.donee,
+                                            self.shift.month,
+                                            self.shift.day,
+                                            self.start_hour,
+                                            self.end_hour)
             if conflict:
                 self.refuse(responder)
-                #TODO: send notification about refusal due to conflict
+                self.notify_conflict(conflict)
+                return
+
+            new_shift = self.shift.split(self.start_hour, self.end_hour)
+            new_shift.change_user(self.donee)
 
             self.notify_response("accept")
         else:
@@ -136,6 +141,12 @@ class UserRequest(models.Model):
         related_notifications.update(is_deleted=True)
 
     # TODO: move to notifications.py
+    def notify_conflict(self, conflicting_request):
+        # Notify the requester about the conflict
+        # TODO: customize template and context as needed
+        pass
+
+
     def notify_response(self, response):
         # Notify the requester about the response
         was_solicited = (self.request_type == self.RequestType.DONATION) and (self.donee == self.requestee)

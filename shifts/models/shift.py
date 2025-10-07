@@ -1,7 +1,7 @@
 from django.db import models, transaction
 from datetime import datetime
 from shifts.models.month import Month
-from core.constants import STR_DAY, END_DAY
+from core.constants import STR_DAY, END_DAY, HOUR_RANGE
 from shifts.models.shift_abstract import AbstractShift
   
   
@@ -28,10 +28,52 @@ class Shift(AbstractShift):
         self.user = new_user
         self.save(update_fields=['user'])
 
+        merging_shifts = Shift.objects.filter(
+            user=new_user,
+            month=self.month,
+            day=self.day,
+        ).exclude(pk=self.pk).all()
+
+        for other in merging_shifts:
+            merged = Shift.merge(self, other)
+            if merged != -1:
+                # other.delete()
+                print(other)
+                self = merged  # Update self to the merged shift
+
         for req in self.user_requests.filter(is_open=True):
             req.invalidate()  # Invalidate all associated user requests
 
         return None  # No conflict, user changed successfully
+
+    @classmethod
+    def merge(cls, shift1, shift2):
+        """Merge two shifts, if they complement each other.
+        Delete input shifts and returns the merged shift, if merge is possible
+        or return -1 if merge is not possible.
+        """
+        custom_order = HOUR_RANGE
+
+        hour_list_1 = shift1.hour_list
+        hour_list_2 = shift2.hour_list
+        merged_hours = list(set(hour_list_1) | set(hour_list_2))
+        merged_hours.sort(key=lambda x: custom_order.index(x))
+
+        # check if the merged hours are continuous
+        for i in range(len(merged_hours) - 1):
+            if custom_order.index(merged_hours[i]) + 1 != custom_order.index(merged_hours[i + 1]):
+                return -1
+        
+        merged_shift = cls(
+            user=shift1.user,
+            center=shift1.center,
+            month=shift1.month,
+            day=shift1.day,
+            start_time=merged_hours[0],
+            end_time=merged_hours[-1] + 1 # +1 to include the last hour in the range
+        )
+        
+        return merged_shift
     
     @transaction.atomic
     def split(self, split_start, split_end):
@@ -43,7 +85,6 @@ class Shift(AbstractShift):
         Returns self if the split covers the whole shift (i.e., no split needed).
         Returns None for invalid splits.
         """
-
 
         # Lock this row to avoid concurrent edits during the split
         Shift.objects.select_for_update().get(pk=self.pk)
