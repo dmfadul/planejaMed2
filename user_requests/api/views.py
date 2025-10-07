@@ -23,13 +23,15 @@ class NotificationViewSet(viewsets.ModelViewSet):
             )
         
         return Notification.objects.filter(
-            receiver=user, is_read=False
+            receiver=user, is_deleted=False
         ).order_by('-created_at')
 
     @action(detail=True, methods=['post'])
     def respond(self, request, pk=None):
         notif = self.get_object()
         response = request.data.get('action')
+
+        print("response:", response)
         
         if response == 'accept':
             # TODO: implement accept logic
