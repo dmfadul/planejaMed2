@@ -1,5 +1,6 @@
 import json
 from core.models import User
+from core.constants import MESES
 from .table_utils import translate_to_table
 from shifts.models import TemplateShift as TS
 from shifts.models import Center, Month, Shift
@@ -12,20 +13,20 @@ def process_table_payload(request):
     state = json.loads(request.body)
     action = state.get("action")   
     table_type = state.get("tableType")
+
+    center = get_object_or_404(Center, abbreviation=state.get("center"))
     
     if action == "add":
-        updates = add_shift(state, table_type)
+        updates = add_shift(state, table_type, center)
     elif action == "remove":
-        updates = remove_shift(state, table_type)
+        updates = remove_shift(state, table_type, center)
     else:
         raise ValueError("Improper action or table type.")
 
     return updates
 
 
-def remove_shift(state, table_type):
-    center = get_object_or_404(Center, abbreviation=state.get("center"))
-    
+def remove_shift(state, table_type, center):
     updates = []
     for cell in state.get("selectedCells"):
         cell_id = cell.get("cellID")
@@ -43,7 +44,9 @@ def remove_shift(state, table_type):
         elif table_type == "MONTH":
             day = int(week_index)
             year = state.get("year")
-            number = state.get("month")
+
+            month_name = state.get("month")
+            number = MESES.index(month_name.capitalize()) + 1
             month = get_object_or_404(Month, number=int(number), year=int(year))
 
             shifts = Shift.objects.filter(
@@ -67,8 +70,7 @@ def remove_shift(state, table_type):
     return updates
 
 
-def add_shift(state, table_type):
-    center = get_object_or_404(Center, abbreviation=state.get("center"))
+def add_shift(state, table_type, center):
     new_values = state.get("newValues")
 
     updates = []
@@ -102,7 +104,10 @@ def add_shift(state, table_type):
         elif table_type == "MONTH":
             day = int(idx)
             year = state.get("year")
-            number = state.get("month")
+            
+            month_name = state.get("month")
+            number = MESES.index(month_name.capitalize()) + 1
+            month = get_object_or_404(Month, number=int(number), year=int(year))
 
             month = get_object_or_404(Month, number=int(number), year=int(year))
             Shift.add(doctor=doctor,
