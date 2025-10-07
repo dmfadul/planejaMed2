@@ -9,18 +9,36 @@
   function card(n) {
     const isUnread = !n.is_read;
     const badge = isUnread ? '<span class="badge bg-primary">New</span>' : '';
-    const actions = n.kind === "action"
-      ? `
-        <div class="mt-3 d-flex gap-2">
-          <button class="btn btn-sm btn-success" data-act="accept" data-id="${n.id}">Accept</button>
-          <button class="btn btn-sm btn-outline-danger" data-act="refuse" data-id="${n.id}">Refuse</button>
-        </div>`
-      : `
-        <div class="mt-3">
-          <button class="btn btn-sm btn-outline-secondary" data-act="delete" data-id="${n.id}">Delete</button>
-        </div>`;
 
-    const link = n.url ? `<a href="${n.url}" class="stretched-link"></a>` : "";
+    // Generate action buttons depending on notification kind
+    const actions = (() => {
+      console.log("kind", n.kind);
+      switch (n.kind) {
+        case "action":
+          return `
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-sm btn-success" data-act="accept" data-id="${n.id}">Accept</button>
+              <button class="btn btn-sm btn-outline-danger" data-act="refuse" data-id="${n.id}">Refuse</button>
+            </div>`;
+
+        case "cancel":
+          return `
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-sm btn-warning" data-act="cancel" data-id="${n.id}">Cancel</button>
+            </div>`;
+      
+        case "info":
+        default:
+          return `
+            <div class="mt-3">
+              <button class="btn btn-sm btn-outline-secondary" data-act="delete" data-id="${n.id}">Delete</button>
+            </div>`;
+      }
+    })();
+
+// Optional link wrapper
+const link = n.url ? `<a href="${n.url}" class="stretched-link"></a>` : "";
+
 
     return `
       <div class="card ${isUnread ? 'border-primary' : ''} position-relative">

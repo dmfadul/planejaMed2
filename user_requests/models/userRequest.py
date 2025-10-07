@@ -74,21 +74,30 @@ class UserRequest(models.Model):
 
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The donor must be the current assignee of the shift.")
+            
+            new_shift = self.shift.split(
+                self.start_hour,
+                self.end_hour,
+                new_user=self.donee
+                )
+            
+            conflict = new_shift.change_user(self.donee)
+                        
+            if conflict:
+                self.refuse(responder) # send notification about refusal due to conflict
+
+            self.notify_response("accept")
+        else:
+            # INCLUDE or EXCLUDE
 
             # TODO: implement accept logic
-            # check if donne is available (no overlapping shifts)
-            # if not, refuse automatically and notify
-            
-            # new_shift = self.shift.split(self.start_hour, self.end_hour, new_user=self.donee)
-            # conflict = new_shift.change_user(self.donee)
-            
-            # if conflict:
-                # self.refuse(responder) # send notification about refusal due to conflict
-            # Notify both parties about the successful donation
-        else:
+
             # check for conflicts
             # check for other requests on same shift and hours
+            # Done in change_user()
+
             # if there are, refuse them automatically
+
             pass
         
 

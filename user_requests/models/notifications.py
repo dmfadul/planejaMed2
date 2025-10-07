@@ -173,6 +173,7 @@ class Notification(models.Model):
         Re-render title/body from stored template + context.
         Useful if you changed TEMPLATE_REGISTRY copy or translations.
         """
+        # TODO: apply and add the you/name logic here
         if not self.template_key:
             return
         tmpl = self.TEMPLATE_REGISTRY.get(self.template_key)

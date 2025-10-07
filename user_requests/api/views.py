@@ -3,6 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from user_requests.models.notifications import Notification
 from .serializers import NotificationSerializer
+from django.db import models
+
 
 class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
@@ -10,10 +12,16 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        
         if user.is_staff:
             return Notification.objects.filter(is_deleted=False).order_by('-created_at')
-        elif user.is_superuser:
-            return Notification.objects.none()
+        
+        if user.is_superuser:
+            return Notification.objects.filter(
+                models.Q(receiver__isnull=True) | models.Q(receiver=user),
+                is_deleted=False
+            )
+        
         return Notification.objects.filter(
             receiver=user, is_read=False
         ).order_by('-created_at')
@@ -24,6 +32,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         response = request.data.get('action')
         
         if response == 'accept':
+            # TODO: implement accept logic
             # notif.related_obj.accept(request.user)  # assuming related_obj is a UserRequest
             # notif.archive()  # mark notification as deleted
             pass
