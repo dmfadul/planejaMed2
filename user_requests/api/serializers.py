@@ -24,7 +24,6 @@ class NotificationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def to_representation(self, instance):
-        print("Serializing Notification id:", instance.id)
         data = super().to_representation(instance)
 
         viewer_id = self.context.get('viewer_id')

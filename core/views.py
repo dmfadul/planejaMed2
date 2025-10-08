@@ -1,8 +1,9 @@
+from shifts.models import Center
 from django.views import View
 from .models import MaintenanceMode
 from django.http import JsonResponse
-from django.urls import reverse_lazy
 from django.contrib.auth import logout
+from django.urls import reverse, reverse_lazy
 from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView
 
@@ -10,9 +11,11 @@ from django.contrib.auth.views import LoginView
 class CustomLoginView(LoginView):
     template_name = "core/login.html"
     redirect_authenticated_user = True  # Redirects already logged-in users
-    success_url = reverse_lazy("home", kwargs={'center_abbr': "CCG"})  # Change this to the actual landing page
-
-
+    success_url = reverse_lazy("requests:calendar", kwargs={'center_abbr': "CCG"})
+    
+    def get_success_url(self):
+        return reverse("requests:calendar", kwargs={'center_abbr': "CCG"})
+    
 class CustomLogoutView(View):
     def get(self, request):
         logout(request)
