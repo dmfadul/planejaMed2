@@ -25,6 +25,12 @@ class NotificationViewSet(viewsets.ModelViewSet):
         return Notification.objects.filter(
             receiver=user, is_deleted=False
         ).order_by('-created_at')
+    
+    def get_serializer_context(self):
+        """Pass viewer_id to serializer for rendering logic."""
+        context = super().get_serializer_context()
+        context['viewer_id'] = self.request.user.id
+        return context
 
     @action(detail=True, methods=['post'])
     def respond(self, request, pk=None):

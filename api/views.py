@@ -31,6 +31,7 @@ def apiOverview(request):
 
 class userRequestCreate(APIView):
     # TODO: change frontend to simplify the request creation
+    # TODO: check for conflicts with donee shifts before creating
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):

@@ -22,3 +22,14 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = '__all__'
+
+    def to_representation(self, instance):
+        print("Serializing Notification id:", instance.id)
+        data = super().to_representation(instance)
+
+        viewer_id = self.context.get('viewer_id')
+        if viewer_id:
+            fresh = instance.render(viewer_id)
+            data["body"] = fresh["body"]
+
+        return data

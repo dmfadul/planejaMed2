@@ -163,24 +163,26 @@ class Notification(models.Model):
         return instance
 
     def mark_read(self):
+        # TODO: change when mark read is called on the frontend
         if not self.is_read:
             self.is_read = True
             self.seen_at = timezone.now()
             self.save(update_fields=['is_read', 'seen_at'])
 
-    def rerender(self):
-        """
-        Re-render title/body from stored template + context.
-        Useful if you changed TEMPLATE_REGISTRY copy or translations.
-        """
-        # TODO: apply and add the you/name logic here
-        if not self.template_key:
-            return
-        tmpl = self.TEMPLATE_REGISTRY.get(self.template_key)
-        if not tmpl:
-            return
-        data = self.context or {}
-        self.title = tmpl['title'].format(**data)
-        self.body  = tmpl['body'].format(**data)
-        self.kind  = tmpl['kind']
-        self.save(update_fields=['title', 'body', 'kind'])
+    def _personalize_text(self, text: str, viewer_id: int) -> str:
+        if not text:
+            return text
+        viewer_id = int(viewer_id)
+        token = f"{{{self.receiver.id}}}"
+        replacement = (
+            "você"
+            if viewer_id == int(self.receiver.id)
+            else self.receiver.name
+        )
+        return text.replace(token, replacement)
+    
+    def render(self, viewer_id) -> dict:
+        """Return a freshly rendered version (no DB writes)."""
+        return {
+            "body": self._personalize_text(self.body,  viewer_id),
+        }
