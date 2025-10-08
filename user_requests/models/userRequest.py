@@ -143,8 +143,19 @@ class UserRequest(models.Model):
     # TODO: move to notifications.py
     def notify_conflict(self, conflicting_request):
         # Notify the requester about the conflict
-        # TODO: customize template and context as needed
-        pass
+        Notification.from_template(
+            template_key="conflict_found",
+            sender=self.requestee,
+            receiver=self.requester,
+            context={
+                'requester_name': self.requester.name,
+                'requestee_name': self.requestee.name,
+                'donee_name': self.donee.name,
+                'center_abbr': self.shift.center.abbreviation,
+                'day': self.shift.get_date().strftime("%d/%m/%y"),
+            },
+            related_obj=self,
+        )        
 
 
     def notify_response(self, response):

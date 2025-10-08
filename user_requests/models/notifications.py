@@ -62,6 +62,16 @@ class Notification(models.Model):
 # 07:00 - 19:00 no centro CCG no dia 17/08/25 (DE Roberto Talamini Espínola Filho) foi autorizada.
 
     TEMPLATE_REGISTRY = {
+        # “A conflict was found on the your request.”
+        'conflict_found': {
+            'kind': Kind.INFO,
+            'title': "Conflito encontrado. Requisição cancelada",
+            'body':
+                "A solicitação de {requester_name} para {requestee_name} foi cancelada"
+                "porque {donee_name} já está inscrito no centro {center_abbr}"
+                "no dia {day} no horário solicitado.",
+        },
+
         # “Another user sent you a request for X.”
         'request_received': {
             'kind': Kind.CANCEL,
