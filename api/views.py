@@ -171,7 +171,7 @@ def day_schedule(request, center_abbr, year, month_number, day):
         month=month,
         day=day
     )
-
+    
     schedule_dict = {}
     for shift in day_shifts:
         if shift.user.crm not in schedule_dict:
@@ -179,9 +179,17 @@ def day_schedule(request, center_abbr, year, month_number, day):
                 "user": shift.user,
                 "shifts": []
             }
-        shfit_str = f"{shift.start_time:02d}:00 - {shift.end_time:02d}:00"
-        schedule_dict[shift.user.crm]["shifts"].append(shfit_str)
+        schedule_dict[shift.user.crm]["shifts"].append((shift.start_time, shift.end_time))
 
+    for _, data in schedule_dict.items():
+        # custom order: 07..23, 00..06  -> use modular key (h - 7) % 24
+        sorted_shifts = sorted(
+            data["shifts"],
+            key=lambda t: ((t[0] - 7) % 24, t[1])  # tie-breaker by end time
+        )
+        # format "HH:00 - HH:00"
+        data["shifts"] = [f"{s:02d}:00 - {e:02d}:00" for s, e in sorted_shifts]
+        
     # Convert the schedule dictionary to a list of dictionaries
     schedule_data = []
     for values in schedule_dict.values():
