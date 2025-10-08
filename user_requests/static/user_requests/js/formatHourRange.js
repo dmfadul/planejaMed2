@@ -18,7 +18,7 @@ function formatHourRange(shiftsArray) {
     m:  [7, 13],
     t:  [13, 19],
     c:  [19, 25],   // 25 == 1 next day
-    v:  [25, 31],   // 31 == 7 next day
+    v:  [1, 7],   // 31 == 7 next day
   };
 
   const order = ['dn', 'd', 'n', 'm', 't', 'c', 'v'];

@@ -20,7 +20,7 @@
       const res = await fetch(API_LIST, { credentials: "same-origin" });
       if (!res.ok) throw new Error("Fetch failed");
       const data = await res.json();
-      console.log("Fetched notifications:", data);
+      
       // Expected shape: [{id, kind: "action"|"info", title, body, created_at, is_read, url}]
       const unseen = data.filter(n => !n.is_read);
       // Toggle dot
