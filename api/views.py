@@ -31,7 +31,6 @@ def apiOverview(request):
 
 class userRequestCreate(APIView):
     # TODO: change frontend to simplify the request creation
-    # TODO: check for conflicts with donee shifts before creating
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
@@ -47,7 +46,8 @@ class userRequestCreate(APIView):
         if request_type in ["donation_required", "donation_offered"]:
             requesteeCRM = data.get('requesteeCRM')
             requestee = get_object_or_404(User, crm=requesteeCRM)
-            shift = int(data.get('shift'))
+            shift_id = int(data.get('shift'))
+            shift = get_object_or_404(Shift, id=shift_id)
             start_hour = int(data.get('startHour'))
             end_hour = int(data.get('endHour'))
 
@@ -56,11 +56,26 @@ class userRequestCreate(APIView):
             else:
                 donor, donee = requester, requestee
 
+            # check for conflicts with donee shifts before creating
+            conflict = Shift.check_conflict(donee,
+                                            month=shift.month,
+                                            day=shift.day,
+                                            start_time=start_hour,
+                                            end_time=end_hour
+                                            )
+            if conflict:
+                return Response(
+                    {"Conflito de Horário": f"""O usuário {donee.name}
+                     já está inscrito no centro {conflict.center.abbreviation}
+                     no dia {conflict.day}"""},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             parameters['request_type'] = 'donation'
             parameters['requestee'] = requestee.id
             parameters['donor'] = donor.id
             parameters['donee'] = donee.id
-            parameters['shift'] = shift
+            parameters['shift'] = shift_id
             parameters['start_hour'] = start_hour
             parameters['end_hour'] = end_hour
 
