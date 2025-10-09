@@ -142,7 +142,7 @@ function processCalRequest(crm, action, center, year, monthNumber, day) {
     if (action === "include") {
         handleCalInclude(ctx);
     } else if(action === "exclude") {
-        handleCalExclude(ctx);
+        handleExclude(ctx);
     } else if(action === "donate") {
         handleCalDonate(ctx);
     } else if(action === "exchange") {
@@ -155,7 +155,63 @@ function processCalRequest(crm, action, center, year, monthNumber, day) {
 function handleCalInclude(ctx) {
 }
 
-function handleCalExclude(ctx) {
+function handleExclude(ctx) {
+  console.log("exclude ctx:", ctx);
+  fetch(`/api/hours/?crm=${ctx.cardCrm}&year=${ctx.year}&month=${ctx.monthNumber}&center=${ctx.center}&day=${ctx.day}`)
+  .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+  })
+  .then(rawData => {
+      let data = rawData;
+      let modal = new bootstrap.Modal(document.getElementById('modalRequests'));
+
+      const errorBox = document.getElementById('requestErrors');
+      
+      // ✅ Clear any previous error before sending request
+      errorBox.classList.add('d-none');
+      errorBox.textContent = '';
+      
+      const modalLabel = document.getElementById('modalRequestsLabel');
+      modalLabel.textContent = "Escolha a hora que deseja excluir: ";
+
+      const hoursArray = formatHourRange(data);
+      populateSelect('requestHours', hoursArray[0], hoursArray[1]);
+      modal.show();
+      
+      const submitButton = document.getElementById('submitRequestButton');
+      submitButton.onclick = withBusyButton(submitButton, async function () {
+          const selectElement = document.getElementById('requestHours');
+          const selectedHour = selectElement.value;
+          const requesteeCRM = ctx.cardCrm;
+          
+          console.log("requesting exclusion for hour: ", selectedHour, "ctx: ", ctx);
+
+          try {
+              const result = await API.submitUserRequest({
+                  action: 'exclusion',
+                  requesteeCRM: requesteeCRM,
+                  selectedHour: selectedHour,
+                  options: { timeout: 15000 }
+              });
+
+              console.log("submitted exclusion request, result: ", result);
+              modal.hide();
+
+              showToast("Pedido enviado com sucesso!", "success");
+              
+          } catch (e) {
+              console.error("server error:", e);
+              errorBox.textContent = e.message || "Um erro ocorreu ao enviar o pedido.";
+              errorBox.classList.remove('d-none');
+          }
+      });
+    })
+    .catch(error => {
+      console.error("Fetch error:", error);
+    });
 }
 
 function handleCalDonate(ctx) {
@@ -177,7 +233,7 @@ function handleRequestingDonation(ctx) {
     fetch(`/api/hours/?crm=${ctx.cardCrm}&year=${ctx.year}&month=${ctx.monthNumber}&center=${ctx.center}&day=${ctx.day}`)
     .then(response => {
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+          throw new Error('Network response was not ok');
         }
         return response.json();
     })
