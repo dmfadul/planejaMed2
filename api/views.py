@@ -34,6 +34,7 @@ class userRequestCreate(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
+        print("Request data:", request.data)  # Debugging line
         requester = request.user
 
         data = request.data
@@ -127,8 +128,8 @@ def get_hours(request):
     if day and day.isdigit():
         filter_kwargs["day"] = int(day)
 
-    shitfs = Shift.objects.filter(**filter_kwargs).all()
-    serializer = ShiftSerializer(shitfs, many=True)
+    shifts = Shift.objects.filter(**filter_kwargs).all()
+    serializer = ShiftSerializer(shifts, many=True)
 
     return Response(serializer.data)
     
