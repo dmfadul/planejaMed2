@@ -103,8 +103,8 @@ class UserRequest(models.Model):
 
             self.remove_notifications()
             self.notify_response("accept")
-            # add split
-            self.shift.delete()
+            to_delete_shift = self.shift.split(self.start_hour, self.end_hour)
+            to_delete_shift.delete()
 
             # No need to delete other requests on same shift
             # as they are supposed to be cascaded by shift deletion

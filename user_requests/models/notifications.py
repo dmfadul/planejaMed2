@@ -6,6 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 
+# TODO: make some kinds of notifications (e.g. 'INFO') be hard-deletable by users
+
 class Notification(models.Model):
     class Kind(models.TextChoices):
         ACTION = 'action', 'Action'
@@ -137,21 +139,6 @@ class Notification(models.Model):
         if not tmpl:
             raise ValidationError(f"Unknown template_key: {template_key}")
 
-        # # Fill defaults for optional phrases to avoid KeyError in format()
-        # defaults = {
-        #     "cta_sentence": "",
-        #     "reason_sentence": "",
-        #     "requester_name": "",
-        #     "responder_name": "",
-        #     "receiver_name": "",
-        #     "request_type": "",
-        #     "shift_label": "",
-        #     "start_hour": "",
-        #     "end_hour": "",
-        #     "link": "",
-        # }
-        # data = {**defaults, **context}
-
         data = context
         title = tmpl['title'].format(**data)
         body  = tmpl['body'].format(**data)
@@ -176,7 +163,6 @@ class Notification(models.Model):
         return instance
 
     def mark_read(self):
-        # TODO: change when mark read is called on the frontend
         if not self.is_read:
             self.is_read = True
             self.seen_at = timezone.now()
