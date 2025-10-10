@@ -56,12 +56,6 @@ class Notification(models.Model):
 # ------------------- Template Registry ---------------------------------
 # Placeholders correspond to context keys
 
-# Marcela Vogel Paracatu de Oliveira solicitou DOAÇÃO dos horários:
-# 19:00 - 07:00 no centro CCG no dia 26/08/25 (PARA Alberto David Fadul Filho)
-
-# Sua SOLICITAÇÃO DE DOAÇÃO dos horários:
-# 07:00 - 19:00 no centro CCG no dia 17/08/25 (DE Roberto Talamini Espínola Filho) foi autorizada.
-
     TEMPLATE_REGISTRY = {
         # “A conflict was found on the your request.”
         'conflict_found': {
@@ -69,8 +63,8 @@ class Notification(models.Model):
             'title': "Conflito encontrado. Requisição cancelada",
             'body':
                 "A solicitação de {requester_name} para {requestee_name} foi cancelada"
-                "porque {donee_name} já está inscrito no centro {center_abbr}"
-                "no dia {day} no horário solicitado.",
+                "porque {donee_name} já está inscrito no centro {conflict_abbr}"
+                "no dia {conflict_day} no horário solicitado.",
         },
 
         # “Another user sent you a request for X.”

@@ -67,10 +67,11 @@ class UserRequest(models.Model):
         super().save(*args, **kwargs)
 
     def accept(self, responder):
+        if not (responder == self.requestee) and not responder.is_superuser:
+            raise PermissionError("Only the requestee or staff can accept a donation request.")
+        
+        self.responder = responder
         if self.request_type == self.RequestType.DONATION:
-            if not (responder == self.requestee) and not responder.is_staff:
-                raise PermissionError("Only the requestee or staff can accept a donation request.")
-
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The donor must be the current assignee of the shift.")
             
@@ -86,35 +87,43 @@ class UserRequest(models.Model):
 
             new_shift = self.shift.split(self.start_hour, self.end_hour)
             new_shift.change_user(self.donee)
-
             self.notify_response("accept")
-        else:
-            # INCLUDE or EXCLUDE
 
-            # TODO: implement accept logic
-
+        elif self.request_type == self.RequestType.INCLUDE:
+            # TODO: implement INCLUDE logic
+            
             # check for conflicts
-            # check for other requests on same shift and hours
-            # Done in change_user()
-
-            # if there are, refuse them automatically
-
+            # create shift
+            # notify 
             pass
-        
+        elif self.request_type == self.RequestType.EXCLUDE:
+            # In EXCLUDE, donee = user to be excluded
+            if not (self.shift and self.donee) or not self.shift.user == self.donee:
+                raise ValueError("The excludee must be the current assignee of the shift.")
 
-        self.close(responder)
+            self.remove_notifications()
+            self.notify_response("accept")
+            # add split
+            self.shift.delete()
+
+            # No need to delete other requests on same shift
+            # as they are supposed to be cascaded by shift deletion
+
+        self.close()
         self.is_approved = True
         self.save(update_fields=['is_approved'])
         self.remove_notifications()
     
     def refuse(self, responder):
-        self.close(responder)
+        self.responder = responder
+        self.close()
         self.remove_notifications()
 
         self.notify_response("refuse")
 
     def cancel(self, canceller):
-        self.close(canceller)
+        self.responder = canceller
+        self.close()
         self.remove_notifications()
 
     def invalidate(self):
@@ -122,12 +131,11 @@ class UserRequest(models.Model):
         self.close()
         self.remove_notifications()
 
-    def close(self, closer=None):
+    def close(self):
         """Close without action (e.g. if request is fulfilled outside the system)"""
         self.is_open = False
-        self.responder = closer
         self.closing_date = timezone.now()
-        self.save(update_fields=['is_open', 'responder', 'closing_date'])
+        self.save(update_fields=['is_open', 'closing_date'])
 
     def remove_notifications(self):
         """Archive related notifications"""
@@ -139,19 +147,19 @@ class UserRequest(models.Model):
 
         related_notifications.update(is_deleted=True)
 
-    # TODO: move to notifications.py
-    def notify_conflict(self, conflicting_request):
+    # TODO: move to notifications.py and improve messages
+    def notify_conflict(self, conflict_shift):
         # Notify the requester about the conflict
         Notification.from_template(
             template_key="conflict_found",
-            sender=self.requestee,
+            sender=self.responder,
             receiver=self.requester,
             context={
                 'requester_name': self.requester.name,
-                'requestee_name': self.requestee.name,
+                'requestee_name': self.requestee.name if self.requestee else "Admin",
                 'donee_name': self.donee.name,
-                'center_abbr': self.shift.center.abbreviation,
-                'day': self.shift.get_date().strftime("%d/%m/%y"),
+                'conflict_abbr': conflict_shift.center.abbreviation,
+                'conflict_day': conflict_shift.get_date().strftime("%d/%m/%y"),
             },
             related_obj=self,
         )        
@@ -159,22 +167,25 @@ class UserRequest(models.Model):
 
     def notify_response(self, response):
         # Notify the requester about the response
-        was_solicited = (self.request_type == self.RequestType.DONATION) and (self.donee == self.requestee)
+        was_solicited = ((self.request_type == self.RequestType.DONATION) and
+                         (self.donee == self.requestee))
+        ctx={
+            'sender_name':    self.responder.name,
+            'receiver_id':    self.requester.id,
+            'response':       "ACEITOU" if response == "accept" else "NEGOU",
+            'verb':           "SOLICITAÇÃO" if was_solicited else "OFERTA",
+            'req_type':       self.get_request_type_display().upper(),
+            'shift_center':   self.shift.center.abbreviation,
+            'shift_date':     self.shift.get_date().strftime("%d/%m/%y"),
+            'start_hour':     f"{self.start_hour:02d}:00",
+            'end_hour':       f"{self.end_hour:02d}:00",
+        }
+
         Notification.from_template(
             template_key="request_responded",
-            sender=self.requestee,
+            sender=self.responder,
             receiver=self.requester,
-            context={
-                'sender_name':    self.requestee.name,
-                'receiver_id':    self.requester.id,
-                'response':       "ACEITOU" if response == "accept" else "NEGOU",
-                'verb':           "SOLICITAÇÃO" if was_solicited else "OFERTA",
-                'req_type':       self.get_request_type_display().upper(),
-                'shift_center':   self.shift.center.abbreviation,
-                'shift_date':     self.shift.get_date().strftime("%d/%m/%y"),
-                'start_hour':     f"{self.start_hour:02d}:00",
-                'end_hour':       f"{self.end_hour:02d}:00",
-            },
+            context=ctx,
             related_obj=self,
         )
 
@@ -219,7 +230,7 @@ class UserRequest(models.Model):
             sender=self.requester,
             receiver=self.requester,
             context={
-                'requestee_name':   self.requestee.name if self.requestee else "N/A",
+                'requestee_name':   self.requestee.name if self.requestee else self.donee.name,
                 'request_type':     self.get_request_type_display().upper(),
                 'shift_center':     self.shift.center.abbreviation if self.shift else "N/A",
                 'shift_date':       self.shift.get_date().strftime("%d/%m/%y") if self.shift else "N/A",

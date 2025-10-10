@@ -89,7 +89,7 @@ class userRequestCreate(APIView):
             check_for_conflicts = True
             request_type = UserRequest.RequestType.DONATION
         elif action == "exclusion":
-            donor, donee = None, None
+            donor, donee = None, get_object_or_404(User, crm=data.get('requesteeCRM'))
             check_for_conflicts = False
             request_type = UserRequest.RequestType.EXCLUDE
         elif action == "include":
