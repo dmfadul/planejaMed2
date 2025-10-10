@@ -6,7 +6,6 @@ from django.utils import timezone
 from user_requests.models.notifications import Notification
 
 
-
 class UserRequest(models.Model):
     class RequestType(models.TextChoices):
         DONATION = 'donation', 'Doação'
@@ -185,7 +184,7 @@ class UserRequest(models.Model):
         if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
             temp_key = f'request_pending_donation_offered'
         elif self.request_type == self.RequestType.DONATION and self.donee == self.requester:
-            temp_key = f'request_pending_donation_required'
+            temp_key = f'request_pending_donation_asked_for'
         else:
             temp_key = f'request_pending_{self.request_type}'
 

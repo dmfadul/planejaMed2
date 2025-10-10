@@ -37,7 +37,7 @@ export function processCalRequest(crm, action, center, year, monthNumber, day) {
   if (action === 'donate' && +crm === +currentUserCrm) {
     adjustedAction = 'offer_donation';
   } else if (action === 'donate' && +crm !== +currentUserCrm) {
-    adjustedAction = 'request_donation';
+    adjustedAction = 'ask_for_donation';
   }
 
   handleAction(adjustedAction, {

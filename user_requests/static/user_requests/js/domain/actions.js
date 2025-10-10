@@ -9,11 +9,18 @@ export const ACTIONS = {
     endpointAction: 'exclusion',
   },
 
-  request_donation: {
+  ask_for_donation: {
     title: "Escolha a hora que deseja pedir:",
     needsHour: true,
     hoursCRM:  (ctx) => ctx.cardCrm,
-    endpointAction: 'donation_required',
+    endpointAction: 'ask_for_donation',
+  },
+
+  offer_donation: {
+    title: "Escolha a hora que deseja oferecer:",
+    needsHour: true,
+    hoursCRM: (ctx) => ctx.cardCrm,
+    endpointAction: 'offer_donation',
   },
 
   include: {

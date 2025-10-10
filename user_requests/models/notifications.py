@@ -84,7 +84,7 @@ class Notification(models.Model):
         },
 
         # “Your request is created and waiting for a response.”
-        'request_pending_donation_required': {
+        'request_pending_donation_asked_for': {
             'kind': Kind.ACTION,
             'title': "Requisição pendente",
             'body':

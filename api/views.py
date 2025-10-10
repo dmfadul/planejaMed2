@@ -1,6 +1,7 @@
 from core.models import User
-from user_requests.models import Notification
+from django.db import transaction
 from django.http import JsonResponse
+from user_requests.models import UserRequest
 from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
@@ -30,83 +31,108 @@ def apiOverview(request):
 
 
 class userRequestCreate(APIView):
-    # TODO: change frontend to simplify the request creation
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
-        print("Request data:", request.data)  # Debugging line
-        requester = request.user
-
         data = request.data
-        request_type = data.get('action')
+        action = data.get('action')
 
-        parameters = {
-            'requester': requester.id,
+        # --- Check for required fields ---
+        requestee_crm = data.get('requesteeCRM')
+        if not requestee_crm:
+            return Response(
+                {"error": "Campos obrigatórios (requesteeCRM) ausentes."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # --- Parse and validate hours ---
+        start_hour_raw, end_hour_raw = data.get('startHour'), data.get('endHour')
+        try:
+            start_hour = int(start_hour_raw)
+            end_hour = int(end_hour_raw)
+        except (TypeError, ValueError):
+            return Response(
+                {"error": "Horas inválidas."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        requester = request.user
+        requestee = get_object_or_404(User, crm=requestee_crm)
+        if requester == requestee:
+            return Response(
+                {"error": "Você não pode solicitar a si mesmo."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        shift_id = data.get('shift')
+        if not shift_id and not action == "include":
+            return Response(
+                {"error": "Campos obrigatórios (shift) ausentes."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        shift = get_object_or_404(Shift, pk=int(shift_id)) if shift_id is not None else None
+
+        # --- Decide Donor and Donee ---
+        if action == "ask_for_donation":
+            donor, donee = requestee, requester
+        elif action == "offer_donation":
+            donor, donee = requester, requestee
+        elif action in ["include", "exclude"]:
+            donor, donee = None, None
+        else:
+            return Response(
+                {"error": "Ação inválida."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # check for conflicts with donee shifts before creating
+        conflict = Shift.check_conflict(
+            donee,
+            month=shift.month,
+            day=shift.day,
+            start_time=start_hour,
+            end_time=end_hour
+        )
+        if conflict:
+            return Response(
+                {
+                    "Conflito de Horário":
+                        f"O usuário {getattr(donee, 'name', donee)} já está inscrito no centro "
+                        f"{conflict.center.abbreviation} no dia {conflict.day}"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        params = {
+            "requester": requester.id,
+            "request_type": UserRequest.RequestType.DONATION,
+            "requestee": requestee.id,
+            "donor": donor.id if donor else None,
+            "donee": donee.id if donee else None,
+            "shift": shift.id if shift else None,
+            "start_hour": start_hour,
+            "end_hour": end_hour,
         }
 
-        if request_type in ["donation_required", "donation_offered"]:
-            requesteeCRM = data.get('requesteeCRM')
-            requestee = get_object_or_404(User, crm=requesteeCRM)
-            shift_id = int(data.get('shift'))
-            shift = get_object_or_404(Shift, id=shift_id)
-            start_hour = int(data.get('startHour'))
-            end_hour = int(data.get('endHour'))
+        serializer = UserRequestSerializer(data=params)
 
-            if request_type == "donation_required":
-                donor, donee = requestee, requester
-            else:
-                donor, donee = requester, requestee
-
-            # check for conflicts with donee shifts before creating
-            conflict = Shift.check_conflict(donee,
-                                            month=shift.month,
-                                            day=shift.day,
-                                            start_time=start_hour,
-                                            end_time=end_hour
-                                            )
-            if conflict:
-                return Response(
-                    {"Conflito de Horário": f"""O usuário {donee.name}
-                     já está inscrito no centro {conflict.center.abbreviation}
-                     no dia {conflict.day}"""},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            parameters['request_type'] = 'donation'
-            parameters['requestee'] = requestee.id
-            parameters['donor'] = donor.id
-            parameters['donee'] = donee.id
-            parameters['shift'] = shift_id
-            parameters['start_hour'] = start_hour
-            parameters['end_hour'] = end_hour
-
-        serializer = UserRequestSerializer(data=parameters)
-        if serializer.is_valid():
-            serializer.save()
-            serializer.instance.notify_request()
-        else:
+        if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
-
-
-# class notificationsList(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def get(self, request):
-#         user = request.user
-
-#         if user.is_staff:
-#             notifications = Notification.objects.filter(is_deleted=False).order_by('-created_at')
-#         elif user.is_superuser:
-#             notifications = []  # Fetch superuser notifications (receiver=None)
-#         else:
-#             notifications = Notification.objects.filter(receiver=user,
-#                                                         is_read=False).order_by('-created_at')
         
-#         serializer = NotificationSerializer(notifications, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
+        with transaction.atomic():
+            instance = serializer.save()
+            # Try to notify but don't fail the whole transaction if it fails
+            try:
+                instance.notify_request()
+            except Exception as e:
+                # add logging here
+                return Response(
+                    {"status": "created", "id": instance.id, "warning": "Notificação falhou."},
+                    status=status.HTTP_201_CREATED
+                )
+        return Response(
+            {"status": "created", "id": instance.id, "request_type": instance.request_type},
+            status=status.HTTP_201_CREATED
+        )
 
 @api_view(["GET"])
 def get_hours(request):
