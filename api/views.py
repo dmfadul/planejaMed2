@@ -75,36 +75,46 @@ class userRequestCreate(APIView):
         # --- Decide Donor and Donee ---
         if action == "ask_for_donation":
             donor, donee = requestee, requester
+            check_for_conflicts = True
+            request_type = UserRequest.RequestType.DONATION
         elif action == "offer_donation":
             donor, donee = requester, requestee
-        elif action in ["include", "exclude"]:
+            check_for_conflicts = True
+            request_type = UserRequest.RequestType.DONATION
+        elif action == "exclusion":
             donor, donee = None, None
+            check_for_conflicts = False
+            request_type = UserRequest.RequestType.EXCLUDE
+        elif action == "include":
+            donor, donee = None, None # TODO: change later, for donee = receiver
+            check_for_conflicts = True
+            request_type = UserRequest.RequestType.INCLUDE
         else:
             return Response(
                 {"error": "Ação inválida."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # check for conflicts with donee shifts before creating
-        conflict = Shift.check_conflict(
-            donee,
-            month=shift.month,
-            day=shift.day,
-            start_time=start_hour,
-            end_time=end_hour
-        )
-        if conflict:
-            return Response(
-                {
-                    "Conflito de Horário":
-                        f"O usuário {getattr(donee, 'name', donee)} já está inscrito no centro "
-                        f"{conflict.center.abbreviation} no dia {conflict.day}"
-                },
-                status=status.HTTP_400_BAD_REQUEST
+        if check_for_conflicts:
+            conflict = Shift.check_conflict(
+                donee,
+                month=shift.month,
+                day=shift.day,
+                start_time=start_hour,
+                end_time=end_hour
             )
+            if conflict:
+                return Response(
+                    {
+                        "Conflito de Horário":
+                            f"O usuário {getattr(donee, 'name', donee)} já está inscrito no centro "
+                            f"{conflict.center.abbreviation} no dia {conflict.day}"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         params = {
             "requester": requester.id,
-            "request_type": UserRequest.RequestType.DONATION,
+            "request_type": request_type,
             "requestee": requestee.id,
             "donor": donor.id if donor else None,
             "donee": donee.id if donee else None,

@@ -181,6 +181,7 @@ class UserRequest(models.Model):
         # Do I need to add Cancelable notification to requester?
 
     def notify_request(self):
+        # TODO: add INCLUDE and EXCLUDE cases
         if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
             temp_key = f'request_pending_donation_offered'
         elif self.request_type == self.RequestType.DONATION and self.donee == self.requester:
