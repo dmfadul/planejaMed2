@@ -17,7 +17,7 @@ class Notification(models.Model):
     kind = models.CharField(max_length=20, choices=Kind.choices)
 
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_notifications')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_notifications', null=True, blank=True)
 
     # Template machinery
     template_key = models.CharField(max_length=50, null=True, blank=True)
@@ -46,7 +46,8 @@ class Notification(models.Model):
         ]
 
     def __str__(self):
-        return f"Notification to {self.receiver.name}: {self.title}"
+        receiver_name = self.receiver.name if self.receiver else "Admin"
+        return f"Notification to {receiver_name}: {self.title}"
 
     def archive(self):
         self.is_deleted = True
@@ -191,11 +192,14 @@ class Notification(models.Model):
         if not text:
             return text
         viewer_id = int(viewer_id)
-        token = f"{{{self.receiver.id}}}"
+        receiver_id = int(self.receiver.id) if self.receiver else None
+        receiver_name = self.receiver.name if self.receiver else "Admin"
+        # Replace {receiver_id} with "você" if viewer is the receiver
+        token = f"{{{receiver_id}}}"
         replacement = (
             "você"
-            if viewer_id == int(self.receiver.id)
-            else self.receiver.name
+            if viewer_id == receiver_id
+            else receiver_name
         )
         return text.replace(token, replacement)
     

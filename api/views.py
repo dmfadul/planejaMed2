@@ -67,7 +67,7 @@ class userRequestCreate(APIView):
         
         if requester == requestee:
             return Response(
-                {"error": "Você não pode solicitar a si mesmo."},
+                {"error": "Você não pode doar para si mesmo."},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -138,14 +138,14 @@ class userRequestCreate(APIView):
         with transaction.atomic():
             instance = serializer.save()
             # Try to notify but don't fail the whole transaction if it fails
-            try:
-                instance.notify_request()
-            except Exception as e:
-                # add logging here
-                return Response(
-                    {"status": "created", "id": instance.id, "warning": "Notificação falhou."},
-                    status=status.HTTP_201_CREATED
-                )
+            # try:
+            instance.notify_request()
+            # except Exception as e:
+            #     # add logging here
+            #     return Response(
+            #         {"status": "created", "id": instance.id, "warning": "Notificação falhou."},
+            #         status=status.HTTP_201_CREATED
+            #     )
         return Response(
             {"status": "created", "id": instance.id, "request_type": instance.request_type},
             status=status.HTTP_201_CREATED

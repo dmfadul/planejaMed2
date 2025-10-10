@@ -165,15 +165,15 @@ class UserRequest(models.Model):
             sender=self.requestee,
             receiver=self.requester,
             context={
-                'sender_name': self.requestee.name,
-                'receiver_id': self.requester.id,
-                'response': "ACEITOU" if response == "accept" else "NEGOU",
-                'verb': "SOLICITAÇÃO" if was_solicited else "OFERTA",
-                'req_type': self.get_request_type_display().upper(),
-                'shift_center': self.shift.center.abbreviation,
-                'shift_date': self.shift.get_date().strftime("%d/%m/%y"),
-                'start_hour': f"{self.start_hour:02d}:00",
-                'end_hour': f"{self.end_hour:02d}:00",
+                'sender_name':    self.requestee.name,
+                'receiver_id':    self.requester.id,
+                'response':       "ACEITOU" if response == "accept" else "NEGOU",
+                'verb':           "SOLICITAÇÃO" if was_solicited else "OFERTA",
+                'req_type':       self.get_request_type_display().upper(),
+                'shift_center':   self.shift.center.abbreviation,
+                'shift_date':     self.shift.get_date().strftime("%d/%m/%y"),
+                'start_hour':     f"{self.start_hour:02d}:00",
+                'end_hour':       f"{self.end_hour:02d}:00",
             },
             related_obj=self,
         )
@@ -182,12 +182,12 @@ class UserRequest(models.Model):
 
     def notify_request(self):
         ctx={
-            'sender_name': self.requester.name,
-            'receiver_id': self.requestee.id,
+            'sender_name':  self.requester.name,
+            'receiver_id':  self.requestee.id if self.requestee else None,
             'shift_center': self.shift.center.abbreviation,
-            'shift_date': self.shift.get_date().strftime("%d/%m/%y"),
-            'start_hour': f"{self.start_hour:02d}:00",
-            'end_hour': f"{self.end_hour:02d}:00",
+            'shift_date':   self.shift.get_date().strftime("%d/%m/%y"),
+            'start_hour':   f"{self.start_hour:02d}:00",
+            'end_hour':     f"{self.end_hour:02d}:00",
         }
 
         if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
@@ -219,12 +219,12 @@ class UserRequest(models.Model):
             sender=self.requester,
             receiver=self.requester,
             context={
-                'requestee_name': self.requestee.name,
-                'request_type': self.get_request_type_display().upper(),
-                'shift_center': self.shift.center.abbreviation,
-                'shift_date': self.shift.get_date().strftime("%d/%m/%y"),
-                'start_hour': f"{self.start_hour:02d}:00",
-                'end_hour': f"{self.end_hour:02d}:00",
+                'requestee_name':   self.requestee.name if self.requestee else "N/A",
+                'request_type':     self.get_request_type_display().upper(),
+                'shift_center':     self.shift.center.abbreviation if self.shift else "N/A",
+                'shift_date':       self.shift.get_date().strftime("%d/%m/%y") if self.shift else "N/A",
+                'start_hour':       f"{self.start_hour:02d}:00",
+                'end_hour':         f"{self.end_hour:02d}:00",
             },
             related_obj=self,
         )
