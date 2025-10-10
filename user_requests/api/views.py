@@ -52,7 +52,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['patch'])
     def read(self, request, pk=None):
         notif = self.get_object()
         notif.mark_read()  # call your model’s helper method

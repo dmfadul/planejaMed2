@@ -10,9 +10,7 @@
     const isUnread = !n.is_read;
     const badge = isUnread ? '<span class="badge bg-primary">New</span>' : '';
 
-    // Generate action buttons depending on notification kind
     const actions = (() => {
-      console.log("kind", n.kind);
       switch (n.kind) {
         case "action":
           return `
@@ -20,13 +18,11 @@
               <button class="btn btn-sm btn-success" data-act="accept" data-id="${n.id}">Accept</button>
               <button class="btn btn-sm btn-outline-danger" data-act="refuse" data-id="${n.id}">Refuse</button>
             </div>`;
-
         case "cancel":
           return `
             <div class="mt-3 d-flex gap-2">
               <button class="btn btn-sm btn-warning" data-act="cancel" data-id="${n.id}">Cancel</button>
             </div>`;
-      
         case "info":
         default:
           return `
@@ -36,12 +32,10 @@
       }
     })();
 
-// Optional link wrapper
-const link = n.url ? `<a href="${n.url}" class="stretched-link"></a>` : "";
-
+    const link = n.url ? `<a href="${n.url}" class="stretched-link"></a>` : "";
 
     return `
-      <div class="card ${isUnread ? 'border-primary' : ''} position-relative">
+      <div class="card ${isUnread ? 'border-primary' : ''} position-relative" data-notif-id="${n.id}">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start">
             <h5 class="card-title mb-1">${n.title} ${badge}</h5>
@@ -58,11 +52,28 @@ const link = n.url ? `<a href="${n.url}" class="stretched-link"></a>` : "";
   async function load() {
     const res = await fetch(LIST, { credentials: "same-origin" });
     const data = await res.json();
+
     if (!Array.isArray(data) || data.length === 0) {
       listEl.innerHTML = `<div class="text-muted">You’re all caught up.</div>`;
       return;
     }
+
+    // Render first so "seen" means actually visible to the user
     listEl.innerHTML = data.map(card).join("");
+
+    // Immediately mark unread as read (seen on page)
+    const unreadIds = data.filter(n => !n.is_read).map(n => n.id);
+    if (unreadIds.length) {
+      await markSeen(unreadIds);
+      // Optimistically update UI badges/borders without a full reload:
+      unreadIds.forEach(id => {
+        const el = listEl.querySelector(`[data-notif-id="${CSS.escape(String(id))}"]`);
+        if (!el) return;
+        el.classList.remove('border-primary');
+        const badge = el.querySelector('.badge.bg-primary');
+        if (badge) badge.remove();
+      });
+    }
   }
 
   async function post(url, payload) {
@@ -89,7 +100,14 @@ const link = n.url ? `<a href="${n.url}" class="stretched-link"></a>` : "";
     });
   }
 
-  // Delegate actions
+  async function markSeen(ids) {
+    // If your API supports bulk (e.g., /read_all/), use that here.
+    // Otherwise, fan out PATCHes per-id:
+    const tasks = ids.map(id => patch(MARK_READ(id), { is_read: true }));
+    await Promise.allSettled(tasks);
+  }
+
+  // Delegate actions (no mark-read here anymore)
   document.addEventListener("click", async (e) => {
     const btn = e.target.closest("[data-act]");
     if (!btn) return;
@@ -101,11 +119,14 @@ const link = n.url ? `<a href="${n.url}" class="stretched-link"></a>` : "";
       } else if (act === "delete") {
         await del(DELETE(id));
       }
-      // Optimistically mark read, better to move mark-read to the when the user opens the page
-      await post(MARK_READ(id), { is_read: true }); // PATCH would be more correct but POST is easier to handle in DRF
     } finally {
       load();
     }
+  });
+
+  // If the tab was opened in background, mark when it becomes visible
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") load();
   });
 
   load();
