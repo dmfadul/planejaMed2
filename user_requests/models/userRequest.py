@@ -181,27 +181,35 @@ class UserRequest(models.Model):
         # Do I need to add Cancelable notification to requester?
 
     def notify_request(self):
-        # TODO: add INCLUDE and EXCLUDE cases
+        ctx={
+            'sender_name': self.requester.name,
+            'receiver_id': self.requestee.id,
+            'shift_center': self.shift.center.abbreviation,
+            'shift_date': self.shift.get_date().strftime("%d/%m/%y"),
+            'start_hour': f"{self.start_hour:02d}:00",
+            'end_hour': f"{self.end_hour:02d}:00",
+        }
+
         if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
             temp_key = f'request_pending_donation_offered'
         elif self.request_type == self.RequestType.DONATION and self.donee == self.requester:
             temp_key = f'request_pending_donation_asked_for'
+        elif self.request_type == self.RequestType.EXCLUDE:
+            temp_key = f'request_pending_exclusion'
+            ctx['excludee_name'] = self.shift.user.name
         else:
             temp_key = f'request_pending_{self.request_type}'
+        
+        
+        # TODO: add INCLUDE cases
+
 
         # Notify the requestee
         Notification.from_template(
             template_key=temp_key,
             sender=self.requester,
             receiver=self.requestee,
-            context={
-                'sender_name': self.requester.name,
-                'receiver_id': self.requestee.id,
-                'shift_center': self.shift.center.abbreviation,
-                'shift_date': self.shift.get_date().strftime("%d/%m/%y"),
-                'start_hour': f"{self.start_hour:02d}:00",
-                'end_hour': f"{self.end_hour:02d}:00",
-            },
+            context=ctx,
             related_obj=self,
         )
   

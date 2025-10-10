@@ -86,7 +86,7 @@ class Notification(models.Model):
         # “Your request is created and waiting for a response.”
         'request_pending_donation_asked_for': {
             'kind': Kind.ACTION,
-            'title': "Requisição pendente",
+            'title': "Requisição de doação pendente",
             'body':
                 "{sender_name} solicitou para {{{receiver_id}}} a doação dos horários: "
                 "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
@@ -94,9 +94,17 @@ class Notification(models.Model):
 
         'request_pending_donation_offered': {
             'kind': Kind.ACTION,
-            'title': "Requisição pendente",
+            'title': "Requisição de doação pendente",
             'body':
                 "{sender_name} ofereceu para {{{receiver_id}}} a doação dos horários: "
+                "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
+        },
+
+        'request_pending_exclusion': {
+            'kind': Kind.ACTION,
+            'title': "Requisição de exclusão pendente",
+            'body':
+                "{sender_name} solicita a exclusão dos horários de {excludee_name}: "
                 "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
         },
 

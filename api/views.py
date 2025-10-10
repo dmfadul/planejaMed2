@@ -38,13 +38,16 @@ class userRequestCreate(APIView):
         action = data.get('action')
 
         # --- Check for required fields ---
+        requestee_needed = action in ("ask_for_donation",
+                                      "offer_donation",
+                                      "exchange") # change when implementing exchange
         requestee_crm = data.get('requesteeCRM')
-        if not requestee_crm:
+        if requestee_needed and not requestee_crm:
             return Response(
                 {"error": "Campos obrigatórios (requesteeCRM) ausentes."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
+            
         # --- Parse and validate hours ---
         start_hour_raw, end_hour_raw = data.get('startHour'), data.get('endHour')
         try:
@@ -57,7 +60,11 @@ class userRequestCreate(APIView):
             )
 
         requester = request.user
-        requestee = get_object_or_404(User, crm=requestee_crm)
+        if requestee_needed:
+            requestee = get_object_or_404(User, crm=requestee_crm)
+        else:
+            requestee = None
+        
         if requester == requestee:
             return Response(
                 {"error": "Você não pode solicitar a si mesmo."},
@@ -113,14 +120,14 @@ class userRequestCreate(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         params = {
-            "requester": requester.id,
+            "requester":    requester.id,
             "request_type": request_type,
-            "requestee": requestee.id,
-            "donor": donor.id if donor else None,
-            "donee": donee.id if donee else None,
-            "shift": shift.id if shift else None,
-            "start_hour": start_hour,
-            "end_hour": end_hour,
+            "requestee":    requestee.id if requestee else None,
+            "donor":        donor.id if donor else None,
+            "donee":        donee.id if donee else None,
+            "shift":        shift.id if shift else None,
+            "start_hour":   start_hour,
+            "end_hour":     end_hour,
         }
 
         serializer = UserRequestSerializer(data=params)
