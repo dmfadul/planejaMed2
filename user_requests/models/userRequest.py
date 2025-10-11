@@ -6,6 +6,19 @@ from django.utils import timezone
 from user_requests.models.notifications import Notification
 
 
+class IncludeRequestData(models.Model):
+    """Helper model to store extra data for INCLUDE requests."""
+    user_request = models.OneToOneField('UserRequest', on_delete=models.CASCADE, related_name='include_data')
+    center = models.ForeignKey('shifts.Center', on_delete=models.CASCADE)
+    month = models.ForeignKey('shifts.Month', on_delete=models.CASCADE)
+    day = models.IntegerField()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['center', 'month', 'day']),
+        ]
+
+
 class UserRequest(models.Model):
     class RequestType(models.TextChoices):
         DONATION = 'donation', 'Doação'

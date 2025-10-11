@@ -1,2 +1,2 @@
-from .userRequest import UserRequest
+from .userRequest import UserRequest, IncludeRequestData
 from .notifications import Notification
