@@ -29,7 +29,7 @@
           <a class="nav-link open-month-modal" href="#" data-bs-toggle="modal" data-bs-target="#monthsModal" data-mode="monthtable">Meses</a>
         </li>
         
-        {% if user.is_staff %}
+        {% if user.is_superuser %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Bases
