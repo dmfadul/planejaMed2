@@ -110,8 +110,8 @@ class UserRequest(models.Model):
             # notify 
             pass
         elif self.request_type == self.RequestType.EXCLUDE:
-            # In EXCLUDE, donee = user to be excluded
-            if not (self.shift and self.donee) or not self.shift.user == self.donee:
+            # In EXCLUDE, donor = user to be excluded
+            if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The excludee must be the current assignee of the shift.")
 
             self.remove_notifications()

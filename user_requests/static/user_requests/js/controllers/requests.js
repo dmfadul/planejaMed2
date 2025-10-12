@@ -14,22 +14,28 @@ export async function handleAction(action, ctx) {
 
     let submitted = false;
     let selectedHour = null;
+    let shiftCode = null;
+    let startTime = null;
+    let endTime   = null;
 
     if (needsHr) {
       const hours    = await fetchHours({ crm: cfg.hoursCRM(ctx), ...ctx });
       ({ submitted, selectedHour } = await runRequestModal({ title, hours }));
     } else {
-      console.log("rs");
-      const res = await runShiftHourModal();
+     ({ submitted, shiftCode, startTime, endTime } = await runShiftHourModal());
     }
-    console.log(submitted, selectedHour);
     
     if (!submitted) return;
+    
+    const cardCRM = ctx.cardCrm || null;
 
     await submitUserRequest({
       action: cfg.endpointAction,
-      requesteeCRM: ctx.cardCrm,
-      selectedHour: selectedHour,
+      cardCRM,
+      selectedHour,
+      shiftCode,
+      startTime,
+      endTime,      
       options: { timeout: 15000 },
     });
     showToast("Pedido enviado com sucesso!", "success");

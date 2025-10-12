@@ -34,17 +34,34 @@ export function humanizeErrors(errors) {
 }
 
 /** Build payload. Tolerates null selectedHour. */
-export function buildPayload({ action, requesteeCRM, selectedHour = null, meta = {} }) {
+export function buildPayload({
+                              action,
+                              cardCRM,
+                              selectedHour = null,
+                              shiftCode = null,
+                              startTime = null,
+                              endTime = null,
+                              meta = {}
+                            }) {
   let shift, startHour, endHour;
+  
   if (selectedHour) {
     const [shiftStr, startHourStr, endHourStr] = selectedHour.split("|").map(s => s.trim());
     shift = parseInt(shiftStr, 10);
     startHour = parseInt(startHourStr.split(":")[0], 10);
     endHour   = parseInt(endHourStr.split(":")[0], 10);
+  } else if (shiftCode && shiftCode !== "-") { // code selection used
+    shift = shiftCode;
+    startHour = null;
+    endHour   = null;
+  } else { // hours selection used
+    shift = 0; // custom shift
+    startHour = parseInt(startTime.split(":")[0], 10);
+    endHour   = parseInt(endTime.split(":")[0], 10);
   }
   return {
     action,
-    requesteeCRM,
+    cardCRM,
     ...(shift != null ? { shift, startHour, endHour } : {}),
     ...meta
   };
@@ -87,7 +104,24 @@ export async function post(body, { timeout = 10000, signal } = {}) {
 }
 
 /** Convenience: build + post */
-export async function submitUserRequest({ action, requesteeCRM, selectedHour = null, meta = {}, options = {} }) {
-  const payload = buildPayload({ action, requesteeCRM, selectedHour, meta });
+export async function submitUserRequest({
+  action,
+  cardCRM,
+  selectedHour = null,
+  shiftCode = null,
+  startTime = null,
+  endTime = null,
+  meta = {},
+  options = {}
+}) {
+  const payload = buildPayload({
+    action,
+    cardCRM,
+    selectedHour,
+    shiftCode,
+    startTime,
+    endTime,
+    meta
+  });
   return post(payload, options);
 }
