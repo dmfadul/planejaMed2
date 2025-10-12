@@ -30,15 +30,16 @@ export async function handleAction(action, ctx) {
       const names = nameData.map(item => item.name);
       const crms = nameData.map(item => item.crm);
 
-      selectUserCRM = await runNamesModal({ title, names, values: crms });
+      ({ submitted, selectedValue: selectUserCRM } = await runNamesModal({ title, names, values: crms }));
       if (!submitted) return;
       ({ submitted, shiftCode, startTime, endTime } = await runShiftHourModal());
+      console.log(selectUserCRM);
     }
     
     if (!submitted) return;
     
     const cardCRM = ctx.cardCrm || selectUserCRM;
-
+    console.log("cardCRM:", cardCRM);
     await submitUserRequest({
       action: cfg.endpointAction,
       cardCRM,

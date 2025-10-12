@@ -35,6 +35,7 @@ class userRequestCreate(APIView):
     
     def post(self, request):
         data = request.data
+        print("Received data:", data)  # Debugging line
         action = data.get('action')
 
         # --- Check for required fields ---

@@ -1,5 +1,10 @@
 import { formatHourRange } from '../data/hours.js';
 
+function waitHidden(modalEl) {
+  return new Promise(resolve => {
+    modalEl.addEventListener('hidden.bs.modal', () => resolve(), { once: true });
+  });
+}
 
 function handleDropdownChange(dropdown1, dropdown2, dropdown3) {
     if (dropdown1.value !== '-') {
@@ -154,14 +159,47 @@ export async function runNamesModal({ title, names = [], values = [] }) {
       resolve(payload);
     };
 
+    // define so we can remove it on successful submit
+    const onHidden = () => finalize({
+      submitted: false,
+      selectedLabel: null,
+      selectedValue: null,
+      selectedIndex: -1
+    });
+    modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
     const clickHandlerCore = async () => {
       const el = document.getElementById('requestSelect');
       const idx = el?.selectedIndex ?? -1;
       const submitted = idx >= 0;
       const selectedLabel = submitted ? names[idx] : null;
       const selectedValue = submitted ? values[idx] : null;
+    
+      // prevent cancel path from firing during normal submit
+      modalEl.removeEventListener('hidden.bs.modal', onHidden);
+    
+      // Hide and wait until fully closed before resolving
+      const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+      m.hide();
+      await waitHidden(modalEl);
+    
       finalize({ submitted, selectedLabel, selectedValue, selectedIndex: idx });
     };
+
+    // const clickHandlerCore = async () => {
+    //   const el = document.getElementById('requestSelect');
+    //   const idx = el?.selectedIndex ?? -1;
+    //   const submitted = idx >= 0;
+    //   const selectedLabel = submitted ? names[idx] : null;
+    //   const selectedValue = submitted ? values[idx] : null;
+
+    //   // // Start hiding the modal first
+    //   // modal.hide();
+
+    //   // // Wait until it's *fully* hidden before resolving
+    //   // await waitHidden(modalEl);
+
+    //   finalize({ submitted, selectedLabel, selectedValue, selectedIndex: idx });
+    // };
 
     // Support existing withBusyButton helper if present; otherwise use plain handler
     const clickHandler = (typeof withBusyButton === 'function')
@@ -170,13 +208,13 @@ export async function runNamesModal({ title, names = [], values = [] }) {
 
     submitBtn.addEventListener('click', clickHandler, { once: true });
 
-    const onHidden = () => finalize({
-      submitted: false,
-      selectedLabel: null,
-      selectedValue: null,
-      selectedIndex: -1
-    });
-    modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
+    // const onHidden = () => finalize({
+    //   submitted: false,
+    //   selectedLabel: null,
+    //   selectedValue: null,
+    //   selectedIndex: -1
+    // });
+    // modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
 
     modal.show();
   });
@@ -225,17 +263,30 @@ export async function runRequestModal({ title, hours = null }) {
       resolve(payload);
     };
 
+    // const clickHandler = withBusyButton(async () => {
+    //   const val = document.getElementById('requestHours')?.value ?? null;
+    //   finalize({ submitted: true, selectedHour: val });
+    // });
+
+    const onHidden = () => finalize({ submitted: false, selectedHour: null });
+    modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
+
     const clickHandler = withBusyButton(async () => {
       const val = document.getElementById('requestHours')?.value ?? null;
+      // prevent cancel path during normal submit
+      modalEl.removeEventListener('hidden.bs.modal', onHidden);
+      const m = bootstrap.Modal.getOrCreateInstance(modalEl);
+      m.hide();
+      await waitHidden(modalEl);
       finalize({ submitted: true, selectedHour: val });
     });
 
     // Attach once for this run
     submitBtn.addEventListener('click', clickHandler, { once: true });
 
-    // If user closes via 'x' or Cancel (data-bs-dismiss), treat as not submitted
-    const onHidden = () => finalize({ submitted: false, selectedHour: null });
-    modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
+    // // If user closes via 'x' or Cancel (data-bs-dismiss), treat as not submitted
+    // const onHidden = () => finalize({ submitted: false, selectedHour: null });
+    // modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
 
     modal.show();
   });
@@ -303,20 +354,30 @@ export async function runShiftHourModal() {
       resolve(payload);
     };
 
-    const onSubmit = withBusyButton(async () => {
-      const shiftCode = document.getElementById('shiftCode')?.value ?? null;
-      const startTime = document.getElementById('startTime')?.value ?? null;
-      const endTime   = document.getElementById('endTime')?.value   ?? null;
-      finalize({ submitted: true, shiftCode, startTime, endTime });
-      bsModal.hide();
-    });
-
-    submitBtn.addEventListener('click', onSubmit, { once: true });
-
     const onHidden = () => finalize({
       submitted: false, shiftCode: null, startTime: null, endTime: null
     });
     modalRoot.addEventListener('hidden.bs.modal', onHidden, { once: true });
+
+    const onSubmit = withBusyButton(async () => {
+      const shiftCode = document.getElementById('shiftCode')?.value ?? null;
+      const startTime = document.getElementById('startTime')?.value ?? null;
+      const endTime   = document.getElementById('endTime')?.value   ?? null;
+      // finalize({ submitted: true, shiftCode, startTime, endTime });
+      // bsModal.hide();
+      // avoid cancel path, then hide and await
+      modalRoot.removeEventListener('hidden.bs.modal', onHidden);
+      bsModal.hide();
+      await waitHidden(modalRoot);
+      finalize({ submitted: true, shiftCode, startTime, endTime });
+    });
+
+    submitBtn.addEventListener('click', onSubmit, { once: true });
+
+    // const onHidden = () => finalize({
+    //   submitted: false, shiftCode: null, startTime: null, endTime: null
+    // });
+    // modalRoot.addEventListener('hidden.bs.modal', onHidden, { once: true });
 
     bsModal.show();
   });
