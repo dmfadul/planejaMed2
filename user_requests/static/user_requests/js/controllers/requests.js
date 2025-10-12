@@ -3,6 +3,9 @@ import { fetchHours } from '../data/hours.js';
 import { ACTIONS } from '../domain/actions.js';
 import { runRequestModal } from '../ui/modal.js';
 import { runShiftHourModal } from '../ui/modal.js';
+import { fetchNamesList } from '../data/days.js';
+import { runNamesModal } from '../ui/modal.js';
+
 
 export async function handleAction(action, ctx) {
   const cfg = ACTIONS[action];
@@ -17,12 +20,19 @@ export async function handleAction(action, ctx) {
     let shiftCode = null;
     let startTime = null;
     let endTime   = null;
+    let selectUserCRM = null;
 
     if (needsHr) {
       const hours    = await fetchHours({ crm: cfg.hoursCRM(ctx), ...ctx });
       ({ submitted, selectedHour } = await runRequestModal({ title, hours }));
     } else {
-     ({ submitted, shiftCode, startTime, endTime } = await runShiftHourModal());
+      const nameData = await fetchNamesList();
+      const names = nameData.map(item => item.name);
+      const crms = nameData.map(item => item.crm);
+
+      selectUserCRM = await runNamesModal({ title, names, values: crms });
+      if (!submitted) return;
+      ({ submitted, shiftCode, startTime, endTime } = await runShiftHourModal());
     }
     
     if (!submitted) return;

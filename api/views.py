@@ -188,6 +188,7 @@ def users_list(request):
 
     users = [
         {
+            "id": user.id,
             "crm": user.crm,
             "name": user.name
         }

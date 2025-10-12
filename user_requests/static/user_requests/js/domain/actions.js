@@ -24,7 +24,9 @@ export const ACTIONS = {
   },
 
   include: {
-    title: "Escolha a hora que deseja Incluir:",
+    title: "Escolha o profissional a ser incluído:",
+    title2: "Escolha a hora em que deseja Incluí-lo:",
+    needsNames: true,
     needsHour: false,
     hoursCRM: (ctx) => ctx.cardCrm,
     endpointAction: 'include',

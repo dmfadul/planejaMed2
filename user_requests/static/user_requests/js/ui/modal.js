@@ -90,6 +90,102 @@ export function populateSelect(selectId, options, values = []) {
   container.appendChild(select);
 }
 
+export async function runNamesModal({ title, names = [], values = [] }) {
+  const modalEl   = document.getElementById('modalRequests');
+  const errorBox  = document.getElementById('requestErrors');
+  const labelEl   = document.getElementById('modalRequestsLabel');
+  const submitBtn = document.getElementById('submitRequestButton');
+
+  if (!modalEl || !labelEl || !submitBtn) {
+    throw new Error('Modal elements not found. Check your template IDs.');
+  }
+  
+  if (!Array.isArray(names) || !Array.isArray(values)) {
+    throw new Error('names and values must be arrays.');
+  }
+  if (names.length !== values.length) {
+    throw new Error('names and values must have the same length.');
+  }
+  if (names.length === 0) {
+    throw new Error('names/values cannot be empty.');
+  }
+
+  const modal = new bootstrap.Modal(modalEl);
+
+  // Reset UI
+  errorBox?.classList.add('d-none');
+  if (errorBox) errorBox.textContent = '';
+  labelEl.textContent = title;
+
+  const dynamic = document.getElementById('dynamicInputs');
+  dynamic?.replaceChildren();
+
+  // Build select group
+  const group = document.createElement('div');
+  group.className = 'mb-3';
+
+  const label = document.createElement('label');
+  label.className = 'form-label fw-semibold';
+  label.setAttribute('for', 'requestSelect');
+  label.textContent = '';
+
+  const select = document.createElement('select');
+  select.id = 'requestSelect';
+  select.className = 'form-select';
+
+  // Populate options
+  for (let i = 0; i < names.length; i++) {
+    const opt = document.createElement('option');
+    opt.textContent = names[i];
+    opt.value = values[i];
+    select.appendChild(opt);
+  }
+
+  group.appendChild(label);
+  group.appendChild(select);
+  dynamic?.appendChild(group);
+
+  let resolved = false;
+
+  const result = await new Promise(resolve => {
+    const finalize = (payload) => {
+      if (resolved) return;
+      resolved = true;
+      resolve(payload);
+    };
+
+    const clickHandlerCore = async () => {
+      const el = document.getElementById('requestSelect');
+      const idx = el?.selectedIndex ?? -1;
+      const submitted = idx >= 0;
+      const selectedLabel = submitted ? names[idx] : null;
+      const selectedValue = submitted ? values[idx] : null;
+      finalize({ submitted, selectedLabel, selectedValue, selectedIndex: idx });
+    };
+
+    // Support existing withBusyButton helper if present; otherwise use plain handler
+    const clickHandler = (typeof withBusyButton === 'function')
+      ? withBusyButton(clickHandlerCore)
+      : clickHandlerCore;
+
+    submitBtn.addEventListener('click', clickHandler, { once: true });
+
+    const onHidden = () => finalize({
+      submitted: false,
+      selectedLabel: null,
+      selectedValue: null,
+      selectedIndex: -1
+    });
+    modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
+
+    modal.show();
+  });
+
+  try {} catch {}
+
+  return result;
+}
+
 /**
  * Run the request modal, rendering a title and (optionally) an hours <select>.
  * Resolves with { submitted: boolean, selectedHour: string|null }.
