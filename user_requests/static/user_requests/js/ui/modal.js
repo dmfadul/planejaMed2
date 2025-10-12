@@ -1,7 +1,74 @@
-// ui/modal.js
-// UI-only concerns: modal, select creation, and submit flow
-
 import { formatHourRange } from '../data/hours.js';
+
+
+function handleDropdownChange(dropdown1, dropdown2, dropdown3) {
+    if (dropdown1.value !== '-') {
+        dropdown2.disabled = true;
+        dropdown3.disabled = true;
+        dropdown2.style.backgroundColor = "#a0a0a0"; // Gray out the dropdown
+        dropdown3.style.backgroundColor = "#a0a0a0"; // Gray out the dropdown
+        dropdown2.selectedIndex = -1;
+        dropdown3.selectedIndex = -1;
+    } else {
+        dropdown2.disabled = false;
+        dropdown3.disabled = false;
+        dropdown2.style.backgroundColor = ""; // Reset background color
+        dropdown3.style.backgroundColor = ""; // Reset background color
+        dropdown3.selectedIndex = 1;
+
+        const selectedIndex = dropdown2.selectedIndex;
+
+        Array.from(dropdown3.options).forEach((option, index) => {
+            if (index <= selectedIndex) {
+                option.style.display = "none"; // Hide options in dropdown3 that are less than or equal to selectedIndex
+            } else {
+                option.style.display = "block"; // Show options in dropdown3 that are greater than selectedIndex
+            }
+        });
+        dropdown3.selectedIndex = selectedIndex + 1; // Select the next option in dropdown3
+    }
+}
+
+
+function createDropdown(id, options, values={}) {
+    let dropdown = document.createElement('select');
+    dropdown.classList.add('form-select');
+    dropdown.id = id;
+    dropdown.name = id;
+
+    options.forEach(option => {
+        let opt = document.createElement('option');
+        if(Object.keys(values).length > 0){
+            opt.value = values[option];
+        } else{
+            opt.value = option;
+        }
+        opt.textContent = option;
+        dropdown.appendChild(opt);
+    });
+
+    return dropdown;
+}
+
+/** Button busy state wrapper (local to UI) */
+function withBusyButton(fn) {
+  return async (ev) => {
+    const btn = ev?.currentTarget ?? ev?.target;
+    if (!(btn instanceof HTMLElement)) {
+      return fn();
+    }
+    const prevDisabled = btn.disabled;
+    const prevText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    try {
+      return await fn();
+    } finally {
+      btn.disabled = prevDisabled;
+      btn.textContent = prevText || 'Submit';
+    }
+  };
+}
 
 /** Create and fill a <select> inside #dynamicInputs */
 export function populateSelect(selectId, options, values = []) {
@@ -82,22 +149,82 @@ export async function runRequestModal({ title, hours = null }) {
   return result;
 }
 
-/** Button busy state wrapper (local to UI) */
-function withBusyButton(fn) {
-  return async (ev) => {
-    const btn = ev?.currentTarget ?? ev?.target;
-    if (!(btn instanceof HTMLElement)) {
-      return fn();
-    }
-    const prevDisabled = btn.disabled;
-    const prevText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Sending...';
-    try {
-      return await fn();
-    } finally {
-      btn.disabled = prevDisabled;
-      btn.textContent = prevText || 'Submit';
-    }
+// Single-use: show 3 dropdowns (shift + start + end) and resolve once.
+// Returns: { submitted: true, shiftCode, startTime, endTime } or { submitted:false }
+// Returns a Promise<{ submitted: boolean, shiftCode: string|null, startTime: string|null, endTime: string|null }>
+export async function runShiftHourModal() {
+  // Build 07:00..23:00 then 00:00..07:00 (wrap)
+  const HOUR_RANGE =
+    Array.from({ length: 17 }, (_, i) => i + 7)   // 7..23
+      .concat(Array.from({ length: 8 }, (_, i) => i)); // 0..7
+  const hourRange = HOUR_RANGE.map(x => `${String(x).padStart(2, '0')}:00`);
+  const hourRangeNoEnd = hourRange.slice(0, -1);
+
+  // Modal elements
+  const modalRoot = document.getElementById('modal_gen');
+  if (!modalRoot) throw new Error('#modal_gen not found');
+  const modalBody = modalRoot.querySelector('.modal-body');
+  if (!modalBody) throw new Error('#modal_gen .modal-body not found');
+
+  // Find a submit button scoped to this modal.
+  // Prefer an element with id="submitShiftButton" inside #modal_gen.
+  const submitBtn = document.getElementById('submitShiftButton');
+    
+  // Clear and render fields
+  modalBody.innerHTML = '';
+  const row = document.createElement('div');
+  row.className = 'row align-items-center g-2';
+
+  const dropdown1 = createDropdown('shiftCode', ['-','dn','d','n','m','t','c','v']);
+  const dropdown2 = createDropdown('startTime', hourRangeNoEnd);
+  const dropdown3 = createDropdown('endTime',   hourRange);
+
+  const wrap = (el) => {
+    const d = document.createElement('div');
+    d.className = 'col-4';
+    d.appendChild(el);
+    return d;
   };
+  row.appendChild(wrap(dropdown1));
+  row.appendChild(wrap(dropdown2));
+  row.appendChild(wrap(dropdown3));
+  modalBody.appendChild(row);
+
+  // Wire up constraints (disable start/end if shiftCode !== '-'; enforce end > start)
+  dropdown1.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));
+  dropdown2.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));
+  // Initialize state after insertion
+  handleDropdownChange(dropdown1, dropdown2, dropdown3);
+
+  // Show & resolve like runRequestModal
+  const bsModal = new bootstrap.Modal(modalRoot);
+
+  const result = await new Promise((resolve) => {
+    let settled = false;
+    const finalize = (payload) => {
+      if (settled) return;
+      settled = true;
+      resolve(payload);
+    };
+
+    const onSubmit = withBusyButton(async () => {
+      const shiftCode = document.getElementById('shiftCode')?.value ?? null;
+      const startTime = document.getElementById('startTime')?.value ?? null;
+      const endTime   = document.getElementById('endTime')?.value   ?? null;
+      finalize({ submitted: true, shiftCode, startTime, endTime });
+      bsModal.hide();
+    });
+
+    submitBtn.addEventListener('click', onSubmit, { once: true });
+
+    const onHidden = () => finalize({
+      submitted: false, shiftCode: null, startTime: null, endTime: null
+    });
+    modalRoot.addEventListener('hidden.bs.modal', onHidden, { once: true });
+
+    bsModal.show();
+  });
+  
+  return result;
 }
+
