@@ -37,7 +37,7 @@ export async function handleAction(action, ctx) {
     
     if (!submitted) return;
     
-    const cardCRM = ctx.cardCrm || null;
+    const cardCRM = ctx.cardCrm || selectUserCRM;
 
     await submitUserRequest({
       action: cfg.endpointAction,
