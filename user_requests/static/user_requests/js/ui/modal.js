@@ -1,5 +1,6 @@
 import { formatHourRange } from '../data/hours.js';
 
+// TODO: change modals' buttons texts
 function waitHidden(modalEl) {
   return new Promise(resolve => {
     modalEl.addEventListener('hidden.bs.modal', () => resolve(), { once: true });

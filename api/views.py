@@ -35,22 +35,31 @@ class userRequestCreate(APIView):
     
     def post(self, request):
         data = request.data
-        print("Received data:", data)  # Debugging line
         action = data.get('action')
 
         # --- Check for required fields ---
         requestee_needed = action in ("ask_for_donation",
                                       "offer_donation",
                                       "exchange") # change when implementing exchange
-        requestee_crm = data.get('requesteeCRM')
+        requestee_crm = data.get('cardCRM')
         if requestee_needed and not requestee_crm:
             return Response(
-                {"error": "Campos obrigatórios (requesteeCRM) ausentes."},
+                {"error": "Campos obrigatórios (cardCRM) ausentes."},
                 status=status.HTTP_400_BAD_REQUEST
             )
             
         # --- Parse and validate hours ---
-        start_hour_raw, end_hour_raw = data.get('startHour'), data.get('endHour')
+        shift_raw = data.get('shift')
+        if action in ["include"] and shift_raw == "-":
+            start_hour_raw, end_hour_raw = data.get('startHour'), data.get('endHour')
+            shift_id = None
+        elif action in ["include"]:
+            start_hour_raw, end_hour_raw = Shift.convert_to_hours(shift_raw)
+            shift_id = None
+        elif action not in ["include"]:
+            start_hour_raw, end_hour_raw = data.get('startHour'), data.get('endHour')
+            shift_id = shift_raw
+        
         try:
             start_hour = int(start_hour_raw)
             end_hour = int(end_hour_raw)
@@ -59,6 +68,14 @@ class userRequestCreate(APIView):
                 {"error": "Horas inválidas."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        if not shift_id and action not in ["include"]:
+            return Response(
+                {"error": "Campos obrigatórios (shift) ausentes."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        shift = get_object_or_404(Shift, pk=int(shift_id)) if shift_id is not None else None
+
 
         requester = request.user
         if requestee_needed:
@@ -72,14 +89,6 @@ class userRequestCreate(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        shift_id = data.get('shift')
-        if not shift_id and not action == "include":
-            return Response(
-                {"error": "Campos obrigatórios (shift) ausentes."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        shift = get_object_or_404(Shift, pk=int(shift_id)) if shift_id is not None else None
-
         # --- Decide Donor and Donee ---
         if action == "ask_for_donation":
             donor, donee = requestee, requester
@@ -90,11 +99,11 @@ class userRequestCreate(APIView):
             check_for_conflicts = True
             request_type = UserRequest.RequestType.DONATION
         elif action == "exclusion":
-            donor, donee = get_object_or_404(User, crm=data.get('requesteeCRM')), None
+            donor, donee = get_object_or_404(User, crm=data.get('cardCRM')), None
             check_for_conflicts = False
             request_type = UserRequest.RequestType.EXCLUDE
         elif action == "include":
-            donor, donee = None, None # TODO: change later, for donee = receiver
+            donor, donee = None, get_object_or_404(User, crm=data.get('cardCRM'))
             check_for_conflicts = True
             request_type = UserRequest.RequestType.INCLUDE
         else:
@@ -106,7 +115,7 @@ class userRequestCreate(APIView):
         if check_for_conflicts:
             conflict = Shift.check_conflict(
                 donee,
-                month=shift.month,
+                month=shift.month if shift else Month.get_current(),
                 day=shift.day,
                 start_time=start_hour,
                 end_time=end_hour

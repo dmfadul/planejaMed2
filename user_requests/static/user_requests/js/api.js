@@ -55,7 +55,7 @@ export function buildPayload({
     startHour = null;
     endHour   = null;
   } else { // hours selection used
-    shift = 0; // custom shift
+    shift = shiftCode; // custom shift
     startHour = parseInt(startTime.split(":")[0], 10);
     endHour   = parseInt(endTime.split(":")[0], 10);
   }
