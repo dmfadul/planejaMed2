@@ -6,7 +6,10 @@ from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from core.constants import SHIFTS_MAP, SHIFT_CODES, HOUR_RANGE, MORNING_START
-from .serializers import ShiftSerializer, UserRequestSerializer, IncludeRequestDataSerializer
+from .services import create_user_request
+from .serializers import (ShiftSerializer,
+                          IncomingUserRequestSerializer,
+                          OutUserRequestSerializer)
 
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -34,142 +37,162 @@ class userRequestCreate(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
-        # TODO: see if we can optimize this function
-        data = request.data
-        action = data.get('action')
+        ser = IncomingUserRequestSerializer(
+            data=request.data,
+            context={"request": request}
+        )
 
-        # --- Check for required fields ---
-        requestee_needed = action in ("ask_for_donation",
-                                      "offer_donation",
-                                      "exchange") # change when implementing exchange
-        requestee_crm = data.get('cardCRM')
-        if requestee_needed and not requestee_crm:
-            return Response(
-                {"error": "Campos obrigatórios (cardCRM) ausentes."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        ser.is_valid(raise_exception=True)
+
+        # normalized, typed, DB-ready params:
+        params = ser.validated_data
+        req_obj = create_user_request(**params)
+
+        out = OutUserRequestSerializer(req_obj)
+        return Response(out.data, status=status.HTTP_201_CREATED)
+
+
+# class userRequestCreate(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+    
+#     def post(self, request):
+#         # TODO: see if we can optimize this function
+#         data = request.data
+#         action = data.get('action')
+#         print("action:", action)
+
+#         # --- Check for required fields ---
+#         requestee_needed = action in ("ask_for_donation",
+#                                       "offer_donation",
+#                                       "exchange") # change when implementing exchange
+#         requestee_crm = data.get('cardCRM')
+#         if requestee_needed and not requestee_crm:
+#             return Response(
+#                 {"error": "Campos obrigatórios (cardCRM) ausentes."},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
         
-        center_abbr = data.get('center')
-        center = get_object_or_404(Center, abbreviation=center_abbr)
+#         center_abbr = data.get('center')
+#         center = get_object_or_404(Center, abbreviation=center_abbr)
 
-        day = data.get('day')
-        if not day or not str(day).isdigit() or int(day) < 1 or int(day) > 31:
-            return Response(
-                {"error": "Dia inválido."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        day = int(day)
+#         day = data.get('day')
+#         if not day or not str(day).isdigit() or int(day) < 1 or int(day) > 31:
+#             return Response(
+#                 {"error": "Dia inválido."},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+#         day = int(day)
 
-        # --- Parse and validate hours ---
-        shift_raw = data.get('shift')
-        if action in ["include"] and shift_raw == "-":
-            start_hour_raw, end_hour_raw = data.get('startHour'), data.get('endHour')
-            shift_id = None
-        elif action in ["include"]:
-            start_hour_raw, end_hour_raw = Shift.convert_to_hours(shift_raw)
-            shift_id = None
-        elif action not in ["include"]:
-            start_hour_raw, end_hour_raw = data.get('startHour'), data.get('endHour')
-            shift_id = shift_raw
+#         # --- Parse and validate hours ---
+#         shift_raw = data.get('shift')
+#         if action in ["include"] and shift_raw == "-":
+#             start_hour_raw, end_hour_raw = data.get('startHour'), data.get('endHour')
+#             shift_id = None
+#         elif action in ["include"]:
+#             start_hour_raw, end_hour_raw = Shift.convert_to_hours(shift_raw)
+#             shift_id = None
+#         elif action not in ["include"]:
+#             start_hour_raw, end_hour_raw = data.get('startHour'), data.get('endHour')
+#             shift_id = shift_raw
         
-        try:
-            start_hour = int(start_hour_raw)
-            end_hour = int(end_hour_raw)
-        except (TypeError, ValueError):
-            return Response(
-                {"error": "Horas inválidas."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+#         try:
+#             start_hour = int(start_hour_raw)
+#             end_hour = int(end_hour_raw)
+#         except (TypeError, ValueError):
+#             return Response(
+#                 {"error": "Horas inválidas."},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
 
-        if not shift_id and action not in ["include"]:
-            return Response(
-                {"error": "Campos obrigatórios (shift) ausentes."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        shift = get_object_or_404(Shift, pk=int(shift_id)) if shift_id is not None else None
+#         if not shift_id and action not in ["include"]:
+#             return Response(
+#                 {"error": "Campos obrigatórios (shift) ausentes."},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+#         shift = get_object_or_404(Shift, pk=int(shift_id)) if shift_id is not None else None
 
-        requester = request.user
-        if requestee_needed:
-            requestee = get_object_or_404(User, crm=requestee_crm)
-        else:
-            requestee = None
+#         requester = request.user
+#         if requestee_needed:
+#             requestee = get_object_or_404(User, crm=requestee_crm)
+#         else:
+#             requestee = None
         
-        if requester == requestee:
-            return Response(
-                {"error": "Você não pode doar para si mesmo."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+#         if requester == requestee:
+#             return Response(
+#                 {"error": "Você não pode doar para si mesmo."},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
         
-        # --- Decide Donor and Donee ---
-        if action == "ask_for_donation":
-            donor, donee = requestee, requester
-            request_type = UserRequest.RequestType.DONATION
-        elif action == "offer_donation":
-            donor, donee = requester, requestee
-            request_type = UserRequest.RequestType.DONATION
-        elif action == "exclusion":
-            donor, donee = get_object_or_404(User, crm=data.get('cardCRM')), None
-            request_type = UserRequest.RequestType.EXCLUDE
-        elif action == "include":
-            donor, donee = None, get_object_or_404(User, crm=data.get('cardCRM'))
-            request_type = UserRequest.RequestType.INCLUDE
-        else:
-            return Response(
-                {"error": "Ação inválida."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+#         # --- Decide Donor and Donee ---
+#         if action == "ask_for_donation":
+#             donor, donee = requestee, requester
+#             request_type = UserRequest.RequestType.DONATION
+#         elif action == "offer_donation":
+#             donor, donee = requester, requestee
+#             request_type = UserRequest.RequestType.DONATION
+#         elif action == "exclusion":
+#             donor, donee = get_object_or_404(User, crm=data.get('cardCRM')), None
+#             request_type = UserRequest.RequestType.EXCLUDE
+#         elif action == "include":
+#             donor, donee = None, get_object_or_404(User, crm=data.get('cardCRM'))
+#             request_type = UserRequest.RequestType.INCLUDE
+#         else:
+#             return Response(
+#                 {"error": "Ação inválida."},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
 
-        if action in ("include", "ask_for_donation", "offer_donation"):
-            conflict = Shift.check_conflict(
-                donee,
-                month=shift.month if shift else Month.get_current(),
-                day=shift.day if shift else day,
-                start_time=start_hour,
-                end_time=end_hour
-            )
-            if conflict:
-                return Response(
-                    {
-                        "Conflito de Horário":
-                            f"O usuário {getattr(donee, 'name', donee)} já está inscrito no centro "
-                            f"{conflict.center.abbreviation} no dia {conflict.day}"
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+#         if action in ("include", "ask_for_donation", "offer_donation"):
+#             conflict = Shift.check_conflict(
+#                 donee,
+#                 month=shift.month if shift else Month.get_current(),
+#                 day=shift.day if shift else day,
+#                 start_time=start_hour,
+#                 end_time=end_hour
+#             )
+#             if conflict:
+#                 return Response(
+#                     {
+#                         "Conflito de Horário":
+#                             f"O usuário {getattr(donee, 'name', donee)} já está inscrito no centro "
+#                             f"{conflict.center.abbreviation} no dia {conflict.day}"
+#                     },
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
             
-        # --- Validate parent ---
-        req_payload = {
-            "requester":    requester.id,
-            "request_type": request_type,
-            "requestee":    requestee.id if requestee else None,
-            "donor":        donor.id if donor else None,
-            "donee":        donee.id if donee else None,
-            "shift":        shift.id if shift else None,
-            "start_hour":   start_hour,
-            "end_hour":     end_hour,
-        }
-        print("req_payload:", req_payload)
-        req_ser = UserRequestSerializer(data=req_payload)
-        req_ser.is_valid(raise_exception=True)
+#         # --- Validate parent ---
+#         req_payload = {
+#             "requester":    requester.id,
+#             "request_type": request_type,
+#             "requestee":    requestee.id if requestee else None,
+#             "donor":        donor.id if donor else None,
+#             "donee":        donee.id if donee else None,
+#             "shift":        shift.id if shift else None,
+#             "start_hour":   start_hour,
+#             "end_hour":     end_hour,
+#         }
+#         print("req_payload:", req_payload)
+#         req_ser = UserRequestSerializer(data=req_payload)
+#         req_ser.is_valid(raise_exception=True)
 
-        # --- validate include payload (only for include) ---
-        if action in ("include"):
-            include_payload = {
-                "center": center.id,
-                "month": Month.get_current().id,
-                "day": day,
-            }
-            inc_ser = IncludeRequestDataSerializer(data=include_payload)
-            inc_ser.is_valid(raise_exception=True)
+#         # --- validate include payload (only for include) ---
+#         if action in ("include"):
+#             include_payload = {
+#                 "center": center.id,
+#                 "month": Month.get_current().id,
+#                 "day": day,
+#             }
+#             inc_ser = IncludeRequestDataSerializer(data=include_payload)
+#             inc_ser.is_valid(raise_exception=True)
         
-        # --- save both atomically ---
-        req_obj = req_ser.save()
+#         # --- save both atomically ---
+#         req_obj = req_ser.save()
 
-        if action in ("include"):
-            inc_ser.save(user_request=req_obj)
+#         if action in ("include"):
+#             inc_ser.save(user_request=req_obj)
 
-        req_obj.notify_request()
-        return Response({"status": "created", "id": req_obj.id, "request_type": req_obj.request_type}, status=201)
+#         req_obj.notify_request()
+#         return Response({"status": "created", "id": req_obj.id, "request_type": req_obj.request_type}, status=201)
 
 
 @api_view(["GET"])

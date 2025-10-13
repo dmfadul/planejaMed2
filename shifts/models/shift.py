@@ -280,15 +280,19 @@ class Shift(AbstractShift):
         new_shift.save()
         return new_shift
 
+    @classmethod
+    def gen_date(cls, month, day):
+        """Generates the date of the shift as a datetime object."""
+
+        if END_DAY <= day <= 31:
+            actual_month, actual_year = month.prv_number_year()
+        else:
+            actual_month, actual_year = month.number, month.year
+        return datetime(actual_year, actual_month, day)
 
     def get_date(self):
         """Returns the date of the shift as a datetime object."""
-
-        if END_DAY <= self.day <= 31:
-            actual_month, actual_year = self.month.prv_number_year()
-        else:
-            actual_month, actual_year = self.month.number, self.month.year
-        return datetime(actual_year, actual_month, self.day)
+        return self.gen_date(self.month, self.day)
 
     def get_overtime_count(self):
         """Returns a dict of overtime and normal hours."""

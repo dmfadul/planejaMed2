@@ -103,6 +103,7 @@ class UserRequest(models.Model):
             self.notify_response("accept")
 
         elif self.request_type == self.RequestType.INCLUDE:
+            # In INCLUDE, donee = user to be included
             # TODO: implement INCLUDE logic
             
             # check for conflicts
@@ -208,11 +209,21 @@ class UserRequest(models.Model):
         ctx={
             'sender_name':  self.requester.name,
             'receiver_id':  self.requestee.id if self.requestee else None,
-            'shift_center': self.shift.center.abbreviation,
-            'shift_date':   self.shift.get_date().strftime("%d/%m/%y"),
             'start_hour':   f"{self.start_hour:02d}:00",
             'end_hour':     f"{self.end_hour:02d}:00",
         }
+
+        if self.shift:
+            ctx.update({
+                'shift_date':   self.shift.get_date().strftime("%d/%m/%y"),
+                'shift_center': self.shift.center.abbreviation,
+            })
+        elif self.request_type == self.RequestType.INCLUDE and hasattr(self, 'include_data'):
+            ctx.update({
+                'shift_date':   Shift.gen_date(self.include_data.month,
+                                               self.include_data.day).strftime("%d/%m/%y"),
+                'shift_center': self.include_data.center.abbreviation,
+            })
 
         if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
             temp_key = f'request_pending_donation_offered'
@@ -221,12 +232,11 @@ class UserRequest(models.Model):
         elif self.request_type == self.RequestType.EXCLUDE:
             temp_key = f'request_pending_exclusion'
             ctx['excludee_name'] = self.shift.user.name
+        elif self.request_type == self.RequestType.INCLUDE:
+            temp_key = f'request_pending_inclusion'
+            ctx['includee_name'] = self.donee.user.name
         else:
             temp_key = f'request_pending_{self.request_type}'
-        
-        
-        # TODO: add INCLUDE cases
-
 
         # Notify the requestee
         Notification.from_template(

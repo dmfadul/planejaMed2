@@ -6,7 +6,7 @@ export const ACTIONS = {
     title: "Escolha a hora que deseja excluir:",
     needsHour: true,
     hoursCRM: (ctx) => ctx.cardCrm,
-    endpointAction: 'exclusion',
+    endpointAction: 'exclude',
   },
 
   ask_for_donation: {

@@ -105,6 +105,14 @@ class Notification(models.Model):
                 "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
         },
 
+        'request_pending_inclusion': {
+            'kind': Kind.ACTION,
+            'title': "Requisição de inclusão pendente",
+            'body':
+                "{sender_name} solicita a inclusão dos horários de {includee_name}: "
+                "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
+        },
+
         'request_responded': {
             'kind': Kind.INFO,
             'title': "Requisição respondida",
