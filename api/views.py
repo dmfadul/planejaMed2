@@ -88,7 +88,6 @@ class userRequestCreate(APIView):
             )
         shift = get_object_or_404(Shift, pk=int(shift_id)) if shift_id is not None else None
 
-
         requester = request.user
         if requestee_needed:
             requestee = get_object_or_404(User, crm=requestee_crm)
