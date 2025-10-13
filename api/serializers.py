@@ -15,17 +15,15 @@ class IncomingUserRequestSerializer(serializers.Serializer):
     center = serializers.SlugField(max_length=10, required=False, allow_blank=True)
     day = serializers.IntegerField(min_value=1, max_value=31, required=False)
     shift = serializers.CharField(max_length=10, required=False, allow_blank=True)
-    start_hour = serializers.IntegerField(min_value=0, max_value=23, required=False)
-    end_hour = serializers.IntegerField(min_value=0, max_value=23, required=False)    
+    startHour = serializers.IntegerField(min_value=0, max_value=23, required=False)
+    endHour = serializers.IntegerField(min_value=0, max_value=23, required=False)    
     
     def validate(self, attrs):
         request = self.context['request']
         action = attrs['action']
-        start_hr = attrs.get('start_hour')
-        end_hr = attrs.get('end_hour')
         center_abbr = attrs.get('center')
         shift_raw = attrs.get('shift')
-
+        print("Validating with attrs:", attrs)
         # Resolve center if provided/required
         center = None
         if action in ("include"):
@@ -55,7 +53,7 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         elif action == "offer_donation":
             donor, donee = requester, requestee
             request_type = UserRequest.RequestType.DONATION
-        elif action == "exclusion":
+        elif action == "exclude":
             donor, donee = other_user, None
             request_type = UserRequest.RequestType.EXCLUDE
         elif action == "include":
@@ -72,11 +70,11 @@ class IncomingUserRequestSerializer(serializers.Serializer):
             raise serializers.ValidationError({"shift": _("Turno é obrigatório para inclusão.")})
         
         shift = None
-        start_hr, end_hr = attrs.get('start_hour'), attrs.get('end_hour')
-        if action == 'include' and not shift_raw == '-':
+        start_hr, end_hr = attrs.get('startHour'), attrs.get('endHour')
+        if not action == 'include':
+            shift = get_object_or_404(Shift, id=int(shift_raw))
+        elif not shift_raw == '-':
             start_hr, end_hr = Shift.convert_to_hours(shift_raw)        
-        else:
-            shift = get_object_or_404(Shift, name=shift_raw)
 
         if shift and not shift.month == Month.get_current():
             raise serializers.ValidationError({"shift": _("Turno não pertence ao mês atual.")})

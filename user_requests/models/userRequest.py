@@ -234,7 +234,7 @@ class UserRequest(models.Model):
             ctx['excludee_name'] = self.shift.user.name
         elif self.request_type == self.RequestType.INCLUDE:
             temp_key = f'request_pending_inclusion'
-            ctx['includee_name'] = self.donee.user.name
+            ctx['includee_name'] = self.donee.name
         else:
             temp_key = f'request_pending_{self.request_type}'
 
@@ -253,7 +253,7 @@ class UserRequest(models.Model):
             sender=self.requester,
             receiver=self.requester,
             context={
-                'requestee_name':   self.requestee.name if self.requestee else self.donee.name,
+                'requestee_name':   self.requestee.name if self.requestee else "Admin",
                 'request_type':     self.get_request_type_display().upper(),
                 'shift_center':     self.shift.center.abbreviation if self.shift else "N/A",
                 'shift_date':       self.shift.get_date().strftime("%d/%m/%y") if self.shift else "N/A",

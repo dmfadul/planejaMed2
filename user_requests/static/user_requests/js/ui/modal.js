@@ -132,6 +132,8 @@ function showModalError(msg) {
  * Modal Runners
  * =========================== */
 
+
+// TODO: FIX DOUBLE MODAL BUG
 /**
  * Show a select list of names/crms in #modalRequests and resolve once.
  * Returns: { submitted:boolean, selectedLabel:string|null, selectedValue:string|null, selectedIndex:number }
