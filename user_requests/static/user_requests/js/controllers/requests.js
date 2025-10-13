@@ -16,6 +16,8 @@ export async function handleAction(action, ctx) {
     const needsHr  = cfg.needsHour;
 
     let submitted = false;
+    let center = ctx.center || null;
+    let day = ctx.day || null;
     let selectedHour = null;
     let shiftCode = null;
     let startTime = null;
@@ -43,6 +45,8 @@ export async function handleAction(action, ctx) {
       cardCRM,
       selectedHour,
       shiftCode,
+      center,
+      day,
       startTime,
       endTime,      
       options: { timeout: 15000 },

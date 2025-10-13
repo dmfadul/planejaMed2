@@ -6,7 +6,7 @@ from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from core.constants import SHIFTS_MAP, SHIFT_CODES, HOUR_RANGE, MORNING_START
-from .serializers import ShiftSerializer, UserRequestSerializer, NotificationSerializer
+from .serializers import ShiftSerializer, UserRequestSerializer, IncludeRequestDataSerializer
 
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -34,6 +34,7 @@ class userRequestCreate(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
+        # TODO: see if we can optimize this function
         data = request.data
         action = data.get('action')
 
@@ -47,7 +48,18 @@ class userRequestCreate(APIView):
                 {"error": "Campos obrigatórios (cardCRM) ausentes."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
+        
+        center_abbr = data.get('center')
+        center = get_object_or_404(Center, abbreviation=center_abbr)
+
+        day = data.get('day')
+        if not day or not str(day).isdigit() or int(day) < 1 or int(day) > 31:
+            return Response(
+                {"error": "Dia inválido."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        day = int(day)
+
         # --- Parse and validate hours ---
         shift_raw = data.get('shift')
         if action in ["include"] and shift_raw == "-":
@@ -92,19 +104,15 @@ class userRequestCreate(APIView):
         # --- Decide Donor and Donee ---
         if action == "ask_for_donation":
             donor, donee = requestee, requester
-            check_for_conflicts = True
             request_type = UserRequest.RequestType.DONATION
         elif action == "offer_donation":
             donor, donee = requester, requestee
-            check_for_conflicts = True
             request_type = UserRequest.RequestType.DONATION
         elif action == "exclusion":
             donor, donee = get_object_or_404(User, crm=data.get('cardCRM')), None
-            check_for_conflicts = False
             request_type = UserRequest.RequestType.EXCLUDE
         elif action == "include":
             donor, donee = None, get_object_or_404(User, crm=data.get('cardCRM'))
-            check_for_conflicts = True
             request_type = UserRequest.RequestType.INCLUDE
         else:
             return Response(
@@ -112,11 +120,11 @@ class userRequestCreate(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if check_for_conflicts:
+        if action in ("include", "ask_for_donation", "offer_donation"):
             conflict = Shift.check_conflict(
                 donee,
                 month=shift.month if shift else Month.get_current(),
-                day=shift.day,
+                day=shift.day if shift else day,
                 start_time=start_hour,
                 end_time=end_hour
             )
@@ -129,7 +137,9 @@ class userRequestCreate(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
-        params = {
+            
+        # --- Validate parent ---
+        req_payload = {
             "requester":    requester.id,
             "request_type": request_type,
             "requestee":    requestee.id if requestee else None,
@@ -139,27 +149,29 @@ class userRequestCreate(APIView):
             "start_hour":   start_hour,
             "end_hour":     end_hour,
         }
+        print("req_payload:", req_payload)
+        req_ser = UserRequestSerializer(data=req_payload)
+        req_ser.is_valid(raise_exception=True)
 
-        serializer = UserRequestSerializer(data=params)
-
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # --- validate include payload (only for include) ---
+        if action in ("include"):
+            include_payload = {
+                "center": center.id,
+                "month": Month.get_current().id,
+                "day": day,
+            }
+            inc_ser = IncludeRequestDataSerializer(data=include_payload)
+            inc_ser.is_valid(raise_exception=True)
         
-        with transaction.atomic():
-            instance = serializer.save()
-            # Try to notify but don't fail the whole transaction if it fails
-            # try:
-            instance.notify_request()
-            # except Exception as e:
-            #     # add logging here
-            #     return Response(
-            #         {"status": "created", "id": instance.id, "warning": "Notificação falhou."},
-            #         status=status.HTTP_201_CREATED
-            #     )
-        return Response(
-            {"status": "created", "id": instance.id, "request_type": instance.request_type},
-            status=status.HTTP_201_CREATED
-        )
+        # --- save both atomically ---
+        req_obj = req_ser.save()
+
+        if action in ("include"):
+            inc_ser.save(user_request=req_obj)
+
+        req_obj.notify_request()
+        return Response({"status": "created", "id": req_obj.id, "request_type": req_obj.request_type}, status=201)
+
 
 @api_view(["GET"])
 def get_hours(request):

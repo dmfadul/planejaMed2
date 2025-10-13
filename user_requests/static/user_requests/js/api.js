@@ -39,11 +39,14 @@ export function buildPayload({
                               cardCRM,
                               selectedHour = null,
                               shiftCode = null,
+                              center = null,
+                              day = null,
                               startTime = null,
                               endTime = null,
                               meta = {}
                             }) {
   let shift, startHour, endHour;
+  day = parseInt(day, 10) || null;
   
   if (selectedHour) {
     const [shiftStr, startHourStr, endHourStr] = selectedHour.split("|").map(s => s.trim());
@@ -62,7 +65,7 @@ export function buildPayload({
   return {
     action,
     cardCRM,
-    ...(shift != null ? { shift, startHour, endHour } : {}),
+    ...(shift != null ? { shift, center, day, startHour, endHour } : {}),
     ...meta
   };
 }
@@ -109,6 +112,8 @@ export async function submitUserRequest({
   cardCRM,
   selectedHour = null,
   shiftCode = null,
+  center = null,
+  day = null,
   startTime = null,
   endTime = null,
   meta = {},
@@ -119,6 +124,8 @@ export async function submitUserRequest({
     cardCRM,
     selectedHour,
     shiftCode,
+    center,
+    day,
     startTime,
     endTime,
     meta
