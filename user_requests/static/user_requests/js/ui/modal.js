@@ -1,466 +1,389 @@
 import { formatHourRange } from '../data/hours.js';
 
-/* ===========================
- * Small DOM / UI utilities
- * =========================== */
+/* =========================================================
+ * Utilities
+ * ========================================================= */
 
-/** Resolve when a Bootstrap modal element is fully hidden */
-function waitHidden(modalEl) {
-  return new Promise(resolve => {
-    modalEl.addEventListener('hidden.bs.modal', () => resolve(), { once: true });
-  });
-}
-
-/** When shiftCode !== '-', disable hour selects and auto-fill; also enforce end > start */
-function handleDropdownChange(dropdown1, dropdown2, dropdown3) {
-  if (dropdown1.value !== '-') {
-    dropdown2.disabled = true;
-    dropdown3.disabled = true;
-    dropdown2.style.backgroundColor = '#a0a0a0';
-    dropdown3.style.backgroundColor = '#a0a0a0';
-    dropdown2.selectedIndex = -1;
-    dropdown3.selectedIndex = -1;
-  } else {
-    dropdown2.disabled = false;
-    dropdown3.disabled = false;
-    dropdown2.style.backgroundColor = '';
-    dropdown3.style.backgroundColor = '';
-    dropdown3.selectedIndex = 1;
-
-    const selectedIndex = dropdown2.selectedIndex;
-
-    Array.from(dropdown3.options).forEach((option, index) => {
-      if (index <= selectedIndex) {
-        option.style.display = 'none';
-      } else {
-        option.style.display = 'block';
-      }
-    });
-    dropdown3.selectedIndex = selectedIndex + 1;
-  }
-}
-
-function createDropdown(id, options, values = {}) {
-  const dropdown = document.createElement('select');
-  dropdown.classList.add('form-select');
-  dropdown.id = id;
-  dropdown.name = id;
-
-  options.forEach(option => {
-    const opt = document.createElement('option');
-    if (Object.keys(values).length > 0) {
-      opt.value = values[option];
-    } else {
-      opt.value = option;
-    }
-    opt.textContent = option;
-    dropdown.appendChild(opt);
-  });
-
-  return dropdown;
-}
-
-/** Button busy-state wrapper (local to UI) */
 function withBusyButton(fn) {
   return async (ev) => {
     const btn = ev?.currentTarget ?? ev?.target;
-    if (!(btn instanceof HTMLElement)) {
-      return fn();
-    }
-    const prevDisabled = btn.disabled;
-    const prevText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Sending...';
-    try {
-      return await fn();
-    } finally {
-      btn.disabled = prevDisabled;
-      btn.textContent = prevText || 'Submit';
-    }
+    const el = btn instanceof HTMLElement ? btn : null;
+    const old = el ? { t: el.textContent, d: el.disabled } : null;
+    if (el) { el.disabled = true; el.textContent = 'Sending...'; }
+    try { return await fn(); }
+    finally { if (el) { el.disabled = old.d; el.textContent = old.t || 'Submit'; } }
   };
 }
 
-/** Create and fill a <select> inside #dynamicInputs */
-export function populateSelect(selectId, options, values = []) {
-  const container = document.getElementById('dynamicInputs');
-  container.innerHTML = '';
-
-  const select = document.createElement('select');
-  select.className = 'form-select mb-3';
-  select.id = selectId;
-  select.name = selectId;
-
-  options.forEach((item, index) => {
-    const opt = document.createElement('option');
-    opt.value = values[index] !== undefined ? values[index] : item;
-    opt.textContent = item;
-    select.appendChild(opt);
-  });
-
-  container.appendChild(select);
+function showWizardError(msg) {
+  const box = document.getElementById('wizardError');
+  if (!box) return console.error(msg);
+  box.textContent = msg;
+  box.classList.remove('d-none');
+}
+function clearWizardError() {
+  const box = document.getElementById('wizardError');
+  if (box) { box.textContent = ''; box.classList.add('d-none'); }
 }
 
-/** Show an error message inside the currently visible modal (fallback to toast/console) */
-function showModalError(msg) {
-  const anyModalShown = document.querySelector('.modal.show');
+/* Simple factory: <select> */
+function mkSelect({ id, className = 'form-select', options, values }) {
+  const sel = document.createElement('select');
+  sel.id = id; sel.name = id; sel.className = className;
+  options.forEach((label, i) => {
+    const opt = document.createElement('option');
+    opt.textContent = label;
+    opt.value = values ? values[i] : label;
+    sel.appendChild(opt);
+  });
+  return sel;
+}
 
-  // Prefer #requestErrors if present inside the shown modal
-  const box = anyModalShown?.querySelector('#requestErrors');
-  if (box) {
-    box.textContent = msg;
-    box.classList.remove('d-none');
-    return;
-  }
-
-  // Otherwise, find a generic .alert/.error element inside the shown modal
-  const alt = anyModalShown?.querySelector('.alert, .error');
-  if (alt) {
-    alt.textContent = msg;
-    alt.classList.remove('d-none');
-    return;
-  }
-
-  // Fallbacks
-  if (typeof showToast === 'function') {
-    showToast(msg, 'danger');
+/* shift dropdown state rules */
+function enforceShiftRules(drop1, drop2, drop3) {
+  if (drop1.value !== '-') {
+    drop2.disabled = true; drop3.disabled = true;
+    drop2.style.background = '#a0a0a0'; drop3.style.background = '#a0a0a0';
+    drop2.selectedIndex = -1; drop3.selectedIndex = -1;
   } else {
-    console.error(msg);
-  }
-}
-
-/* ===========================
- * Modal Runners
- * =========================== */
-
-
-// TODO: FIX DOUBLE MODAL BUG
-/**
- * Show a select list of names/crms in #modalRequests and resolve once.
- * Returns: { submitted:boolean, selectedLabel:string|null, selectedValue:string|null, selectedIndex:number }
- * Stays OPEN on submit; caller decides when to close (on success).
- * Cancelling/closing the modal resolves with submitted=false.
- */
-export async function runNamesModal({ title, names = [], values = [] }) {
-  const modalEl   = document.getElementById('modalRequests');
-  const errorBox  = document.getElementById('requestErrors');
-  const labelEl   = document.getElementById('modalRequestsLabel');
-  const submitBtn = document.getElementById('submitRequestButton');
-
-  if (!modalEl || !labelEl || !submitBtn) {
-    throw new Error('Modal elements not found. Check your template IDs.');
-  }
-  if (!Array.isArray(names) || !Array.isArray(values)) {
-    throw new Error('names and values must be arrays.');
-  }
-  if (names.length !== values.length) {
-    throw new Error('names and values must have the same length.');
-  }
-  if (names.length === 0) {
-    throw new Error('names/values cannot be empty.');
-  }
-
-  const modal = new bootstrap.Modal(modalEl);
-
-  // Reset UI
-  errorBox?.classList.add('d-none');
-  if (errorBox) errorBox.textContent = '';
-  labelEl.textContent = title;
-
-  const dynamic = document.getElementById('dynamicInputs');
-  dynamic?.replaceChildren();
-
-  // Build select group
-  const group = document.createElement('div');
-  group.className = 'mb-3';
-
-  const label = document.createElement('label');
-  label.className = 'form-label fw-semibold';
-  label.setAttribute('for', 'requestSelect');
-  label.textContent = '';
-
-  const select = document.createElement('select');
-  select.id = 'requestSelect';
-  select.className = 'form-select';
-
-  for (let i = 0; i < names.length; i++) {
-    const opt = document.createElement('option');
-    opt.textContent = names[i];
-    opt.value = values[i];
-    select.appendChild(opt);
-  }
-
-  group.appendChild(label);
-  group.appendChild(select);
-  dynamic?.appendChild(group);
-
-  let resolved = false;
-
-  const result = await new Promise(resolve => {
-    const finalize = (payload) => {
-      if (resolved) return;
-      resolved = true;
-      resolve(payload);
-    };
-
-    const onHidden = () => finalize({
-      submitted: false,
-      selectedLabel: null,
-      selectedValue: null,
-      selectedIndex: -1
+    drop2.disabled = false; drop3.disabled = false;
+    drop2.style.background = ''; drop3.style.background = '';
+    const startIdx = drop2.selectedIndex;
+    Array.from(drop3.options).forEach((opt, idx) => {
+      opt.style.display = idx <= startIdx ? 'none' : 'block';
     });
-    modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
+    drop3.selectedIndex = Math.max(0, startIdx + 1);
+  }
+}
 
-    const clickHandlerCore = async () => {
-      const el = document.getElementById('requestSelect');
-      const idx = el?.selectedIndex ?? -1;
-      const submitted = idx >= 0;
-      const selectedLabel = submitted ? names[idx] : null;
-      const selectedValue = submitted ? values[idx] : null;
-      finalize({ submitted, selectedLabel, selectedValue, selectedIndex: idx });
-    };
+/* Build wrapped hour list 07:00..23:00 then 00:00..07:00 */
+function buildHourLists() {
+  const H = Array.from({ length: 17 }, (_, i) => i + 7).concat(Array.from({ length: 8 }, (_, i) => i));
+  const hourRange = H.map(x => `${String(x).padStart(2, '0')}:00`);
+  return { hourRange, hourRangeNoEnd: hourRange.slice(0, -1) };
+}
 
-    const clickHandler = (typeof withBusyButton === 'function')
-      ? withBusyButton(clickHandlerCore)
-      : clickHandlerCore;
+/* =========================================================
+ * Wizard (single modal, multi-step)
+ * ========================================================= */
 
-    submitBtn.addEventListener('click', clickHandler, { once: true });
-    modal.show();
-  });
-
-  return result;
+function getWizardDom() {
+  const root     = document.getElementById('modalWizard');
+  const titleEl  = document.getElementById('modalWizardLabel');
+  const body     = root?.querySelector('.modal-body');
+  const backBtn  = document.getElementById('wizardBackBtn');
+  const submitBt = document.getElementById('wizardSubmitBtn');
+  if (!root || !titleEl || !body || !backBtn || !submitBt) {
+    throw new Error('Wizard modal DOM not found. Check #modalWizard structure.');
+  }
+  return { root, titleEl, body, backBtn, submitBt };
 }
 
 /**
- * Show #modalRequests optionally with an hours select; resolve once.
- * Returns: { submitted:boolean, selectedHour:string|null }
- * Stays OPEN on submit; caller decides when to close (on success).
- * Cancelling/closing the modal resolves with submitted=false.
+ * Renders a step into the wizard body.
+ * Step is an object with:
+ * - name: string
+ * - render(container): void
+ * - collect(): any   (returns current step selections)
+ * - validate(data): string|null  (error msg or null)
  */
-export async function runRequestModal({ title, hours = null }) {
-  const modalEl   = document.getElementById('modalRequests');
-  const errorBox  = document.getElementById('requestErrors');
-  const labelEl   = document.getElementById('modalRequestsLabel');
-  const submitBtn = document.getElementById('submitRequestButton');
+function renderStep(step, dom, ctx) {
+  dom.body.innerHTML = '';
+  clearWizardError();
 
-  if (!modalEl || !labelEl || !submitBtn) {
-    throw new Error('Modal elements not found. Check your template IDs.');
-  }
+  // Optional: small step header or context
+  const hdr = document.createElement('div');
+  hdr.className = 'mb-2';
+  hdr.innerHTML = `<div class="small text-muted">${ctx.stepIndex + 1} / ${ctx.steps.length}</div>`;
+  dom.body.appendChild(hdr);
 
-  const modal = new bootstrap.Modal(modalEl);
+  const content = document.createElement('div');
+  dom.body.appendChild(content);
 
-  // Reset UI
-  errorBox?.classList.add('d-none');
-  if (errorBox) errorBox.textContent = '';
-  labelEl.textContent = title;
-  document.getElementById('dynamicInputs')?.replaceChildren();
-
-  if (hours && hours.length) {
-    const [labels, values] = formatHourRange(hours);
-    populateSelect('requestHours', labels, values);
-  }
-
-  let resolved = false;
-
-  const result = await new Promise(resolve => {
-    const finalize = (payload) => {
-      if (resolved) return;
-      resolved = true;
-      resolve(payload);
-    };
-
-    const onHidden = () => finalize({ submitted: false, selectedHour: null });
-    modalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
-
-    const clickHandler = withBusyButton(async () => {
-      const val = document.getElementById('requestHours')?.value ?? null;
-      finalize({ submitted: true, selectedHour: val });
-    });
-
-    submitBtn.addEventListener('click', clickHandler, { once: true });
-    modal.show();
-  });
-
-  return result;
+  step.render(content);
 }
 
-/**
- * Show #modal_gen to collect { shiftCode, startTime, endTime } and resolve once.
- * Returns: { submitted:boolean, shiftCode:string|null, startTime:string|null, endTime:string|null }
- * Stays OPEN on submit; caller decides when to close (on success).
- * Cancelling/closing resolves with submitted=false.
- */
-export async function runShiftHourModal() {
-  // Build 07:00..23:00 then 00:00..07:00 (wrap)
-  const HOUR_RANGE =
-    Array.from({ length: 17 }, (_, i) => i + 7)   // 7..23
-      .concat(Array.from({ length: 8 }, (_, i) => i)); // 0..7
-  const hourRange = HOUR_RANGE.map(x => `${String(x).padStart(2, '0')}:00`);
-  const hourRangeNoEnd = hourRange.slice(0, -1);
+/* --------------------------
+ * Step factories
+ * -------------------------- */
 
-  // Modal elements
-  const modalRoot = document.getElementById('modal_gen');
-  if (!modalRoot) throw new Error('#modal_gen not found');
-  const modalBody = modalRoot.querySelector('.modal-body');
-  if (!modalBody) throw new Error('#modal_gen .modal-body not found');
+function makeStepHours({ title, hours }) {
+  const state = { selectedHour: null };
 
-  const submitBtn = document.getElementById('submitShiftButton');
-  if (!submitBtn) throw new Error('#submitShiftButton not found');
+  return {
+    name: 'hours',
+    render(container) {
+      // Title can stay in modal header; we add a label here if desired
+      const lbl = document.createElement('label');
+      lbl.className = 'form-label fw-semibold';
+      lbl.textContent = 'Select hour';
+      container.appendChild(lbl);
 
-  // Clear and render fields
-  modalBody.innerHTML = '';
-  const row = document.createElement('div');
-  row.className = 'row align-items-center g-2';
+      const [labels, values] = formatHourRange(hours || []);
+      const sel = mkSelect({ id: 'wizardHour', options: labels, values });
+      sel.addEventListener('change', () => state.selectedHour = sel.value);
+      container.appendChild(sel);
 
-  const dropdown1 = createDropdown('shiftCode', ['-', 'dn', 'd', 'n', 'm', 't', 'c', 'v']);
-  const dropdown2 = createDropdown('startTime', hourRangeNoEnd);
-  const dropdown3 = createDropdown('endTime',   hourRange);
-
-  const wrap = (el) => {
-    const d = document.createElement('div');
-    d.className = 'col-4';
-    d.appendChild(el);
-    return d;
+      // initialize
+      if (sel.options.length) { sel.selectedIndex = 0; state.selectedHour = sel.value; }
+    },
+    collect() { return { selectedHour: state.selectedHour }; },
+    validate(data) {
+      if (!data.selectedHour) return 'Selecione um horário.';
+      return null;
+    },
+    footer({ backBtn, submitBtn }) {
+      backBtn.style.display = 'none';
+      submitBtn.textContent = 'Enviar';
+    }
   };
-  row.appendChild(wrap(dropdown1));
-  row.appendChild(wrap(dropdown2));
-  row.appendChild(wrap(dropdown3));
-  modalBody.appendChild(row);
-
-  dropdown1.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));
-  dropdown2.addEventListener('change', () => handleDropdownChange(dropdown1, dropdown2, dropdown3));
-  handleDropdownChange(dropdown1, dropdown2, dropdown3);
-
-  const bsModal = new bootstrap.Modal(modalRoot);
-
-  const result = await new Promise((resolve) => {
-    let settled = false;
-    const finalize = (payload) => {
-      if (settled) return;
-      settled = true;
-      resolve(payload);
-    };
-
-    const onHidden = () => finalize({
-      submitted: false, shiftCode: null, startTime: null, endTime: null
-    });
-    modalRoot.addEventListener('hidden.bs.modal', onHidden, { once: true });
-
-    const onSubmit = withBusyButton(async () => {
-      const shiftCode = document.getElementById('shiftCode')?.value ?? null;
-      const startTime = document.getElementById('startTime')?.value ?? null;
-      const endTime   = document.getElementById('endTime')?.value   ?? null;
-      finalize({ submitted: true, shiftCode, startTime, endTime });
-    });
-
-    submitBtn.addEventListener('click', onSubmit, { once: true });
-    bsModal.show();
-  });
-
-  return result;
 }
 
-/* ===========================
- * Orchestration
- * =========================== */
+function makeStepNames({ nameData }) {
+  const state = { selectedIdx: -1, selectedLabel: null, selectedValue: null };
+  const names = nameData.map(x => x.name);
+  const crms  = nameData.map(x => x.crm);
 
-/**
- * Handle a high-level action by gathering inputs via modals and submitting.
- * - Modals remain OPEN on submit; we only CLOSE them after a successful request.
- * - On failure, we display the error in the currently visible modal and allow retry.
- *
- * Expects external globals/utilities:
+  return {
+    name: 'names',
+    render(container) {
+      const lbl = document.createElement('label');
+      lbl.className = 'form-label fw-semibold';
+      lbl.textContent = 'Selecione o usuário';
+      container.appendChild(lbl);
+
+      const sel = mkSelect({ id: 'wizardName', options: names, values: crms });
+      sel.addEventListener('change', () => {
+        state.selectedIdx   = sel.selectedIndex;
+        state.selectedLabel = names[sel.selectedIndex] ?? null;
+        state.selectedValue = crms[sel.selectedIndex] ?? null;
+      });
+      container.appendChild(sel);
+
+      // init
+      if (sel.options.length) { sel.selectedIndex = 0; sel.dispatchEvent(new Event('change')); }
+    },
+    collect() {
+      return {
+        selectedIndex: state.selectedIdx,
+        selectedLabel: state.selectedLabel,
+        selectedValue: state.selectedValue
+      };
+    },
+    validate(data) {
+      if (data.selectedIndex < 0) return 'Selecione um usuário.';
+      return null;
+    },
+    footer({ backBtn, submitBtn }) {
+      backBtn.style.display = 'none';
+      submitBtn.textContent = 'Continuar';
+    }
+  };
+}
+
+function makeStepShift() {
+  const state = { shiftCode: '-', startTime: null, endTime: null };
+
+  return {
+    name: 'shift',
+    render(container) {
+      const row = document.createElement('div');
+      row.className = 'row align-items-center g-2';
+      container.appendChild(row);
+
+      const col = () => { const d = document.createElement('div'); d.className = 'col-4'; return d; };
+
+      const codeSel = mkSelect({ id: 'wizardShift', options: ['-','dn','d','n','m','t','c','v'] });
+      const { hourRange, hourRangeNoEnd } = buildHourLists();
+      const startSel = mkSelect({ id: 'wizardStart', options: hourRangeNoEnd });
+      const endSel   = mkSelect({ id: 'wizardEnd',   options: hourRange });
+
+      codeSel.addEventListener('change', () => {
+        state.shiftCode = codeSel.value;
+        enforceShiftRules(codeSel, startSel, endSel);
+      });
+      startSel.addEventListener('change', () => {
+        state.startTime = startSel.value;
+        enforceShiftRules(codeSel, startSel, endSel);
+      });
+      endSel.addEventListener('change',   () => { state.endTime = endSel.value; });
+
+      const c1 = col(); c1.appendChild(codeSel);
+      const c2 = col(); c2.appendChild(startSel);
+      const c3 = col(); c3.appendChild(endSel);
+      row.appendChild(c1); row.appendChild(c2); row.appendChild(c3);
+
+      // init defaults
+      state.shiftCode = codeSel.value = '-';
+      startSel.selectedIndex = 0;
+      state.startTime = startSel.value;
+      enforceShiftRules(codeSel, startSel, endSel);
+      state.endTime = endSel.value;
+    },
+    collect() { return { ...state }; },
+    validate(data) {
+      if (data.shiftCode === '-') {
+        if (!data.startTime || !data.endTime) return 'Selecione início e fim.';
+      }
+      return null;
+    },
+    footer({ backBtn, submitBtn }) {
+      backBtn.style.display = '';
+      submitBtn.textContent = 'Enviar';
+    }
+  };
+}
+
+/* --------------------------
+ * Wizard Runner
+ * -------------------------- */
+
+async function runWizard({ title, steps }) {
+  const dom = getWizardDom();
+  dom.titleEl.textContent = title;
+
+  const modal = new bootstrap.Modal(dom.root);
+  let stepIndex = 0;
+
+  // wire buttons once
+  let submitHandler = null;
+  let backHandler = null;
+
+  const ctx = { steps, stepIndex };
+
+  function attachHandlers() {
+    // cleanup previous
+    if (submitHandler) dom.submitBt.removeEventListener('click', submitHandler);
+    if (backHandler)   dom.backBtn.removeEventListener('click', backHandler);
+
+    // footer config per step
+    steps[stepIndex].footer?.({ backBtn: dom.backBtn, submitBtn: dom.submitBt });
+
+    submitHandler = withBusyButton(async () => {
+      clearWizardError();
+      const data = steps[stepIndex].collect?.() ?? {};
+      const err  = steps[stepIndex].validate?.(data);
+      if (err) return showWizardError(err);
+
+      if (stepIndex < steps.length - 1) {
+        // advance step
+        stepIndex += 1;
+        ctx.stepIndex = stepIndex;
+        renderStep(steps[stepIndex], dom, ctx);
+        attachHandlers();
+      } else {
+        // final step -> return collected payload across steps
+        const payload = {};
+        for (const s of steps) Object.assign(payload, s.collect?.() ?? {});
+        resolvePromise(payload);
+      }
+    });
+
+    backHandler = () => {
+      if (stepIndex === 0) return;
+      stepIndex -= 1;
+      ctx.stepIndex = stepIndex;
+      renderStep(steps[stepIndex], dom, ctx);
+      attachHandlers();
+    };
+
+    dom.submitBt.addEventListener('click', submitHandler);
+    dom.backBtn.addEventListener('click', backHandler);
+  }
+
+  let resolver = null;
+  const p = new Promise((resolve) => { resolver = resolve; });
+  const resolvePromise = (x) => resolver(x);
+
+  // initial render + handlers + show
+  renderStep(steps[stepIndex], dom, ctx);
+  attachHandlers();
+  modal.show();
+
+  // If user manually closes, resolve null
+  const onHidden = () => resolver(null);
+  dom.root.addEventListener('hidden.bs.modal', onHidden, { once: true });
+
+  const result = await p;
+  dom.root.removeEventListener('hidden.bs.modal', onHidden);
+
+  return { result, modal };
+}
+
+/* =========================================================
+ * Orchestration API (single-modal)
+ * =========================================================
+ * External deps expected:
  *   - ACTIONS: { [action]: { title, needsHour, hoursCRM(ctx), endpointAction } }
  *   - fetchHours(params), fetchNamesList(), submitUserRequest(payload)
- *   - showToast(type='success'|'danger'...), bootstrap
+ *   - showToast(msg, type)
  */
+
 export async function handleAction(action, ctx) {
   const cfg = ACTIONS[action];
   if (!cfg) return console.error('Unknown action:', action);
 
+  const title    = cfg.title;
+  const needsHr  = cfg.needsHour;
+  const center   = ctx.center ?? null;
+  const day      = ctx.day ?? null;
+
   try {
-    const title    = cfg.title;
-    const needsHr  = cfg.needsHour;
-
-    let submitted = false;
-    let center = ctx.center || null;
-    let day = ctx.day || null;
-    let selectedHour = null;
-    let shiftCode = null;
-    let startTime = null;
-    let endTime   = null;
-    let selectUserCRM = null;
-
     if (needsHr) {
       const hours = await fetchHours({ crm: cfg.hoursCRM(ctx), ...ctx });
+      const stepH = makeStepHours({ title, hours });
 
-      // Retry loop: keep modal open, re-resolve on each submit. Exit on cancel or success.
-      // eslint-disable-next-line no-constant-condition
       while (true) {
-        ({ submitted, selectedHour } = await runRequestModal({ title, hours }));
-        if (!submitted) return; // user cancelled/closed
+        // Run wizard with a single step (still benefits from unified UI + error area)
+        const { result, modal } = await runWizard({ title, steps: [stepH] });
+        if (!result) return; // user cancelled/closed
 
         try {
-          const cardCRM = ctx.cardCrm;
           await submitUserRequest({
             action: cfg.endpointAction,
-            cardCRM,
-            selectedHour,
-            center,
-            day,
+            cardCRM: ctx.cardCrm,
+            selectedHour: result.selectedHour,
+            center, day,
             options: { timeout: 15000 },
           });
-
           showToast('Pedido enviado com sucesso!', 'success');
-          // Close the modal ONLY now
-          bootstrap.Modal.getOrCreateInstance(document.getElementById('modalRequests'))?.hide();
+          modal.hide();
           break;
         } catch (e) {
-          showModalError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
-          // keep looping; modal stays open
+          showWizardError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
+          // Loop: modal stays open; user can adjust/retry (e.g., change hour)
         }
       }
     } else {
       const nameData = await fetchNamesList();
-      const names = nameData.map(item => item.name);
-      const crms  = nameData.map(item => item.crm);
+      const stepN = makeStepNames({ nameData });
+      const stepS = makeStepShift();
 
-      // Step 1: choose user (names modal). Exit if canceled.
-      ({ submitted, selectedValue: selectUserCRM } = await runNamesModal({ title, names, values: crms }));
-      if (!submitted) return;
-
-      // Step 2: choose shift/hours with retry on submission failure
-      // eslint-disable-next-line no-constant-condition
       while (true) {
-        ({ submitted, shiftCode, startTime, endTime } = await runShiftHourModal());
-        if (!submitted) return; // user cancelled
+        const { result, modal } = await runWizard({ title, steps: [stepN, stepS] });
+        if (!result) return; // user cancelled/closed
 
         try {
-          const cardCRM = ctx.cardCrm || selectUserCRM;
+          const cardCRM = ctx.cardCrm || result.selectedValue;
           await submitUserRequest({
             action: cfg.endpointAction,
             cardCRM,
-            shiftCode,
-            center,
-            day,
-            startTime,
-            endTime,
+            shiftCode: result.shiftCode,
+            startTime: result.startTime,
+            endTime:   result.endTime,
+            center, day,
             options: { timeout: 15000 },
           });
-
           showToast('Pedido enviado com sucesso!', 'success');
-          // Close both modals on success (hours first, then names)
-          const modalHours = document.getElementById('modal_gen');
-          const modalNames = document.getElementById('modalRequests');
-          bootstrap.Modal.getOrCreateInstance(modalHours)?.hide();
-          bootstrap.Modal.getOrCreateInstance(modalNames)?.hide();
+          modal.hide();
           break;
         } catch (e) {
-          showModalError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
-          // continue loop for retry
+          showWizardError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
+          // Loop: user can click Back (to change person) or adjust shift and retry
         }
       }
     }
   } catch (e) {
-    showModalError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
+    showWizardError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
   }
 }
