@@ -1,8 +1,8 @@
 import { formatHourRange } from '../data/hours.js';
 
-/* =========================================================
+/* ===========================
  * Utilities
- * ========================================================= */
+ * =========================== */
 
 function withBusyButton(fn) {
   return async (ev) => {
@@ -26,7 +26,6 @@ function clearWizardError() {
   if (box) { box.textContent = ''; box.classList.add('d-none'); }
 }
 
-/* Simple factory: <select> */
 function mkSelect({ id, className = 'form-select', options, values }) {
   const sel = document.createElement('select');
   sel.id = id; sel.name = id; sel.className = className;
@@ -39,7 +38,6 @@ function mkSelect({ id, className = 'form-select', options, values }) {
   return sel;
 }
 
-/* shift dropdown state rules */
 function enforceShiftRules(drop1, drop2, drop3) {
   if (drop1.value !== '-') {
     drop2.disabled = true; drop3.disabled = true;
@@ -56,16 +54,15 @@ function enforceShiftRules(drop1, drop2, drop3) {
   }
 }
 
-/* Build wrapped hour list 07:00..23:00 then 00:00..07:00 */
 function buildHourLists() {
   const H = Array.from({ length: 17 }, (_, i) => i + 7).concat(Array.from({ length: 8 }, (_, i) => i));
   const hourRange = H.map(x => `${String(x).padStart(2, '0')}:00`);
   return { hourRange, hourRangeNoEnd: hourRange.slice(0, -1) };
 }
 
-/* =========================================================
- * Wizard (single modal, multi-step)
- * ========================================================= */
+/* ===========================
+ * Wizard DOM
+ * =========================== */
 
 function getWizardDom() {
   const root     = document.getElementById('modalWizard');
@@ -79,44 +76,18 @@ function getWizardDom() {
   return { root, titleEl, body, backBtn, submitBt };
 }
 
-/**
- * Renders a step into the wizard body.
- * Step is an object with:
- * - name: string
- * - render(container): void
- * - collect(): any   (returns current step selections)
- * - validate(data): string|null  (error msg or null)
- */
-function renderStep(step, dom, ctx) {
-  dom.body.innerHTML = '';
-  clearWizardError();
+/* ===========================
+ * Steps
+ * =========================== */
 
-  // Optional: small step header or context
-  const hdr = document.createElement('div');
-  hdr.className = 'mb-2';
-  hdr.innerHTML = `<div class="small text-muted">${ctx.stepIndex + 1} / ${ctx.steps.length}</div>`;
-  dom.body.appendChild(hdr);
-
-  const content = document.createElement('div');
-  dom.body.appendChild(content);
-
-  step.render(content);
-}
-
-/* --------------------------
- * Step factories
- * -------------------------- */
-
-function makeStepHours({ title, hours }) {
+function makeStepHours({ hours }) {
   const state = { selectedHour: null };
-
   return {
     name: 'hours',
     render(container) {
-      // Title can stay in modal header; we add a label here if desired
       const lbl = document.createElement('label');
       lbl.className = 'form-label fw-semibold';
-      lbl.textContent = 'Select hour';
+      lbl.textContent = 'Selecione o horário';
       container.appendChild(lbl);
 
       const [labels, values] = formatHourRange(hours || []);
@@ -124,18 +95,11 @@ function makeStepHours({ title, hours }) {
       sel.addEventListener('change', () => state.selectedHour = sel.value);
       container.appendChild(sel);
 
-      // initialize
       if (sel.options.length) { sel.selectedIndex = 0; state.selectedHour = sel.value; }
     },
     collect() { return { selectedHour: state.selectedHour }; },
-    validate(data) {
-      if (!data.selectedHour) return 'Selecione um horário.';
-      return null;
-    },
-    footer({ backBtn, submitBtn }) {
-      backBtn.style.display = 'none';
-      submitBtn.textContent = 'Enviar';
-    }
+    validate(data) { return data.selectedHour ? null : 'Selecione um horário.'; },
+    footer({ backBtn, submitBtn }) { backBtn.style.display = 'none'; submitBtn.textContent = 'Enviar'; }
   };
 }
 
@@ -160,30 +124,16 @@ function makeStepNames({ nameData }) {
       });
       container.appendChild(sel);
 
-      // init
       if (sel.options.length) { sel.selectedIndex = 0; sel.dispatchEvent(new Event('change')); }
     },
-    collect() {
-      return {
-        selectedIndex: state.selectedIdx,
-        selectedLabel: state.selectedLabel,
-        selectedValue: state.selectedValue
-      };
-    },
-    validate(data) {
-      if (data.selectedIndex < 0) return 'Selecione um usuário.';
-      return null;
-    },
-    footer({ backBtn, submitBtn }) {
-      backBtn.style.display = 'none';
-      submitBtn.textContent = 'Continuar';
-    }
+    collect() { return { selectedIndex: state.selectedIdx, selectedLabel: state.selectedLabel, selectedValue: state.selectedValue }; },
+    validate(data) { return data.selectedIndex >= 0 ? null : 'Selecione um usuário.'; },
+    footer({ backBtn, submitBtn }) { backBtn.style.display = 'none'; submitBtn.textContent = 'Continuar'; }
   };
 }
 
 function makeStepShift() {
   const state = { shiftCode: '-', startTime: null, endTime: null };
-
   return {
     name: 'shift',
     render(container) {
@@ -198,22 +148,16 @@ function makeStepShift() {
       const startSel = mkSelect({ id: 'wizardStart', options: hourRangeNoEnd });
       const endSel   = mkSelect({ id: 'wizardEnd',   options: hourRange });
 
-      codeSel.addEventListener('change', () => {
-        state.shiftCode = codeSel.value;
-        enforceShiftRules(codeSel, startSel, endSel);
-      });
-      startSel.addEventListener('change', () => {
-        state.startTime = startSel.value;
-        enforceShiftRules(codeSel, startSel, endSel);
-      });
-      endSel.addEventListener('change',   () => { state.endTime = endSel.value; });
+      codeSel.addEventListener('change', () => { state.shiftCode = codeSel.value; enforceShiftRules(codeSel, startSel, endSel); });
+      startSel.addEventListener('change', () => { state.startTime = startSel.value; enforceShiftRules(codeSel, startSel, endSel); });
+      endSel  .addEventListener('change', () => { state.endTime   = endSel.value; });
 
       const c1 = col(); c1.appendChild(codeSel);
       const c2 = col(); c2.appendChild(startSel);
       const c3 = col(); c3.appendChild(endSel);
       row.appendChild(c1); row.appendChild(c2); row.appendChild(c3);
 
-      // init defaults
+      // init
       state.shiftCode = codeSel.value = '-';
       startSel.selectedIndex = 0;
       state.startTime = startSel.value;
@@ -227,55 +171,82 @@ function makeStepShift() {
       }
       return null;
     },
-    footer({ backBtn, submitBtn }) {
-      backBtn.style.display = '';
-      submitBtn.textContent = 'Enviar';
-    }
+    footer({ backBtn, submitBtn }) { backBtn.style.display = ''; submitBtn.textContent = 'Enviar'; }
   };
 }
 
-/* --------------------------
- * Wizard Runner
- * -------------------------- */
+/* ===========================
+ * Wizard Runner (single instance; retries inside)
+ * =========================== */
 
-async function runWizard({ title, steps }) {
+function renderStep(step, dom, ctx) {
+  dom.body.innerHTML = '';
+  clearWizardError();
+  const hdr = document.createElement('div');
+  hdr.className = 'mb-2';
+  hdr.innerHTML = `<div class="small text-muted">${ctx.stepIndex + 1} / ${ctx.steps.length}</div>`;
+  dom.body.appendChild(hdr);
+  const content = document.createElement('div');
+  dom.body.appendChild(content);
+  step.render(content);
+}
+
+async function runWizardOnce({ title, steps, onSubmit }) {
+  // onSubmit(data) should throw or return string on error; resolve/void on success
   const dom = getWizardDom();
   dom.titleEl.textContent = title;
 
-  const modal = new bootstrap.Modal(dom.root);
+  // Safety: remove stray backdrops from any previous broken run
+  document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+  dom.root.classList.remove('modal-static'); // just in case
+
+  const modal = bootstrap.Modal.getOrCreateInstance(dom.root);
   let stepIndex = 0;
-
-  // wire buttons once
-  let submitHandler = null;
-  let backHandler = null;
-
   const ctx = { steps, stepIndex };
 
+  let submitHandler = null;
+  let backHandler = null;
+  let hiddenHandler = null;
+
+  function cleanup() {
+    if (submitHandler) dom.submitBt.removeEventListener('click', submitHandler);
+    if (backHandler)   dom.backBtn.removeEventListener('click', backHandler);
+    if (hiddenHandler) dom.root.removeEventListener('hidden.bs.modal', hiddenHandler);
+    // Ensure no stray backdrops remain
+    document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+  }
+
   function attachHandlers() {
-    // cleanup previous
     if (submitHandler) dom.submitBt.removeEventListener('click', submitHandler);
     if (backHandler)   dom.backBtn.removeEventListener('click', backHandler);
 
-    // footer config per step
     steps[stepIndex].footer?.({ backBtn: dom.backBtn, submitBtn: dom.submitBt });
 
     submitHandler = withBusyButton(async () => {
       clearWizardError();
       const data = steps[stepIndex].collect?.() ?? {};
       const err  = steps[stepIndex].validate?.(data);
-      if (err) return showWizardError(err);
+      if (err) { showWizardError(err); return; }
 
+      // Next step?
       if (stepIndex < steps.length - 1) {
-        // advance step
         stepIndex += 1;
         ctx.stepIndex = stepIndex;
         renderStep(steps[stepIndex], dom, ctx);
         attachHandlers();
-      } else {
-        // final step -> return collected payload across steps
-        const payload = {};
-        for (const s of steps) Object.assign(payload, s.collect?.() ?? {});
-        resolvePromise(payload);
+        return;
+      }
+
+      // Final step: gather all data and submit
+      const payload = {};
+      for (const s of steps) Object.assign(payload, s.collect?.() ?? {});
+      try {
+        const res = await onSubmit(payload); // throws or returns message on failure
+        if (typeof res === 'string' && res) { showWizardError(res); return; }
+        // Success -> close and resolve
+        modal.hide();
+      } catch (e) {
+        showWizardError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
       }
     });
 
@@ -291,97 +262,81 @@ async function runWizard({ title, steps }) {
     dom.backBtn.addEventListener('click', backHandler);
   }
 
-  let resolver = null;
-  const p = new Promise((resolve) => { resolver = resolve; });
-  const resolvePromise = (x) => resolver(x);
+  const result = await new Promise((resolve) => {
+    hiddenHandler = () => resolve(null); // cancel/close path
+    dom.root.addEventListener('hidden.bs.modal', hiddenHandler, { once: true });
 
-  // initial render + handlers + show
-  renderStep(steps[stepIndex], dom, ctx);
-  attachHandlers();
-  modal.show();
+    renderStep(steps[0], dom, ctx);
+    attachHandlers();
+    modal.show();
+  });
 
-  // If user manually closes, resolve null
-  const onHidden = () => resolver(null);
-  dom.root.addEventListener('hidden.bs.modal', onHidden, { once: true });
-
-  const result = await p;
-  dom.root.removeEventListener('hidden.bs.modal', onHidden);
-
-  return { result, modal };
+  cleanup();
+  // Dispose the instance to be extra safe between runs
+  modal.dispose();
+  return result; // null if user closed; otherwise we closed on success already
 }
 
-/* =========================================================
- * Orchestration API (single-modal)
- * =========================================================
- * External deps expected:
- *   - ACTIONS: { [action]: { title, needsHour, hoursCRM(ctx), endpointAction } }
- *   - fetchHours(params), fetchNamesList(), submitUserRequest(payload)
- *   - showToast(msg, type)
- */
+/* ===========================
+ * Orchestration (no re-show on retry)
+ * =========================== */
 
 export async function handleAction(action, ctx) {
   const cfg = ACTIONS[action];
   if (!cfg) return console.error('Unknown action:', action);
 
-  const title    = cfg.title;
-  const needsHr  = cfg.needsHour;
-  const center   = ctx.center ?? null;
-  const day      = ctx.day ?? null;
+  const title   = cfg.title;
+  const needsHr = cfg.needsHour;
+  const center  = ctx.center ?? null;
+  const day     = ctx.day ?? null;
 
   try {
     if (needsHr) {
       const hours = await fetchHours({ crm: cfg.hoursCRM(ctx), ...ctx });
-      const stepH = makeStepHours({ title, hours });
+      const stepH = makeStepHours({ hours });
 
-      while (true) {
-        // Run wizard with a single step (still benefits from unified UI + error area)
-        const { result, modal } = await runWizard({ title, steps: [stepH] });
-        if (!result) return; // user cancelled/closed
-
-        try {
+      const cancelled = await runWizardOnce({
+        title,
+        steps: [stepH],
+        onSubmit: async ({ selectedHour }) => {
           await submitUserRequest({
             action: cfg.endpointAction,
             cardCRM: ctx.cardCrm,
-            selectedHour: result.selectedHour,
+            selectedHour,
             center, day,
             options: { timeout: 15000 },
           });
-          showToast('Pedido enviado com sucesso!', 'success');
-          modal.hide();
-          break;
-        } catch (e) {
-          showWizardError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
-          // Loop: modal stays open; user can adjust/retry (e.g., change hour)
+          // success: let modal close, toast outside
         }
-      }
+      });
+
+      if (cancelled === null) return; // user closed
+      if (typeof showToast === 'function') showToast('Pedido enviado com sucesso!', 'success');
+
     } else {
       const nameData = await fetchNamesList();
       const stepN = makeStepNames({ nameData });
       const stepS = makeStepShift();
 
-      while (true) {
-        const { result, modal } = await runWizard({ title, steps: [stepN, stepS] });
-        if (!result) return; // user cancelled/closed
-
-        try {
-          const cardCRM = ctx.cardCrm || result.selectedValue;
+      const cancelled = await runWizardOnce({
+        title,
+        steps: [stepN, stepS],
+        onSubmit: async ({ selectedValue, shiftCode, startTime, endTime }) => {
+          const cardCRM = ctx.cardCrm || selectedValue;
           await submitUserRequest({
             action: cfg.endpointAction,
             cardCRM,
-            shiftCode: result.shiftCode,
-            startTime: result.startTime,
-            endTime:   result.endTime,
+            shiftCode,
+            startTime,
+            endTime,
             center, day,
             options: { timeout: 15000 },
           });
-          showToast('Pedido enviado com sucesso!', 'success');
-          modal.hide();
-          break;
-        } catch (e) {
-          showWizardError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
-          // Loop: user can click Back (to change person) or adjust shift and retry
         }
-      }
+      });
+
+      if (cancelled === null) return; // user closed
+      if (typeof showToast === 'function') showToast('Pedido enviado com sucesso!', 'success');
     }
   } catch (e) {
     showWizardError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
