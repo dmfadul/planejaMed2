@@ -68,6 +68,7 @@ class UserRequest(models.Model):
     
     @property
     def center(self):
+        """The center object associated with this request."""
         if self.shift:
             return self.shift.center
         elif self.request_type == self.RequestType.INCLUDE and hasattr(self, 'include_data'):
@@ -81,6 +82,19 @@ class UserRequest(models.Model):
         elif self.request_type == self.RequestType.INCLUDE and hasattr(self, 'include_data'):
             return Shift.gen_date(self.include_data.month, self.include_data.day)
         return None
+    
+    @property
+    def month(self):
+        """The month object associated with this request."""
+        if self.shift:
+            return self.shift.month
+        elif self.request_type == self.RequestType.INCLUDE and hasattr(self, 'include_data'):
+            return self.include_data.month
+        return None
+    
+    @property
+    def day(self):
+        return self.date.day if self.date else None
     
     @property
     def target(self):
@@ -110,35 +124,38 @@ class UserRequest(models.Model):
         if not (responder == self.requestee) and not responder.is_superuser:
             raise PermissionError("Only the requestee or staff can accept a donation request.")
         
+        conflict = Shift.check_conflict(self.donee,
+                                        self.month,
+                                        self.day,
+                                        self.start_hour,
+                                        self.end_hour)
+        if (not self.request_type == self.RequestType.EXCLUDE) and conflict:
+            self.refuse(responder)
+            self.notify_conflict(conflict)
+            return
+        
         self.responder = responder
         if self.request_type == self.RequestType.DONATION:
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The donor must be the current assignee of the shift.")
             
-            conflict = Shift.check_conflict(self.donee,
-                                            self.shift.month,
-                                            self.shift.day,
-                                            self.start_hour,
-                                            self.end_hour)
-            if conflict:
-                self.refuse(responder)
-                self.notify_conflict(conflict)
-                return
-
             new_shift = self.shift.split(self.start_hour, self.end_hour)
             new_shift.change_user(self.donee)
-            self.notify_response("accept")
 
+        # INCLUDE: donee = user to be included 
         elif self.request_type == self.RequestType.INCLUDE:
-            # In INCLUDE, donee = user to be included
-            # TODO: implement INCLUDE logic
             
-            # check for conflicts
-            # create shift
-            # notify 
-            pass
+            new_shift = Shift.add(
+                doctor=self.donee,
+                center=self.center,
+                month=self.month,
+                day=self.day,
+                start_hour=self.start_hour,
+                end_hour=self.end_hour
+            )
+
+        # EXCLUDE: donor = user to be excluded
         elif self.request_type == self.RequestType.EXCLUDE:
-            # In EXCLUDE, donor = user to be excluded
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The excludee must be the current assignee of the shift.")
 
@@ -151,9 +168,14 @@ class UserRequest(models.Model):
             # as they are supposed to be cascaded by shift deletion
 
         self.close()
+
         self.is_approved = True
         self.save(update_fields=['is_approved'])
+
         self.remove_notifications()
+
+        self.notify_response("accept")
+
     
     def refuse(self, responder):
         self.responder = responder

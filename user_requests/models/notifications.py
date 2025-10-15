@@ -74,6 +74,7 @@ class Notification(models.Model):
         ctx = {
             'sender_name':  req.requester.name,
             'receiver_id':  req.requestee.id if req.requestee else None,
+            'requestee_name':  req.requestee.name if req.requestee else "Admin",
             'center':       req.center.abbreviation,
             'date':         req.date.strftime("%d/%m/%y"),
             'start_hour':   f"{req.start_hour:02d}:00",
@@ -168,7 +169,7 @@ class Notification(models.Model):
             'body': 
                 "Você tem uma SOLICITAÇÃO PENDENTE de {request_type} para {requestee_name} "
                 "dos horários: {start_hour} - {end_hour} "
-                "no centro {shift_center} no dia {shift_date}. "
+                "no centro {center} no dia {date}. "
                 "Aperte Cancelar para cancelar a solicitação.",
         },
 

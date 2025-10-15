@@ -19,12 +19,11 @@ class IncomingUserRequestSerializer(serializers.Serializer):
     endHour = serializers.IntegerField(min_value=0, max_value=23, required=False, allow_null=True)    
     
     def validate(self, attrs):
-        print("attrs received for validation:", attrs)
         request = self.context['request']
         action = attrs['action']
         center_abbr = attrs.get('center')
         shift_raw = attrs.get('shift')
-        print("Validating with attrs:", attrs)
+        
         # Resolve center if provided/required
         center = None
         if action in ("include"):
