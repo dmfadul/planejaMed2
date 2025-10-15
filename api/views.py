@@ -37,6 +37,7 @@ class userRequestCreate(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
+        print("Request data received:", request.data)
         ser = IncomingUserRequestSerializer(
             data=request.data,
             context={"request": request}
