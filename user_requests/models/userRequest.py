@@ -247,7 +247,8 @@ class UserRequest(models.Model):
             related_obj=self,
         )
   
-        # Send cancelable notification to requester
+        # Send cancelable notification to requester 
+        # TODO: add properties (center, day, hours, etc) to make it messaging easier to understand
         Notification.from_template(
             template_key='request_received',
             sender=self.requester,
