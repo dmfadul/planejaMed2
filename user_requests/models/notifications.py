@@ -55,6 +55,98 @@ class Notification(models.Model):
         self.is_deleted = True
         self.save(update_fields=['is_deleted'])
 
+
+    @classmethod
+    def notify_request(cls, req):
+        """Notify relevant users about a UserRequest event."""
+
+        if req.request_type == req.RequestType.DONATION and req.donor == req.requester:
+            temp_key = f'request_pending_donation_offered'
+        elif req.request_type == req.RequestType.DONATION and req.donee == req.requester:
+            temp_key = f'request_pending_donation_asked_for'
+        elif req.request_type == req.RequestType.EXCLUDE:
+            temp_key = f'request_pending_exclusion'
+        elif req.request_type == req.RequestType.INCLUDE:
+            temp_key = f'request_pending_inclusion'
+        else:
+            temp_key = f'request_pending_{req.request_type}'
+
+        ctx = {
+            'sender_name':  req.requester.name,
+            'receiver_id':  req.requestee.id if req.requestee else None,
+            'center':       req.center.abbreviation,
+            'date':         req.date.strftime("%d/%m/%y"),
+            'start_hour':   f"{req.start_hour:02d}:00",
+            'end_hour':     f"{req.end_hour:02d}:00",
+            'target_name':  req.target.name,
+            'request_type': req.get_request_type_display().upper(),
+        }
+
+        # Notify the requestee
+        cls.from_template(
+            template_key=temp_key,
+            sender=req.requester,
+            receiver=req.requestee,
+            context=ctx,
+            related_obj=req,
+        )
+
+        # Send cancelable notification to requester 
+        cls.from_template(
+            template_key='request_received',
+            sender=req.requester,
+            receiver=req.requester,
+            context=ctx,
+            related_obj=req,
+        )
+
+
+    @classmethod
+    def notify_response(cls, req, response):
+        """Notify relevant users about a UserRequest response event."""
+        # Do I need to add Cancelable notification to requester?
+
+        was_solicited = ((req.request_type == req.RequestType.DONATION) and
+                         (req.donee == req.requestee))
+
+        cls.from_template(
+            template_key="request_responded",
+            sender=req.responder,
+            receiver=req.requester,
+            context={
+                'sender_name':    req.responder.name,
+                'receiver_id':    req.requester.id,
+                'response':       "ACEITOU" if response == "accept" else "NEGOU",
+                'verb':           "SOLICITAÇÃO" if was_solicited else "OFERTA",
+                'req_type':       req.get_request_type_display().upper(),
+                'center':         req.center.abbreviation,
+                'date':           req.date.strftime("%d/%m/%y"),
+                'start_hour':     f"{req.start_hour:02d}:00",
+                'end_hour':       f"{req.end_hour:02d}:00",
+            },
+            related_obj=req,
+        )
+
+    
+    @classmethod
+    def notify_conflict(cls, req, conflict_shift):
+        """Notify the requester about a conflict found on their request."""
+
+        cls.from_template(
+            template_key="conflict_found",
+            sender=req.responder,
+            receiver=req.requester,
+            context={
+                'requester_name': req.requester.name,
+                'requestee_name': req.requestee.name if req.requestee else "Admin",
+                'donee_name':     req.donee.name,
+                'conflict_abbr':  conflict_shift.center.abbreviation,
+                'conflict_day':   conflict_shift.get_date().strftime("%d/%m/%y"),
+            },
+            related_obj=req,
+        )
+
+
 # ------------------- Template Registry ---------------------------------
 # Placeholders correspond to context keys
 
@@ -86,7 +178,7 @@ class Notification(models.Model):
             'title': "Requisição de doação pendente",
             'body':
                 "{sender_name} solicitou para {{{receiver_id}}} a doação dos horários: "
-                "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
+                "{start_hour} - {end_hour} no centro {center} no dia {date}.",
         },
 
         'request_pending_donation_offered': {
@@ -94,23 +186,23 @@ class Notification(models.Model):
             'title': "Requisição de doação pendente",
             'body':
                 "{sender_name} ofereceu para {{{receiver_id}}} a doação dos horários: "
-                "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
+                "{start_hour} - {end_hour} no centro {center} no dia {date}.",
         },
 
         'request_pending_exclusion': {
             'kind': Kind.ACTION,
             'title': "Requisição de exclusão pendente",
             'body':
-                "{sender_name} solicita a exclusão dos horários de {excludee_name}: "
-                "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
+                "{sender_name} solicita a exclusão dos horários de {target_name}: "
+                "{start_hour} - {end_hour} no centro {center} no dia {date}.",
         },
 
         'request_pending_inclusion': {
             'kind': Kind.ACTION,
             'title': "Requisição de inclusão pendente",
             'body':
-                "{sender_name} solicita a inclusão dos horários de {includee_name}: "
-                "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
+                "{sender_name} solicita a inclusão dos horários de {target_name}: "
+                "{start_hour} - {end_hour} no centro {center} no dia {date}.",
         },
 
         'request_responded': {
@@ -118,7 +210,7 @@ class Notification(models.Model):
             'title': "Requisição respondida",
             'body':
                 "{sender_name} {response} {{{receiver_id}}} {verb} DE {req_type}."
-                "{start_hour} - {end_hour} no centro {shift_center} no dia {shift_date}.",
+                "{start_hour} - {end_hour} no centro {center} no dia {date}.",
         },
     }
 

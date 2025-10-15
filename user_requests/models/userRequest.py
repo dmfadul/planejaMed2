@@ -66,6 +66,33 @@ class UserRequest(models.Model):
     def __str__(self):
         return f"{self.request_type} requested by {self.requester}"
     
+    @property
+    def center(self):
+        if self.shift:
+            return self.shift.center
+        elif self.request_type == self.RequestType.INCLUDE and hasattr(self, 'include_data'):
+            return self.include_data.center
+        return None
+    
+    @property
+    def date(self):
+        if self.shift:
+            return self.shift.get_date()
+        elif self.request_type == self.RequestType.INCLUDE and hasattr(self, 'include_data'):
+            return Shift.gen_date(self.include_data.month, self.include_data.day)
+        return None
+    
+    @property
+    def target(self):
+        """The user who is the target of this request (donor/donee/excludee/includee)"""
+        if self.request_type == self.RequestType.DONATION:
+            return self.requestee
+        elif self.request_type == self.RequestType.EXCLUDE:
+            return self.donor
+        elif self.request_type == self.RequestType.INCLUDE:
+            return self.donee
+        return None
+    
     def clean(self):
         # Minimal per-type rules; adjust to your business logic
         if self.request_type == self.RequestType.DONATION:
@@ -158,108 +185,16 @@ class UserRequest(models.Model):
             related_id=str(self.pk),
             is_deleted=False
         )
-
         related_notifications.update(is_deleted=True)
 
-    # TODO: move to notifications.py and improve messages
     def notify_conflict(self, conflict_shift):
-        # Notify the requester about the conflict
-        Notification.from_template(
-            template_key="conflict_found",
-            sender=self.responder,
-            receiver=self.requester,
-            context={
-                'requester_name': self.requester.name,
-                'requestee_name': self.requestee.name if self.requestee else "Admin",
-                'donee_name': self.donee.name,
-                'conflict_abbr': conflict_shift.center.abbreviation,
-                'conflict_day': conflict_shift.get_date().strftime("%d/%m/%y"),
-            },
-            related_obj=self,
-        )        
-
-
+        from . import Notification
+        Notification.notify_conflict(self, conflict_shift)
+    
     def notify_response(self, response):
-        # Notify the requester about the response
-        was_solicited = ((self.request_type == self.RequestType.DONATION) and
-                         (self.donee == self.requestee))
-        ctx={
-            'sender_name':    self.responder.name,
-            'receiver_id':    self.requester.id,
-            'response':       "ACEITOU" if response == "accept" else "NEGOU",
-            'verb':           "SOLICITAÇÃO" if was_solicited else "OFERTA",
-            'req_type':       self.get_request_type_display().upper(),
-            'shift_center':   self.shift.center.abbreviation,
-            'shift_date':     self.shift.get_date().strftime("%d/%m/%y"),
-            'start_hour':     f"{self.start_hour:02d}:00",
-            'end_hour':       f"{self.end_hour:02d}:00",
-        }
-
-        Notification.from_template(
-            template_key="request_responded",
-            sender=self.responder,
-            receiver=self.requester,
-            context=ctx,
-            related_obj=self,
-        )
-
-        # Do I need to add Cancelable notification to requester?
+        from . import Notification
+        Notification.notify_response(self, response)
 
     def notify_request(self):
-        ctx={
-            'sender_name':  self.requester.name,
-            'receiver_id':  self.requestee.id if self.requestee else None,
-            'start_hour':   f"{self.start_hour:02d}:00",
-            'end_hour':     f"{self.end_hour:02d}:00",
-        }
-
-        if self.shift:
-            ctx.update({
-                'shift_date':   self.shift.get_date().strftime("%d/%m/%y"),
-                'shift_center': self.shift.center.abbreviation,
-            })
-        elif self.request_type == self.RequestType.INCLUDE and hasattr(self, 'include_data'):
-            ctx.update({
-                'shift_date':   Shift.gen_date(self.include_data.month,
-                                               self.include_data.day).strftime("%d/%m/%y"),
-                'shift_center': self.include_data.center.abbreviation,
-            })
-
-        if self.request_type == self.RequestType.DONATION and self.donor == self.requester:
-            temp_key = f'request_pending_donation_offered'
-        elif self.request_type == self.RequestType.DONATION and self.donee == self.requester:
-            temp_key = f'request_pending_donation_asked_for'
-        elif self.request_type == self.RequestType.EXCLUDE:
-            temp_key = f'request_pending_exclusion'
-            ctx['excludee_name'] = self.shift.user.name
-        elif self.request_type == self.RequestType.INCLUDE:
-            temp_key = f'request_pending_inclusion'
-            ctx['includee_name'] = self.donee.name
-        else:
-            temp_key = f'request_pending_{self.request_type}'
-
-        # Notify the requestee
-        Notification.from_template(
-            template_key=temp_key,
-            sender=self.requester,
-            receiver=self.requestee,
-            context=ctx,
-            related_obj=self,
-        )
-  
-        # Send cancelable notification to requester 
-        # TODO: add properties (center, day, hours, etc) to make it messaging easier to understand
-        Notification.from_template(
-            template_key='request_received',
-            sender=self.requester,
-            receiver=self.requester,
-            context={
-                'requestee_name':   self.requestee.name if self.requestee else "Admin",
-                'request_type':     self.get_request_type_display().upper(),
-                'shift_center':     self.shift.center.abbreviation if self.shift else "N/A",
-                'shift_date':       self.shift.get_date().strftime("%d/%m/%y") if self.shift else "N/A",
-                'start_hour':       f"{self.start_hour:02d}:00",
-                'end_hour':         f"{self.end_hour:02d}:00",
-            },
-            related_obj=self,
-        )
+        from . import Notification
+        Notification.notify_request(self)
