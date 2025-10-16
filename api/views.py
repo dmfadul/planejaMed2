@@ -19,6 +19,7 @@ from rest_framework import status, permissions
 from django.http import JsonResponse
 
 
+# TODO: move all api views to */api/ folders
 @api_view(['GET'])
 def apiOverview(request):
     api_urls = {

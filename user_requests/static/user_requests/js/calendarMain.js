@@ -9,6 +9,7 @@ window.processCalRequest = processCalRequest;
 
 // Modules are deferred by default, but DOMContentLoaded keeps it robust
 document.addEventListener('DOMContentLoaded', () => {
+  // TODO: fix toast
   initCalendar();
 });
 
