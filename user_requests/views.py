@@ -7,6 +7,10 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
+def schedule(request):
+    return render(request, "user_requests/schedule.html", context={})
+
+@login_required
 def calendar(request, center_abbr):
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month = Month.objects.current()
