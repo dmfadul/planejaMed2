@@ -133,7 +133,7 @@ function showModalError(msg) {
  * =========================== */
 
 
-// TODO: FIX DOUBLE MODAL BUG
+// TODO: FIX TOAST
 /**
  * Show a select list of names/crms in #modalRequests and resolve once.
  * Returns: { submitted:boolean, selectedLabel:string|null, selectedValue:string|null, selectedIndex:number }

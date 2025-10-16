@@ -24,7 +24,7 @@ export async function handleAction(action, ctx) {
     let endTime   = null;
     let selectUserCRM = null;
 
-    // TODO: FIX DOUBLE MODAL BUG
+    // TODO: FIX TOAST
     if (needsHr) {
       const hours    = await fetchHours({ crm: cfg.hoursCRM(ctx), ...ctx });
       ({ submitted, selectedHour } = await runRequestModal({ title, hours }));
