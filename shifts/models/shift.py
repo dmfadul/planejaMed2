@@ -13,6 +13,10 @@ class Shift(AbstractShift):
     def __str__(self):
         return f"{self.center.abbreviation} - {self.user.abbr_name} - {self.month.number}/{self.day} - {self.start_time} to {self.end_time}"
 
+    @property
+    def date(self):
+        return self.gen_date(self.month, self.day)
+    
     @transaction.atomic
     def change_user(self, new_user):
         """
