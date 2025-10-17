@@ -4,6 +4,8 @@
 import { fetchDaySchedule } from '../data/days.js';
 import { renderDaySchedule, resetKebabUI } from '../ui/dayList.js';
 import { processCalRequest } from './requests.js'; // from earlier split
+import { processSchRequest } from './requests.js'; // from earlier split
+
 
 const state = {
   openCenter: null,
@@ -33,6 +35,10 @@ export function initCalendar({
 
   // Action click + kebab toggle (global delegation)
   document.addEventListener('click', (event) => onDocumentClick(event, dictContainerId));
+}
+
+export function initSchedule({dictContainerId='dictData'} = {}) {
+  document.addEventListener('click', (event) => onDocumentClickSchedule(event, dictContainerId));
 }
 
 async function onCalendarClick(e, dictContainerId) {
@@ -65,6 +71,38 @@ async function onCalendarClick(e, dictContainerId) {
     console.error('Fetch error (day schedule):', err);
     // You can show a toast/error box here if desired.
   }
+}
+
+function onDocumentClickSchedule(event, dictContainerId) {
+  // Always reset first
+  resetKebabUI();
+
+  const card = event.target.closest('.card');
+  if (card) {
+    const kebab = card.querySelector('.kebab-content');
+    if (kebab) {
+      kebab.style.display = 'block';
+      card.classList.add('active');
+    }
+  }
+
+  const link = event.target.closest('a[data-action]');
+  if (!link) return;
+
+  const action = link.dataset.action;
+  const crm    = card?.dataset.crm || null;
+
+  // Guard: do nothing if no day selected yet
+  // if (!state.day) return;
+
+  processSchRequest(
+    // crm,
+    // action,
+    // state.openCenter,
+    // state.year,
+    // state.monthNumber,
+    // state.day
+  );
 }
 
 function onDocumentClick(event, dictContainerId) {

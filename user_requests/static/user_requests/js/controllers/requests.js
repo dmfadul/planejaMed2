@@ -32,6 +32,11 @@ export async function handleAction(action, ctx) {
   return handleActionWizard(action, ctx);
 }
 
+
+export function processSchRequest(){
+  console.log("Process Schedule Request - to be implemented");
+}
+
 /**
  * Calendar entrypoint: normalizes "donate" into ask/offer and forwards to the handler.
  */
