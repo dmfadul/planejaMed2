@@ -21,7 +21,9 @@ def schedule(request):
         shift_date = s.date.strftime("%d/%m/%Y")
         str_hr = f"{s.start_time:02d}:00"
         end_hr = f"{s.end_time:02d}:00"
-        schedule_data.append(f"{s.center.abbreviation} -- {shift_date} -- {str_hr} - {end_hr}")
+        sch_line = f"{s.center.abbreviation} -- {shift_date} -- {str_hr} - {end_hr}"
+
+        schedule_data.append({"shift_id": s.id, "line": sch_line})
 
     return render(request, "user_requests/schedule.html", context={"schedule_data": schedule_data})
 

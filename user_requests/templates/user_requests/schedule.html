@@ -18,8 +18,8 @@
                     </div>
                 </li>
                 {% for entry in schedule_data %}
-                    <li class="card" data-crm="${crm}">
-                      {{ entry }}
+                    <li class="card" shift-id="{{ entry.shift_id }}">
+                      {{ entry.line }}
                       <div class="kebab-menu">
                         <div class="kebab-content">
                           <a href="#" data-action="exclude">Exclusão</a>
