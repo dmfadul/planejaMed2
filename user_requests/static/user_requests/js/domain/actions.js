@@ -2,6 +2,13 @@
 // Policy/config differences between actions. No DOM or network here.
 
 export const ACTIONS = {
+  SCHexclude: {
+    title: "Escolha a hora que deseja excluir:",
+    needsHour: true,
+    hoursCRM: (ctx) => ctx.cardCrm,
+    endpointAction: 'exclude',
+  },
+  
   exclude: {
     title: "Escolha a hora que deseja excluir:",
     needsHour: true,

@@ -1,12 +1,18 @@
 // data/hours.js
 
 /** Fetch available hours for a given context (unchanged helper) */
-export async function fetchHours({ crm, year, monthNumber, center, day }) {
-  const url = `/api/hours/?crm=${crm}&year=${year}&month=${monthNumber}&center=${center}&day=${day}`;
+export async function fetchHours({ crm, center, day }) {
+  const params = new URLSearchParams();
+  if (crm) params.append('crm', crm);
+  if (center) params.append('center', center);
+  if (day) params.append('day', day);
+
+  const url = `/api/hours/?${params.toString()}`;
   const resp = await fetch(url);
   if (!resp.ok) throw new Error('Network response was not ok');
   return resp.json();
 }
+
 
 /**
  * Turn an array of shift objects into [labels[], values[]] for a <select>.

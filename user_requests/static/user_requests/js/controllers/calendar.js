@@ -89,19 +89,28 @@ function onDocumentClickSchedule(event, dictContainerId) {
   const link = event.target.closest('a[data-action]');
   if (!link) return;
 
-  const action = link.dataset.action;
-  const crm    = card?.dataset.crm || null;
+  const action = "SCH" + link.dataset.action;
+  const shiftId = card?.dataset.shiftId || null;
+  const cardInfoRaw = card?.textContent || '';
 
-  // Guard: do nothing if no day selected yet
-  // if (!state.day) return;
+  const [center, dateRaw, hoursRaw] = cardInfoRaw.split('--').map(s => s.trim());
+  
+  const dayRaw = dateRaw ? dateRaw.split('/')[0] : null;
+  const day = dayRaw ? parseInt(dayRaw, 10) : null;
+
+  const hours = hoursRaw ? hoursRaw.split('\n')[0] : [];
+  const str_hourRaw = hours.split(' - ')[0].split(':')[0];
+  const end_hourRaw = hours.split(' - ')[1].split(':')[0];
+  const str_hour = parseInt(str_hourRaw, 10);
+  const end_hour = parseInt(end_hourRaw, 10);
 
   processSchRequest(
-    // crm,
-    // action,
-    // state.openCenter,
-    // state.year,
-    // state.monthNumber,
-    // state.day
+    action,
+    shiftId,
+    center,
+    day,
+    str_hour,
+    end_hour
   );
 }
 

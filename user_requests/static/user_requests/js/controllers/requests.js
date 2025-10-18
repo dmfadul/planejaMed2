@@ -33,8 +33,12 @@ export async function handleAction(action, ctx) {
 }
 
 
-export function processSchRequest(){
-  console.log("Process Schedule Request - to be implemented");
+export function processSchRequest(action, shiftId, center, day, str_hour, end_hour) {
+  handleAction(action, {
+    shiftId,
+    center, day,
+    str_hour, end_hour,
+  });
 }
 
 /**

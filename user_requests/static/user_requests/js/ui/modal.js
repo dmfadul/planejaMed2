@@ -70,6 +70,7 @@ function getWizardDom() {
   const body     = root?.querySelector('.modal-body');
   const backBtn  = document.getElementById('wizardBackBtn');
   const submitBt = document.getElementById('wizardSubmitBtn');
+  console.log("Getting wizard DOM elements", { root, titleEl, body, backBtn, submitBt });
   if (!root || !titleEl || !body || !backBtn || !submitBt) {
     throw new Error('Wizard modal DOM not found. Check #modalWizard structure.');
   }
@@ -194,6 +195,7 @@ function renderStep(step, dom, ctx) {
 async function runWizardOnce({ title, steps, onSubmit }) {
   // onSubmit(data) should throw or return string on error; resolve/void on success
   const dom = getWizardDom();
+  console.log("Running wizard with steps:", steps);
   dom.titleEl.textContent = title;
 
   // Safety: remove stray backdrops from any previous broken run
@@ -289,55 +291,54 @@ export async function handleAction(action, ctx) {
   const needsHr = cfg.needsHour;
   const center  = ctx.center ?? null;
   const day     = ctx.day ?? null;
+  const shiftId = ctx.shiftId ?? null;
 
-  try {
-    if (needsHr) {
-      const hours = await fetchHours({ crm: cfg.hoursCRM(ctx), ...ctx });
-      const stepH = makeStepHours({ hours });
+  const allSteps = [];
+  let onSubmitFunction = null;
 
-      const cancelled = await runWizardOnce({
-        title,
-        steps: [stepH],
-        onSubmit: async ({ selectedHour }) => {
-          await submitUserRequest({
-            action: cfg.endpointAction,
-            cardCRM: ctx.cardCrm,
-            selectedHour,
-            center, day,
-            options: { timeout: 15000 },
-          });
-          // success: let modal close, toast outside
-        }
+  if (cfg.needsHour) {
+    const hours = await fetchHours({ crm: cfg.hoursCRM(ctx), ...ctx });
+    const stepH = makeStepHours({ hours });
+    allSteps.push(stepH);
+
+    onSubmitFunction = async ({ selectedHour }) => {
+      await submitUserRequest({
+        action: cfg.endpointAction,
+        cardCRM: ctx.cardCrm || null,
+        selectedHour,
+        center, day, shiftId,
+        options: { timeout: 15000 },
       });
-
-      if (cancelled === null) return; // user closed
-      if (typeof showToast === 'function') showToast('Pedido enviado com sucesso!', 'success');
-
-    } else {
+    };
+  } else {
       const nameData = await fetchNamesList();
       const stepN = makeStepNames({ nameData });
       const stepS = makeStepShift();
+      allSteps.push(stepN, stepS);
 
-      const cancelled = await runWizardOnce({
-        title,
-        steps: [stepN, stepS],
-        onSubmit: async ({ selectedValue, shiftCode, startTime, endTime }) => {
-          const cardCRM = ctx.cardCrm || selectedValue;
-          await submitUserRequest({
-            action: cfg.endpointAction,
-            cardCRM,
-            shiftCode,
-            startTime,
-            endTime,
-            center, day,
-            options: { timeout: 15000 },
-          });
-        }
-      });
+      onSubmitFunction = async ({ selectedValue, shiftCode, startTime, endTime }) => {
+        const cardCRM = ctx.cardCrm || selectedValue;
+        await submitUserRequest({
+          action: cfg.endpointAction,
+          cardCRM,
+          shiftCode,
+          startTime,
+          endTime,
+          center, day,
+          options: { timeout: 15000 },
+        });
+      }
+  }
 
-      if (cancelled === null) return; // user closed
-      if (typeof showToast === 'function') showToast('Pedido enviado com sucesso!', 'success');
-    }
+  try {
+    const cancelled = await runWizardOnce({
+      title,
+      steps: allSteps,
+      onSubmit: onSubmitFunction,
+    });
+    if (cancelled === null) return; // user closed
+    if (typeof showToast === 'function') showToast('Pedido enviado com sucesso!', 'success');
+
   } catch (e) {
     showWizardError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
   }

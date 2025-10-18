@@ -18,7 +18,7 @@
                     </div>
                 </li>
                 {% for entry in schedule_data %}
-                    <li class="card" shift-id="{{ entry.shift_id }}">
+                    <li class="card" data-shift-id="{{ entry.shift_id }}">
                       {{ entry.line }}
                       <div class="kebab-menu">
                         <div class="kebab-content">
@@ -34,6 +34,9 @@
     </div>
 {% endblock %}
 
+{% block modal %}
+    {% include "user_requests/partials/modals/modalWizard.html"%}
+{% endblock %}
 
 {% block script %}
     <script type="module" src="{% static 'user_requests/js/scheduleMain.js' %}" defer></script>
