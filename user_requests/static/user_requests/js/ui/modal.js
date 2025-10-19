@@ -70,7 +70,7 @@ function getWizardDom() {
   const body     = root?.querySelector('.modal-body');
   const backBtn  = document.getElementById('wizardBackBtn');
   const submitBt = document.getElementById('wizardSubmitBtn');
-  console.log("Getting wizard DOM elements", { root, titleEl, body, backBtn, submitBt });
+  
   if (!root || !titleEl || !body || !backBtn || !submitBt) {
     throw new Error('Wizard modal DOM not found. Check #modalWizard structure.');
   }

@@ -11,7 +11,7 @@ class IncomingUserRequestSerializer(serializers.Serializer):
     ACTIONS = ("ask_for_donation", "offer_donation", "include", "exclude")
 
     action = serializers.ChoiceField(choices=ACTIONS)
-    cardCRM = serializers.CharField(max_length=10, required=False, allow_blank=True)
+    cardCRM = serializers.CharField(max_length=10, required=False, allow_blank=True, allow_null=True)
     center = serializers.SlugField(max_length=10, required=False, allow_blank=True)
     day = serializers.IntegerField(min_value=1, max_value=31, required=False)
     shift = serializers.CharField(max_length=10, required=False, allow_blank=True)
@@ -38,8 +38,10 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         donee = None 
          
         crm = attrs.get('cardCRM')
-        if not crm:
+        if not crm and action in ("ask_for_donation", "offer_donation"):
             raise serializers.ValidationError({"cardCRM": _("CRM é obrigatório para doações.")})
+        elif not crm:
+            crm = requester.crm
         other_user = get_object_or_404(User, crm=crm)
 
         if action in ("ask_for_donation", "offer_donation"):
