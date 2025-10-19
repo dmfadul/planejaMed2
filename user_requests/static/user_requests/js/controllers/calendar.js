@@ -90,19 +90,26 @@ function onDocumentClickSchedule(event, dictContainerId) {
   if (!link) return;
 
   const action = "SCH" + link.dataset.action;
-  const shiftId = card?.dataset.shiftId || null;
-  const cardInfoRaw = card?.textContent || '';
-
-  const [center, dateRaw, hoursRaw] = cardInfoRaw.split('--').map(s => s.trim());
+  let shiftId = null;
+  let center = null;
+  let day = null;
+  let str_hour = null;
+  let end_hour = null;
   
-  const dayRaw = dateRaw ? dateRaw.split('/')[0] : null;
-  const day = dayRaw ? parseInt(dayRaw, 10) : null;
-
-  const hours = hoursRaw ? hoursRaw.split('\n')[0] : [];
-  const str_hourRaw = hours.split(' - ')[0].split(':')[0];
-  const end_hourRaw = hours.split(' - ')[1].split(':')[0];
-  const str_hour = parseInt(str_hourRaw, 10);
-  const end_hour = parseInt(end_hourRaw, 10);
+  if (action !== "SCHinclude") {
+    const cardInfoRaw = card?.textContent || '';
+    const [centerRaw, dateRaw, hoursRaw] = cardInfoRaw.split('--').map(s => s.trim());
+    const dayRaw = dateRaw ? dateRaw.split('/')[0] : null;
+    const hours = hoursRaw ? hoursRaw.split('\n')[0] : [];
+    const str_hourRaw = hours.split(' - ')[0].split(':')[0];
+    const end_hourRaw = hours.split(' - ')[1].split(':')[0];
+    
+    shiftId = card?.dataset.shiftId || null;
+    center = centerRaw || null;
+    day = dayRaw ? parseInt(dayRaw, 10) : null;
+    str_hour = parseInt(str_hourRaw, 10);
+    end_hour = parseInt(end_hourRaw, 10);
+  }
 
   processSchRequest(
     action,

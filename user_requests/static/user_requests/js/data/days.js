@@ -12,3 +12,11 @@ export async function fetchNamesList() {
   if (!res.ok) throw new Error(res.statusText || 'Failed to fetch day schedule');
   return res.json(); // expected: array of { id, crm, name }
 }
+
+
+export async function fetchCenterList() {
+  const url = `/api/centers/`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(res.statusText || 'Failed to fetch centers list');
+  return res.json(); // expected: array of { id, name }
+}

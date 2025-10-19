@@ -3,6 +3,7 @@
 import { submitUserRequest } from '../api.js';
 import { fetchHours } from '../data/hours.js';
 import { fetchNamesList } from '../data/days.js';
+import { fetchCenterList } from '../data/days.js';
 import { ACTIONS } from '../domain/actions.js';
 
 // Import the wizard-based handler from your new ui/modal.js
@@ -19,6 +20,7 @@ if (typeof window !== 'undefined') {
   window.ACTIONS = window.ACTIONS || ACTIONS;
   window.fetchHours = window.fetchHours || fetchHours;
   window.fetchNamesList = window.fetchNamesList || fetchNamesList;
+  window.fetchCenterList = window.fetchCenterList || fetchCenterList;
   window.submitUserRequest = window.submitUserRequest || submitUserRequest;
   // showToast is usually already global. If yours is a module, attach it here too.
   // window.showToast = window.showToast || yourShowToastImport;

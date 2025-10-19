@@ -70,7 +70,6 @@ function getWizardDom() {
   const body     = root?.querySelector('.modal-body');
   const backBtn  = document.getElementById('wizardBackBtn');
   const submitBt = document.getElementById('wizardSubmitBtn');
-  
   if (!root || !titleEl || !body || !backBtn || !submitBt) {
     throw new Error('Wizard modal DOM not found. Check #modalWizard structure.');
   }
@@ -176,6 +175,81 @@ function makeStepShift() {
   };
 }
 
+/** Centers step — accepts strings OR objects ({ name, abbr|id|slug }) */
+function makeStepCenters({ centers }) {
+  const labels = centers.map(c => typeof c === 'string' ? c : (c.name ?? c.abbr ?? String(c)));
+  const values = centers.map(c => {
+    if (typeof c === 'string') return c;
+    return c.abbr ?? c.id ?? c.slug ?? c.name; // pick your preferred identifier
+  });
+
+  const state = { idx: -1, label: null, value: null };
+
+  return {
+    name: 'centers',
+    render(container) {
+      const lbl = document.createElement('label');
+      lbl.className = 'form-label fw-semibold';
+      lbl.textContent = 'Selecione o centro';
+      container.appendChild(lbl);
+
+      const sel = mkSelect({ id: 'wizardCenter', options: labels, values });
+      sel.addEventListener('change', () => {
+        state.idx   = sel.selectedIndex;
+        state.label = labels[sel.selectedIndex] ?? null;
+        state.value = values[sel.selectedIndex] ?? null;
+      });
+      container.appendChild(sel);
+
+      if (sel.options.length) { sel.selectedIndex = 0; sel.dispatchEvent(new Event('change')); }
+    },
+    collect() { return { selectedCenterIndex: state.idx, selectedCenterLabel: state.label, selectedCenter: state.value }; },
+    validate(data) { return data.selectedCenter ? null : 'Selecione um centro.'; },
+    footer({ backBtn, submitBtn }) { backBtn.style.display = 'none'; submitBtn.textContent = 'Continuar'; }
+  };
+}
+
+
+/* ===========================
+ * Day step (1–31)
+ * =========================== */
+function makeStepDays() {
+  const state = { selectedDay: null };
+
+  return {
+    name: 'days',
+    render(container) {
+      const lbl = document.createElement('label');
+      lbl.className = 'form-label fw-semibold';
+      lbl.textContent = 'Selecione o dia';
+      container.appendChild(lbl);
+
+      const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
+      const sel = mkSelect({ id: 'wizardDay', options: days, values: days });
+
+      sel.addEventListener('change', () => {
+        state.selectedDay = sel.value;
+      });
+      container.appendChild(sel);
+
+      // Default to current day or first day
+      const today = new Date().getDate();
+      sel.selectedIndex = Math.min(today - 1, days.length - 1);
+      state.selectedDay = sel.value;
+    },
+    collect() {
+      return { selectedDay: state.selectedDay };
+    },
+    validate(data) {
+      return data.selectedDay ? null : 'Selecione um dia.';
+    },
+    footer({ backBtn, submitBtn }) {
+      backBtn.style.display = 'none';
+      submitBtn.textContent = 'Continuar';
+    },
+  };
+}
+
 /* ===========================
  * Wizard Runner (single instance; retries inside)
  * =========================== */
@@ -195,12 +269,11 @@ function renderStep(step, dom, ctx) {
 async function runWizardOnce({ title, steps, onSubmit }) {
   // onSubmit(data) should throw or return string on error; resolve/void on success
   const dom = getWizardDom();
-  console.log("Running wizard with steps:", steps);
   dom.titleEl.textContent = title;
 
   // Safety: remove stray backdrops from any previous broken run
   document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
-  dom.root.classList.remove('modal-static'); // just in case
+  dom.root.classList.remove('modal-static');
 
   const modal = bootstrap.Modal.getOrCreateInstance(dom.root);
   let stepIndex = 0;
@@ -214,7 +287,6 @@ async function runWizardOnce({ title, steps, onSubmit }) {
     if (submitHandler) dom.submitBt.removeEventListener('click', submitHandler);
     if (backHandler)   dom.backBtn.removeEventListener('click', backHandler);
     if (hiddenHandler) dom.root.removeEventListener('hidden.bs.modal', hiddenHandler);
-    // Ensure no stray backdrops remain
     document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
   }
 
@@ -230,7 +302,6 @@ async function runWizardOnce({ title, steps, onSubmit }) {
       const err  = steps[stepIndex].validate?.(data);
       if (err) { showWizardError(err); return; }
 
-      // Next step?
       if (stepIndex < steps.length - 1) {
         stepIndex += 1;
         ctx.stepIndex = stepIndex;
@@ -239,13 +310,12 @@ async function runWizardOnce({ title, steps, onSubmit }) {
         return;
       }
 
-      // Final step: gather all data and submit
+      // Final submit
       const payload = {};
       for (const s of steps) Object.assign(payload, s.collect?.() ?? {});
       try {
-        const res = await onSubmit(payload); // throws or returns message on failure
+        const res = await onSubmit(payload);
         if (typeof res === 'string' && res) { showWizardError(res); return; }
-        // Success -> close and resolve
         modal.hide();
       } catch (e) {
         showWizardError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
@@ -265,7 +335,7 @@ async function runWizardOnce({ title, steps, onSubmit }) {
   }
 
   const result = await new Promise((resolve) => {
-    hiddenHandler = () => resolve(null); // cancel/close path
+    hiddenHandler = () => resolve(null); // cancel/close
     dom.root.addEventListener('hidden.bs.modal', hiddenHandler, { once: true });
 
     renderStep(steps[0], dom, ctx);
@@ -274,47 +344,62 @@ async function runWizardOnce({ title, steps, onSubmit }) {
   });
 
   cleanup();
-  // Dispose the instance to be extra safe between runs
   modal.dispose();
-  return result; // null if user closed; otherwise we closed on success already
+  return result; // null if user closed; otherwise we closed on success
 }
 
 /* ===========================
- * Orchestration (no re-show on retry)
+ * Orchestration (compose steps per action)
  * =========================== */
 
 export async function handleAction(action, ctx) {
+  console.log("Handling action:", action, ctx);
   const cfg = ACTIONS[action];
   if (!cfg) return console.error('Unknown action:', action);
 
   const title   = cfg.title;
-  const needsHr = cfg.needsHour;
-  const center  = ctx.center ?? null;
+  const center  = ctx.center ?? null;   // default center from context (if any)
   const day     = ctx.day ?? null;
   const shiftId = ctx.shiftId ?? null;
 
-  const allSteps = [];
-  let onSubmitFunction = null;
+  try {
+    let steps = [];
+    let onSubmitFunction = null;
 
-  if (cfg.needsHour) {
-    const hours = await fetchHours({ crm: cfg.hoursCRM(ctx), ...ctx });
-    const stepH = makeStepHours({ hours });
-    allSteps.push(stepH);
+    if (cfg.needsHour && !cfg.needsNames && !cfg.needsCenter) {
+      // Hours-only flow
+      const hours = await fetchHours({ crm: cfg.hoursCRM?.(ctx), ...ctx });
+      steps = [ makeStepHours({ hours }) ];
 
-    onSubmitFunction = async ({ selectedHour }) => {
-      await submitUserRequest({
-        action: cfg.endpointAction,
-        cardCRM: ctx.cardCrm || null,
-        selectedHour,
-        center, day, shiftId,
-        options: { timeout: 15000 },
-      });
-    };
-  } else {
+      onSubmitFunction = async ({ selectedHour }) => {
+        await submitUserRequest({
+          action: cfg.endpointAction,
+          cardCRM: ctx.cardCrm || null,
+          selectedHour,
+          center, day, shiftId,
+          options: { timeout: 15000 },
+        });
+      };
+    } else if (cfg.needsHour && cfg.needsNames) {
+      // Hours + Names flow
+      const hours   = await fetchHours({ crm: cfg.hoursCRM?.(ctx), ...ctx });
       const nameData = await fetchNamesList();
-      const stepN = makeStepNames({ nameData });
-      const stepS = makeStepShift();
-      allSteps.push(stepN, stepS);
+      steps = [ makeStepHours({ hours }), makeStepNames({ nameData }) ];
+
+      onSubmitFunction = async ({ selectedValue, selectedHour }) => {
+        const cardCRM = selectedValue || null;
+        await submitUserRequest({
+          action: cfg.endpointAction,
+          cardCRM,
+          selectedHour,
+          center, day, shiftId,
+          options: { timeout: 15000 },
+        });
+      };
+    } else if (cfg.needsNames) {
+      // Names + Shift flow
+      const nameData = await fetchNamesList();
+      steps = [ makeStepNames({ nameData }), makeStepShift() ];
 
       onSubmitFunction = async ({ selectedValue, shiftCode, startTime, endTime }) => {
         const cardCRM = ctx.cardCrm || selectedValue;
@@ -327,15 +412,48 @@ export async function handleAction(action, ctx) {
           center, day,
           options: { timeout: 15000 },
         });
-      }
-  }
+      };
 
-  try {
-    const cancelled = await runWizardOnce({
-      title,
-      steps: allSteps,
-      onSubmit: onSubmitFunction,
-    });
+    } else if (cfg.needsCenter && cfg.needsHour) {
+      // Center + Hour flow (order can be swapped if you prefer)
+      const centers = await fetchCenterList(); // strings or objects ok
+      const hours   = await fetchHours({ crm: cfg.hoursCRM?.(ctx), ...ctx });
+      steps = [ makeStepCenters({ centers }), makeStepHours({ hours }) ];
+
+      onSubmitFunction = async ({ selectedCenter, selectedHour }) => {
+        await submitUserRequest({
+          action: cfg.endpointAction,
+          cardCRM: ctx.cardCrm || null,
+          center: selectedCenter,        // <-- chosen center
+          selectedHour,
+          day, shiftId,
+          options: { timeout: 15000 },
+        });
+      };
+
+    } else if (action === 'SCHinclude') {
+      const centers = await fetchCenterList();
+      steps = [ makeStepCenters({ centers }), makeStepDays(), makeStepShift() ];
+
+      onSubmitFunction = async ({ selectedCenter, selectedDay, shiftCode, startTime, endTime }) => {
+        const cardCRM = ctx.cardCrm || null;
+        await submitUserRequest({
+          action: cfg.endpointAction,
+          cardCRM,
+          center: selectedCenter,        // <-- chosen center
+          shiftCode,
+          startTime,
+          endTime,
+          day: selectedDay,            // <-- chosen day
+          options: { timeout: 15000 },
+        });
+      };
+
+    } else {
+      throw new Error('No step configuration matched for this action.');
+    }
+
+    const cancelled = await runWizardOnce({ title, steps, onSubmit: onSubmitFunction });
     if (cancelled === null) return; // user closed
     if (typeof showToast === 'function') showToast('Pedido enviado com sucesso!', 'success');
 

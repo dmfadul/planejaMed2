@@ -5,8 +5,26 @@ export const ACTIONS = {
   SCHexclude: {
     title: "Escolha a hora que deseja excluir:",
     needsHour: true,
-    hoursCRM: (ctx) => ctx.cardCrm,
+    hoursCRM: (ctx) => ctx.cardCrm, // uneeded in schedule context
     endpointAction: 'exclude',
+  },
+
+  SCHinclude: {
+    title1: "Escolha o Centro que deseja incluir:",
+    title2: "Escolha o Dia que deseja incluir:",
+    title3: "Escolha a hora que deseja Incluir:",
+    needsHour: false,
+    hoursCRM: (ctx) => ctx.cardCrm,
+    endpointAction: 'include',
+  },
+
+  SCHdonate: {
+    title1: "Escolha o Horário que deseja Doar:",
+    title2: "Escolha para quem deseja Doar:",
+    needsHour: true,
+    needsNames: true,
+    hoursCRM: (ctx) => ctx.cardCrm,
+    endpointAction: 'offer_donation',
   },
   
   exclude: {
@@ -24,8 +42,10 @@ export const ACTIONS = {
   },
 
   offer_donation: {
-    title: "Escolha a hora que deseja oferecer:",
+    title1: "Escolha o Horário que deseja Doar:",
+    title2: "Escolha para quem deseja Doar:",
     needsHour: true,
+    needsNames: true,
     hoursCRM: (ctx) => ctx.cardCrm,
     endpointAction: 'offer_donation',
   },
