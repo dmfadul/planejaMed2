@@ -1,0 +1,42 @@
+<!-- Modal (wizard style) -->
+<div class="modal fade" id="modalBenefits" tabindex="-1" aria-hidden="true" style="color:black;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalBenefitsLabel">Solicitar benefício</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="benefitsForm">
+          <div class="mb-3">
+            <label for="benefitType" class="form-label">Tipo</label>
+            <select id="benefitType" class="form-select" required>
+              <option value="" selected disabled>Selecione…</option>
+              <option value="vacation">Férias</option>
+              <option value="sickLeave">Licença</option>
+            </select>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="startDate" class="form-label">Data inicial</label>
+              <input type="date" id="startDate" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label for="endDate" class="form-label">Data final</label>
+              <input type="date" id="endDate" class="form-control" required>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <div id="benefitsError" class="text-danger d-none me-auto"></div>
+        <button type="button" class="btn btn-outline-secondary" id="benefitsBackBtn" style="display:none">Voltar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="benefitsSubmitBtn">Enviar</button>
+      </div>
+    </div>
+  </div>
+</div>

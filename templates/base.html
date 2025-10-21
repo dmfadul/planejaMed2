@@ -34,6 +34,8 @@
 
     {% include "partials/modals/modal_new_month.html" %}
     {% include "partials/modals/months_modal.html" %}
+    {% include "partials/modals/months_modal.html" %}
+    {% include "partials/modals/vacation_modal.html" %}
     {% block modal %}{% endblock %}
 
     <!-- ✅ Toast container -->
@@ -51,6 +53,7 @@
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/getCookie.js' %}"></script>
     <script src="{% static '/js/monthsModal.js' %}"></script>
+    <script src="{% static '/js/vacationModal.js' %}"></script>
     <script src="{% static '/js/notifications.js' %}"></script>
     <script src="{% static '/js/showToast.js' %}"></script>
     {% block script %}{% endblock %}
