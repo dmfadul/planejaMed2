@@ -4,7 +4,14 @@ from rest_framework.response import Response
 from user_requests.models.notifications import Notification
 from .serializers import NotificationSerializer
 from django.db import models
+from rest_framework.views import APIView
 
+
+class VacationRequest(APIView):
+    def post(self, request):
+        print("Vacation request data received:", request.data)  # Debugging line
+
+        return Response({"message": "Vacation request created"}, status=status.HTTP_201_CREATED)
 
 class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer

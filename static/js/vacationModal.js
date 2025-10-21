@@ -24,7 +24,7 @@ async function submitBenefits(btn){
 
   btn.disabled = true; const old = btn.textContent; btn.textContent = 'Enviando…';
   try {
-    const res = await fetch('backend', { //TODO: replace 'backend' with your actual endpoint
+    const res = await fetch('/api/user_requests/vacation-requests/', { //TODO: replace 'backend' with your actual endpoint
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
       body: JSON.stringify({ type, startDate: start, endDate: end })
