@@ -1,10 +1,11 @@
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from user_requests.models.notifications import Notification
-from .serializers import NotificationSerializer
 from django.db import models
+from django.db import transaction
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework import viewsets, permissions, status
+from user_requests.models.notifications import Notification
+from .serializers import NotificationSerializer, VacationRequestSerializer
 
 
 class VacationRequest(APIView):
@@ -13,7 +14,20 @@ class VacationRequest(APIView):
         start_date = request.data.get("startDate")
         end_date = request.data.get("endDate")
 
-        print("Vacation request data received:", leave_type, start_date, end_date, type(start_date))  # Debugging line
+        payload = {
+            "leave_type": leave_type,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
+
+        serializer = VacationRequestSerializer(
+            data=payload,
+            context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        with transaction.atomic():
+            instance = serializer.save(requester=request.user)
 
         return Response({"message": "Vacation request created"}, status=status.HTTP_201_CREATED)
 

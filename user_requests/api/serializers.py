@@ -1,14 +1,41 @@
 # user_requests/api/serializers.py
+from vacations.models import Vacation
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from user_requests.models import UserRequest, VacationRequest, Notification
 
 
 class VacationRequestSerializer(serializers.ModelSerializer):
+    requester = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    requestee = serializers.HiddenField(default=None)
+    responder = serializers.HiddenField(default=None)
+    
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+
+    leave_type = serializers.ChoiceField(choices=Vacation.VacationType.choices)
+
     class Meta:
         model = VacationRequest
-        fields = '__all__'
-        
+        fields = [
+            "start_date", "end_date", "leave_type",
+            # included but not writable (returned in the response)
+            "id", "created_at", "is_open", "is_approved", "closing_date",
+            "requester", "user", "requestee", "responder",
+        ]
+        read_only_fields = [
+            "id", "created_at", "is_open", "is_approved", "closing_date",
+            "requestee", "responder",
+        ]
+
+    def validate(self, attrs):
+        start_date = attrs.get('start_date')
+        end_date = attrs.get('end_date')
+
+        if start_date and end_date and start_date > end_date:
+            raise serializers.ValidationError("End date must be after start date.")
+
+        return attrs
 
 class UserRequestSerializer(serializers.ModelSerializer):    
     class Meta:
