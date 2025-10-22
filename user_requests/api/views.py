@@ -15,7 +15,7 @@ class VacationRequest(APIView):
         end_date = request.data.get("endDate")
 
         payload = {
-            "leave_type": leave_type,
+            "request_type": leave_type,
             "start_date": start_date,
             "end_date": end_date,
         }
@@ -28,6 +28,7 @@ class VacationRequest(APIView):
 
         with transaction.atomic():
             instance = serializer.save(requester=request.user)
+            instance.notify_request()
 
         return Response({"message": "Vacation request created"}, status=status.HTTP_201_CREATED)
 

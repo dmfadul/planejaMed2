@@ -122,7 +122,7 @@ class UserRequest(models.Model):
 
     def accept(self, responder):
         if not (responder == self.requestee) and not responder.is_superuser:
-            raise PermissionError("Only the requestee or staff can accept a donation request.")
+            raise PermissionError("Only the requestee or admins(superusers) can accept a donation request.")
         
         conflict = Shift.check_conflict(self.donee,
                                         self.month,
@@ -159,8 +159,8 @@ class UserRequest(models.Model):
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The excludee must be the current assignee of the shift.")
 
-            self.remove_notifications()
-            self.notify_response("accept")
+            # self.remove_notifications()
+            # self.notify_response("accept") seems redundant here
             to_delete_shift = self.shift.split(self.start_hour, self.end_hour)
             to_delete_shift.delete()
 
@@ -173,7 +173,6 @@ class UserRequest(models.Model):
         self.save(update_fields=['is_approved'])
 
         self.remove_notifications()
-
         self.notify_response("accept")
 
     
