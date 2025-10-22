@@ -4,7 +4,7 @@ from vacations.models import Vacation
 
 
 class VacationRequest(models.Model):
-    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vacation_requests_made')
+    requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vacation_requests')
     requestee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vacation_requests_received', null=True, blank=True)
     responder = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vacation_requests_responded', null=True, blank=True)
 
@@ -13,7 +13,6 @@ class VacationRequest(models.Model):
     is_approved = models.BooleanField(default=False)
     closing_date = models.DateTimeField(null=True, blank=True)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vacation_requests')
     start_date = models.DateField()
     end_date = models.DateField()
     leave_type = models.CharField(max_length=20, choices=Vacation.VacationType.choices)

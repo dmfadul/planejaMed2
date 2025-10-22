@@ -1,9 +1,14 @@
 # user_requests/api/serializers.py
 from rest_framework import serializers
-from user_requests.models.userRequest import UserRequest
-from user_requests.models.notifications import Notification
 from rest_framework.validators import UniqueTogetherValidator
+from user_requests.models import UserRequest, VacationRequest, Notification
 
+
+class VacationRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VacationRequest
+        fields = '__all__'
+        
 
 class UserRequestSerializer(serializers.ModelSerializer):    
     class Meta:
