@@ -9,7 +9,11 @@ from rest_framework.views import APIView
 
 class VacationRequest(APIView):
     def post(self, request):
-        print("Vacation request data received:", request.data)  # Debugging line
+        leave_type = request.data.get("type")
+        start_date = request.data.get("startDate")
+        end_date = request.data.get("endDate")
+
+        print("Vacation request data received:", leave_type, start_date, end_date, type(start_date))  # Debugging line
 
         return Response({"message": "Vacation request created"}, status=status.HTTP_201_CREATED)
 

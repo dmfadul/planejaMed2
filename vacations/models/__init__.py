@@ -1,0 +1,1 @@
+from .vacations import Vacation
