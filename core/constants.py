@@ -1,3 +1,5 @@
+from datetime import datetime
+
 STR_DAY = 26
 END_DAY = 25
 
@@ -32,3 +34,14 @@ MESES = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ]
+
+VACATION_RULES = {
+    'new_policy_start_date': datetime(year=2023, month=12, day=8),
+    'duration_days': 15,
+    'minimum_months_worked': 6,
+    'new_policy_hours': {'routine': 104, 'paintemps': 36},
+    'old_policy_hours': {'routine': 52, 'paintemps': 36},
+    'min_days_per_request': 7,
+    'max_split': 2,
+    'sick_leave_to_vacation': 3,
+}
