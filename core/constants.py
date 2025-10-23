@@ -1,3 +1,4 @@
+from django.utils import timezone
 from datetime import datetime
 
 STR_DAY = 26
@@ -36,7 +37,10 @@ MESES = [
 ]
 
 VACATION_RULES = {
-    'new_policy_start_date': datetime(year=2023, month=12, day=8),
+    'new_policy_start_date': timezone.make_aware(
+    datetime(year=2023, month=12, day=8),
+    timezone.get_current_timezone()
+    ),
     'duration_days': 15,
     'minimum_months_worked': 6,
     'new_policy_hours': {'routine': 104, 'paintemps': 36},

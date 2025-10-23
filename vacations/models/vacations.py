@@ -30,21 +30,3 @@ class Vacation(models.Model):
     @property
     def phase(self):
         pass
-
-    # TODO: add all logic for checking vacation rights when creating month
-    @classmethod
-    def check_entitlement(cls, user: User, start_date):
-        """Check if user has been compliant with the rules
-        to be entitled to vacation starting from start_date."""
-        from core.constants import VACATION_RULES
-
-        if not user:
-            return False, "Usuário inválido."
-        
-        if not user.is_active:
-            return False, "Usuário inativo não está ativo."
-        
-        # check if user has worked minimum months
-        
-
-        

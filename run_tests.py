@@ -15,15 +15,10 @@ django.setup()
 from user_requests.models import UserRequest, Notification
 from shifts.models import Shift
 from core.models import User
+from vacations.models import Vacation, complianceHistory
+from vacations.services import get_users_base_total
 
-# Example logic:
-shift1 = Shift.objects.first()
-shift2 = Shift.objects.last()
-user1 = User.objects.filter(crm=42173).first()
-user2 = User.objects.filter(crm=19230).first()
-user3 = User.objects.filter(crm=44392).first()
-print(shift1.start_time, shift1.end_time)
-print(shift1.hour_list)
 
-# req = UserRequest.objects.first()
-# req.remove_notifications()
+user = User.objects.filter(crm="26704").first()
+print("User:", user)
+get_users_base_total(user, split_the_fifth=True)

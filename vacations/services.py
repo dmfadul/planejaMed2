@@ -5,7 +5,57 @@ from django.db import transaction
 from django.db.models import Exists, OuterRef
 from django.utils import timezone
 
-from .models import ComplianceMonthly, ComplianceStatus, Month, User  # adjust imports
+from core.models import User
+from shifts.models import Month, TemplateShift, Shift  # adjust imports
+from .models import complianceHistory as ComplianceMonthly
+
+
+@dataclass
+class TotalBaseHours:
+    normal: float
+    overtime: float
+
+def get_users_base_total(user, split_the_fifth=False):
+    """
+    compute the total base hours for a user, considering split_the_fifth flag.
+    To be run when new month is created (base is 'set in place').
+    """
+    from core.constants import VACATION_RULES
+
+    vac_rules = VACATION_RULES
+    total = TotalBaseHours(normal=0, overtime=0)
+
+    base_shifts = TemplateShift.objects.filter(user=user)
+    for shift in base_shifts:
+        normal_hours = shift.get_overtime_count()["normal"]
+        overtime_hours = shift.get_overtime_count()["overtime"]
+        
+        if split_the_fifth and shift.weekday in [5, 6]:  # Saturday or Sunday
+            # Split normal hours into half normal and half overtime
+            normal_hours /= 3
+            overtime_hours /= 3
+
+        total.normal += normal_hours
+        total.overtime += overtime_hours
+
+    if user.date_joined <= vac_rules.get("new_policy_start_date"):
+        print(1)
+    else:
+        print(2)
+
+    user_rules = user.date_joined
+        
+    print(f"Template Shiftxz: {VACATION_RULES}")
+
+
+def get_users_month_total(user, split_the_fifth=False):
+    """
+    compute the total hours in a month for a user, considering split_the_fifth flag.
+    To be run when new month is opened (shifts exchanges are closed).
+    """
+    # does it need split the fifth?
+    # probably needs month as argument
+    pass
 
 @dataclass
 class ComplianceEval:
@@ -46,7 +96,7 @@ def evaluate_user_month(user: User, month: Month) -> Tuple[str, Dict]:
         "details": passed.details,  # e.g. dict of per-rule {required, actual, pass}
         "summary": passed.summary,
     }
-    return (ComplianceStatus.COMPLIANT if passed.ok else ComplianceStatus.NONCOMPLIANT, reason)
+    return (ComplianceMonthly.ComplianceStatus.COMPLIANT if passed.ok else ComplianceMonthly.ComplianceStatus.NONCOMPLIANT, reason)
 
 
 def eligible_last_6(user: User, end_month: Month) -> bool:
@@ -61,7 +111,7 @@ def eligible_last_6(user: User, end_month: Month) -> bool:
     got = ComplianceMonthly.objects.filter(user=user, month_id__in=window_ids)\
                                    .values_list("month_id", "status")
     by_mid = dict(got)
-    return all(by_mid.get(mid) == ComplianceStatus.COMPLIANT for mid in window_ids)
+    return all(by_mid.get(mid) == ComplianceMonthly.ComplianceStatus.COMPLIANT for mid in window_ids)
 
 
 def preview_month(month: Month, users: Iterable[User] = None) -> List[ComplianceEval]:
@@ -107,7 +157,7 @@ def _eligible_after_including(user: User, end_month: Month, this_status: str) ->
                .values_list("month_id", "status"))
     # inject the prospective status for end_month
     got[end_month.id] = this_status
-    return all(got.get(mid) == ComplianceStatus.COMPLIANT for mid in ids)
+    return all(got.get(mid) == ComplianceMonthly.ComplianceStatus.COMPLIANT for mid in ids)
 
 # --- B) PERSIST (bulk upsert) ---
 
