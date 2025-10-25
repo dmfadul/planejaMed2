@@ -15,6 +15,40 @@ class TotalBaseHours:
     normal: float
     overtime: float
 
+    def __sub__(self, other):
+        if isinstance(other, dict):
+            if (not "normal" in other) or (not "overtime" in other):
+                raise ValueError("Dict must have 'normal' and 'overtime' keys.")
+            n = other.get("normal", 0)
+            o = other.get("overtime", 0)
+        elif isinstance(other, TotalBaseHours):
+            n = other.normal
+            o = other.overtime
+        else:
+            return NotImplemented
+        
+        return TotalBaseHours(
+            normal=self.normal - n,
+            overtime=self.overtime - o
+        )
+    
+    def __isub__(self, other):
+        if isinstance(other, dict):
+            if (not "normal" in other) or (not "overtime" in other):
+                raise ValueError("Dict must have 'normal' and 'overtime' keys.")
+            n = other.get("normal", 0)
+            o = other.get("overtime", 0)
+        elif isinstance(other, TotalBaseHours):
+            n = other.normal
+            o = other.overtime
+        else:
+            return NotImplemented
+        
+        self.normal -= n
+        self.overtime -= o
+        return self
+
+
 def get_users_base_total(user, split_the_fifth=False):
     """
     compute the total base hours for a user, considering split_the_fifth flag.
@@ -39,13 +73,15 @@ def get_users_base_total(user, split_the_fifth=False):
         total.overtime += overtime_hours
 
     if user.date_joined <= vac_rules.get("new_policy_start_date"):
-        print(1)
+        user_rules = vac_rules.get("old_policy_hours")
     else:
-        print(2)
+        user_rules = vac_rules.get("new_policy_hours")
 
-    user_rules = user.date_joined
-        
-    print(f"Template Shiftxz: {VACATION_RULES}")
+    user_delta = total - user_rules
+
+    print(f"User Base Total: {total}")
+    print(f"User Rules: {user_rules}")
+    print(f"User Delta: {user_delta}")
 
 
 def get_users_month_total(user, split_the_fifth=False):

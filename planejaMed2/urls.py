@@ -20,11 +20,12 @@ from user_requests.views import calendar
 
 
 urlpatterns = [
-    path('api/', include('api.urls')),
-    path('api/user_requests/', include('user_requests.api.urls')),
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
+    path('api/', include('core.api_urls')),
     path('shifts/', include('shifts.urls')),
     path('requests/', include('user_requests.urls')),
     path('<str:center_abbr>/', calendar, name='home'),
+    path('api/', include('api.urls')),
+    path('api/user_requests/', include('user_requests.api.urls')),
 ]

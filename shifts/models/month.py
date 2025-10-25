@@ -75,7 +75,6 @@ class Month(models.Model):
         
         return current_month if current_month else None
     
-    
 
     def get_previous(self):
         if self.number == 1:
