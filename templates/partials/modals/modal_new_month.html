@@ -1,42 +1,240 @@
 <div class="modal fade" id="confirmCreateMonth" tabindex="-1" aria-labelledby="confirmCreateMonthLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content text-dark bg-white">
-      <form method="POST" action="{% url 'shifts:create_month' %}">
+      <form id="createMonthForm" method="POST" action="{% url 'shifts:create_month' %}">
         {% csrf_token %}
+        <!-- Hidden inputs get filled from the button's data-* -->
+        <input type="hidden" name="year" id="createMonthYear">
+        <input type="hidden" name="month" id="createMonthMonth">
+
         <div class="modal-header">
           <h5 class="modal-title" id="confirmCreateMonthLabel">Confirmar Criação do Mês</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
+
         <div class="modal-body">
-          Tem certeza que deseja criar o novo mês?
+          <!-- Status / errors -->
+          <div id="impactAlert" class="alert d-none" role="alert"></div>
+
+          <!-- Loading state -->
+          <div id="impactLoading" class="d-flex align-items-center gap-2">
+            <div class="spinner-border" role="status" aria-hidden="true"></div>
+            <span>Carregando impacto das férias…</span>
+          </div>
+
+          <!-- Results -->
+          <div id="impactContent" class="d-none">
+            <p class="mb-2">
+              <strong>Mês alvo:</strong> <span id="impactTarget"></span>
+            </p>
+
+            <div id="noRiskBox" class="alert alert-success d-none">
+              Nenhum usuário perderá direito de férias ao criar este mês.
+            </div>
+
+            <div id="riskBox" class="d-none">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="m-0">Usuários em risco de perder direito</h6>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="toggleSelectAll">
+                  <label class="form-check-label" for="toggleSelectAll">Selecionar todos para manter</label>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead>
+                    <tr>
+                      <th style="width: 44px;">Manter</th>
+                      <th>Usuário</th>
+                      <th class="text-end">Dias atuais</th>
+                      <th class="text-end">Dias que expiram</th>
+                      <th>Motivo</th>
+                    </tr>
+                  </thead>
+                  <tbody id="impactTableBody">
+                    <!-- rows injected by JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <small class="text-muted" id="overrideCountText">0 selecionado(s) para manter.</small>
+            </div>
+          </div>
         </div>
+
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Criar</button>
+          <button id="submitCreateMonth" type="submit" class="btn btn-primary" disabled>
+            Criar mês
+          </button>
         </div>
       </form>
     </div>
   </div>
 </div>
+<script>
+(function () {
+  const IMPACT_URL = '/api/months/impact'; // e.g., GET ?year=2025&month=11
 
+  const modalEl = document.getElementById('confirmCreateMonth');
+  const formEl = document.getElementById('createMonthForm');
+  const yearInput = document.getElementById('createMonthYear');
+  const monthInput = document.getElementById('createMonthMonth');
 
-<div class="modal fade" id="confirmUnlockMonth" tabindex="-1" aria-labelledby="confirmUnlockMonth" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-dark bg-white">
-      <form method="POST" action="{% url 'shifts:unlock_month' %}">
-        {% csrf_token %}
-        <div class="modal-header">
-          <h5 class="modal-title" id="confirmUnlockMonthLabel">Confirmar Destrancar Mês</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-        </div>
-        <div class="modal-body">
-          Tem certeza que deseja destrancar o mês?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Destrancar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+  const impactLoading = document.getElementById('impactLoading');
+  const impactContent = document.getElementById('impactContent');
+  const impactAlert = document.getElementById('impactAlert');
+  const noRiskBox = document.getElementById('noRiskBox');
+  const riskBox = document.getElementById('riskBox');
+  const impactTarget = document.getElementById('impactTarget');
+  const tableBody = document.getElementById('impactTableBody');
+  const toggleSelectAll = document.getElementById('toggleSelectAll');
+  const overrideCountText = document.getElementById('overrideCountText');
+  const submitBtn = document.getElementById('submitCreateMonth');
+
+  function setStateLoading() {
+    impactAlert.classList.add('d-none');
+    impactContent.classList.add('d-none');
+    noRiskBox.classList.add('d-none');
+    riskBox.classList.add('d-none');
+    submitBtn.disabled = true;
+    impactLoading.classList.remove('d-none');
+    tableBody.innerHTML = '';
+    overrideCountText.textContent = '0 selecionado(s) para manter.';
+    toggleSelectAll.checked = false;
+  }
+
+  function setStateError(msg) {
+    impactLoading.classList.add('d-none');
+    impactContent.classList.remove('d-none');
+    impactAlert.className = 'alert alert-danger';
+    impactAlert.textContent = msg || 'Falha ao carregar o impacto.';
+    impactAlert.classList.remove('d-none');
+    submitBtn.disabled = true;
+  }
+
+  function setStateSuccess(payload) {
+    impactLoading.classList.add('d-none');
+    impactContent.classList.remove('d-none');
+    impactAlert.classList.add('d-none');
+
+    const { year, month, has_risk, items } = payload;
+    impactTarget.textContent = `${String(month).padStart(2, '0')}/${year}`;
+
+    if (!has_risk || !items || items.length === 0) {
+      noRiskBox.classList.remove('d-none');
+      riskBox.classList.add('d-none');
+      // Safe to allow creation immediately
+      submitBtn.disabled = false;
+      return;
+    }
+
+    // Build rows
+    riskBox.classList.remove('d-none');
+    const rows = items.map(item => {
+      const disabled = item.can_keep ? '' : 'disabled';
+      const title = item.can_keep ? '' : 'title="Não pode ser mantido manualmente"';
+      return `
+        <tr>
+          <td>
+            <input
+              type="checkbox"
+              class="form-check-input keep-checkbox"
+              data-user-id="${item.user_id}"
+              ${disabled} ${title}
+            >
+          </td>
+          <td>${escapeHtml(item.user_name)}</td>
+          <td class="text-end">${item.current_entitlement_days}</td>
+          <td class="text-end">${item.will_expire_days}</td>
+          <td>${escapeHtml(item.reason)}</td>
+        </tr>`;
+    }).join('');
+    tableBody.innerHTML = rows;
+
+    // With risks present, still allow creation; admin may choose zero overrides
+    submitBtn.disabled = false;
+    updateOverrideCount();
+  }
+
+  function updateOverrideCount() {
+    const checks = tableBody.querySelectorAll('.keep-checkbox:checked');
+    overrideCountText.textContent = `${checks.length} selecionado(s) para manter.`;
+  }
+
+  function escapeHtml(s) {
+    return (s ?? '').toString()
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  }
+
+  // Select all toggle
+  toggleSelectAll.addEventListener('change', () => {
+    const boxes = tableBody.querySelectorAll('.keep-checkbox:not(:disabled)');
+    boxes.forEach(b => { b.checked = toggleSelectAll.checked; });
+    updateOverrideCount();
+  });
+
+  // Per-row change updates counter
+  tableBody.addEventListener('change', (ev) => {
+    if (ev.target && ev.target.classList.contains('keep-checkbox')) {
+      updateOverrideCount();
+    }
+  });
+
+  // On submit, inject selected overrides as hidden inputs
+  formEl.addEventListener('submit', () => {
+    // Remove previous hidden override inputs
+    Array.from(formEl.querySelectorAll('input[name="keep_entitlements[]"]')).forEach(n => n.remove());
+
+    const checks = tableBody.querySelectorAll('.keep-checkbox:checked');
+    checks.forEach(chk => {
+      const hid = document.createElement('input');
+      hid.type = 'hidden';
+      hid.name = 'keep_entitlements[]';         // Django: request.POST.getlist('keep_entitlements[]')
+      hid.value = chk.getAttribute('data-user-id');
+      formEl.appendChild(hid);
+    });
+  });
+
+  // Load impact when modal opens
+  modalEl.addEventListener('show.bs.modal', (ev) => {
+    const btn = ev.relatedTarget;
+    const year = btn?.dataset?.year || yearInput.value;
+    const month = btn?.dataset?.month || monthInput.value;
+
+    // reflect in hidden inputs
+    yearInput.value = year;
+    monthInput.value = month;
+
+    // UI state
+    setStateLoading();
+
+    // Fetch
+    const url = new URL(IMPACT_URL, window.location.origin);
+    url.searchParams.set('year', year);
+    url.searchParams.set('month', month);
+
+    fetch(url.toString(), {
+      headers: { 'Accept': 'application/json' },
+      credentials: 'same-origin',
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(r))
+      .then(setStateSuccess)
+      .catch(async (errResp) => {
+        let msg = 'Falha ao carregar o impacto.';
+        if (errResp && errResp.json) {
+          try {
+            const j = await errResp.json();
+            if (j && (j.detail || j.error)) msg = j.detail || j.error;
+          } catch (_) {}
+        }
+        setStateError(msg);
+      });
+  });
+
+  // Optional: reset state when closing
+  modalEl.addEventListener('hidden.bs.modal', () => setStateLoading());
+})();
+</script>
