@@ -145,17 +145,17 @@ from user_requests.models import UserRequest,IncludeRequestData,Notification
 #         fields = ('center', 'month', 'day')
 
 
-class UserRequestSerializer(serializers.ModelSerializer):    
-    class Meta:
-        model = UserRequest
-        fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=UserRequest.objects.filter(is_open=True),
-                fields=('requester', 'request_type', 'shift', 'start_hour', 'end_hour'),
-                message=_("Você tem um pedido aberto para este horário.")  # your custom text
-            )
-        ]
+# class UserRequestSerializer(serializers.ModelSerializer):    
+#     class Meta:
+#         model = UserRequest
+#         fields = '__all__'
+#         validators = [
+#             UniqueTogetherValidator(
+#                 queryset=UserRequest.objects.filter(is_open=True),
+#                 fields=('requester', 'request_type', 'shift', 'start_hour', 'end_hour'),
+#                 message=_("Você tem um pedido aberto para este horário.")  # your custom text
+#             )
+#         ]
     
     # def validate(self, attrs):
     #     requester = attrs.get('requester') or getattr(self.instance, 'requester', None)
