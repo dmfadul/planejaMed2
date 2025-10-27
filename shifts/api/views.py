@@ -1,14 +1,24 @@
 from urllib import request
 from rest_framework import status
 from core.permissions import IsAdmin
-from shifts.models import Center, Month
+from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_GET
 from rest_framework.permissions import IsAuthenticated
+
+from shifts.models import (
+    Center,
+    Month,
+    Shift
+)
+
 from .serializers import (
     CenterSerializer,
-    MonthSerializer
+    MonthSerializer,
+    ShiftSerializer
 )
 
 
@@ -112,3 +122,81 @@ class CenterAPIview(APIView):
         center.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+
+@require_GET
+def day_schedule(request, center_abbr, year, month_number, day):
+    center = get_object_or_404(Center, abbreviation=center_abbr)
+    month = get_object_or_404(Month, number=month_number, year=year)
+
+    day_shifts = Shift.objects.filter(
+        center=center,
+        month=month,
+        day=day
+    )
+    
+    schedule_dict = {}
+    for shift in day_shifts:
+        if shift.user.crm not in schedule_dict:
+            schedule_dict[shift.user.crm] = {
+                "user": shift.user,
+                "shifts": []
+            }
+        schedule_dict[shift.user.crm]["shifts"].append((shift.start_time, shift.end_time))
+
+    for _, data in schedule_dict.items():
+        # custom order: 07..23, 00..06  -> use modular key (h - 7) % 24
+        sorted_shifts = sorted(
+            data["shifts"],
+            key=lambda t: ((t[0] - 7) % 24, t[1])  # tie-breaker by end time
+        )
+        # format "HH:00 - HH:00"
+        data["shifts"] = [f"{s:02d}:00 - {e:02d}:00" for s, e in sorted_shifts]
+        
+    # Convert the schedule dictionary to a list of dictionaries
+    schedule_data = []
+    for values in schedule_dict.values():
+        user_name = values["user"].name
+        shifts_str = "<br>".join(values["shifts"])
+        card_line = user_name + "<br>" + shifts_str
+        schedule_data.append({
+            "name": user_name,
+            "crm": values["user"].crm,
+            "cardLine": card_line,
+        })
+
+    schedule_data = sorted(schedule_data, key=lambda x: x["name"].lower())
+        
+    return JsonResponse({
+        "status": "ok",
+        "schedule": schedule_data,
+    })
+
+
+@api_view(["GET"])
+def get_hours(request):
+    month = Month.objects.current()
+
+    crm = request.GET.get("crm") if request.GET.get("crm") else request.user.crm
+    year = month.year
+    month_number = month.number
+
+    filter_kwargs = {
+        "user__crm": crm,
+        "month__year": year,
+        "month__number": month_number
+    }
+
+    center_abbr = request.GET.get("center")
+    if center_abbr:
+        filter_kwargs["center__abbreviation"] = center_abbr
+    
+    day = request.GET.get("day", 0)
+    if day and day.isdigit():
+        filter_kwargs["day"] = int(day)
+
+    shifts = Shift.objects.filter(**filter_kwargs).all()
+    serializer = ShiftSerializer(shifts, many=True)
+
+    return Response(serializer.data)

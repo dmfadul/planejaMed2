@@ -1,6 +1,6 @@
 from django.db import transaction
 from user_requests.models import UserRequest, IncludeRequestData
-from api.serializers import IncludeRequestDataSerializer
+from user_requests.api.serializers import IncludeRequestDataSerializer
 
 @transaction.atomic
 def create_user_request(

@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from shifts.models import Center, Month
+from shifts.models import (
+    Center, Month, Shift
+)
 
 
 class CenterSerializer(serializers.ModelSerializer):
@@ -14,4 +16,10 @@ class CenterSerializer(serializers.ModelSerializer):
 class MonthSerializer(serializers.ModelSerializer):
     class Meta:
         model = Month
+        fields = '__all__'
+        
+
+class ShiftSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Shift
         fields = '__all__'

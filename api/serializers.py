@@ -127,22 +127,22 @@ from user_requests.models import UserRequest,IncludeRequestData,Notification
 #         model = UserRequest
 #         fields = ("id", "request_type", "created_at")
             
-class ShiftSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Shift
-        fields = '__all__'
+# class ShiftSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Shift
+#         fields = '__all__'
 
 
-class NotificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Notification
-        fields = '__all__'
+# class NotificationSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Notification
+#         fields = '__all__'
 
 
-class IncludeRequestDataSerializer(serializers.ModelSerializer):    
-    class Meta:
-        model = IncludeRequestData
-        fields = ('center', 'month', 'day')
+# class IncludeRequestDataSerializer(serializers.ModelSerializer):    
+#     class Meta:
+#         model = IncludeRequestData
+#         fields = ('center', 'month', 'day')
 
 
 class UserRequestSerializer(serializers.ModelSerializer):    

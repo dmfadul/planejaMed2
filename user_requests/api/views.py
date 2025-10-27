@@ -11,7 +11,7 @@ from .serializers import (
     VacationRequestSerializer,
     IncomingUserRequestSerializer,
     OutUserRequestSerializer
-    )
+)
 
 
 class UserRequestAPIView(APIView):

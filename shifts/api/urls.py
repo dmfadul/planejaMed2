@@ -1,5 +1,11 @@
 from django.urls import path
-from .views import MonthImpactView, MonthAPIview, CenterAPIview
+from .views import (
+    MonthImpactView,
+    MonthAPIview,
+    CenterAPIview,
+    day_schedule,
+    get_hours,
+)
 
 
 urlpatterns = [
@@ -7,4 +13,6 @@ urlpatterns = [
     path('months/<str:selector>/',  MonthAPIview.as_view(), name='month-detail'),
     path('centers/',                CenterAPIview.as_view(), name='center-list'),
     path('centers/<int:pk>/',       CenterAPIview.as_view(), name='center-detail'),
+    path('hours/',                  get_hours, name='get-hours'),
+    path('day_schedule/<str:center_abbr>/<int:year>/<int:month_number>/<int:day>/', day_schedule, name='day-schedule'),
 ]

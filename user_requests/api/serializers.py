@@ -4,7 +4,12 @@ from rest_framework import serializers
 from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from user_requests.models import UserRequest, VacationRequest, Notification
+from user_requests.models import (
+    UserRequest,
+    VacationRequest,
+    Notification,
+    IncludeRequestData
+)
 
 
 class VacationRequestSerializer(serializers.ModelSerializer):
@@ -187,3 +192,9 @@ class OutUserRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRequest
         fields = ("id", "request_type", "created_at")
+
+
+class IncludeRequestDataSerializer(serializers.ModelSerializer):    
+    class Meta:
+        model = IncludeRequestData
+        fields = ('center', 'month', 'day')
