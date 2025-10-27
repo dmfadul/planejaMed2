@@ -100,7 +100,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const res = await fetch("/api/months/current");
       if (res.ok) {
         const cur = await res.json();
-        console.log("Fetched current month:", cur);
         if (cur && typeof cur.number === "number" && typeof cur.year === "number") {
           // Ensure those values exist in the lists (they should)
           selectOptionByValue(monthSelect, cur.number);

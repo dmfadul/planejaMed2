@@ -2,8 +2,8 @@
   console.log("notifications.js loaded");
   
   // API endpoints
-  const API_LIST = "/api/user_requests/notifications/"; // GET list visible to current user
-  const API_MARK_SEEN = "/api/notifications/mark-seen/"; // POST body: {ids: [..]}
+  const API_LIST = "/api/notifications/"; // GET list visible to current user
+  const API_MARK_SEEN = "/api/mark-seen/"; // POST body: {ids: [..]}
   const notifDot = document.getElementById("notifDot");
   const notifSummary = document.getElementById("notifSummary");
   const notifMenuLink = document.getElementById("notifMenuLink");
