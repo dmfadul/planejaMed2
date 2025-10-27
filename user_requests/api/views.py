@@ -3,10 +3,35 @@ from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from user_requests.services import create_user_request
 from rest_framework import viewsets, permissions, status
 from user_requests.models.notifications import Notification
-from .serializers import NotificationSerializer, VacationRequestSerializer
+from .serializers import (
+    NotificationSerializer,
+    VacationRequestSerializer,
+    IncomingUserRequestSerializer,
+    OutUserRequestSerializer
+    )
 
+
+class UserRequestAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        ser = IncomingUserRequestSerializer(
+            data=request.data,
+            context={"request": request}
+        )
+
+        ser.is_valid(raise_exception=True)
+
+        # normalized, typed, DB-ready params:
+        params = ser.validated_data
+        req_obj = create_user_request(**params)
+
+        out = OutUserRequestSerializer(req_obj)
+        return Response(out.data, status=status.HTTP_201_CREATED)
+    
 
 class VacationRequest(APIView):
     def post(self, request):

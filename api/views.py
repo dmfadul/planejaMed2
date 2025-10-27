@@ -6,10 +6,7 @@ from shifts.models import Center, Month, Shift
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from core.constants import SHIFTS_MAP, SHIFT_CODES, HOUR_RANGE, MORNING_START
-from .services import create_user_request
-from .serializers import (ShiftSerializer,
-                          IncomingUserRequestSerializer,
-                          OutUserRequestSerializer)
+from .serializers import (ShiftSerializer)
 
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -34,23 +31,23 @@ def apiOverview(request):
     return Response(api_urls)
 
 
-class userRequestCreate(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+# class userRequestCreate(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
     
-    def post(self, request):
-        ser = IncomingUserRequestSerializer(
-            data=request.data,
-            context={"request": request}
-        )
+#     def post(self, request):
+#         ser = IncomingUserRequestSerializer(
+#             data=request.data,
+#             context={"request": request}
+#         )
 
-        ser.is_valid(raise_exception=True)
+#         ser.is_valid(raise_exception=True)
 
-        # normalized, typed, DB-ready params:
-        params = ser.validated_data
-        req_obj = create_user_request(**params)
+#         # normalized, typed, DB-ready params:
+#         params = ser.validated_data
+#         req_obj = create_user_request(**params)
 
-        out = OutUserRequestSerializer(req_obj)
-        return Response(out.data, status=status.HTTP_201_CREATED)
+#         out = OutUserRequestSerializer(req_obj)
+#         return Response(out.data, status=status.HTTP_201_CREATED)
 
 
 

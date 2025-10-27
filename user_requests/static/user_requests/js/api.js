@@ -1,7 +1,7 @@
 // api.js
 // Network helpers: CSRF, error normalization, and the submitUserRequest endpoint
 
-const API_ENDPOINT = '/api/submit_user_request/';
+const API_ENDPOINT = '/api/user-requests/';
 
 /** Standard Django CSRF cookie getter */
 export function getCookie(name = 'csrftoken') {
