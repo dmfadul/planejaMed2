@@ -47,6 +47,17 @@ class TotalBaseHours:
         self.normal -= n
         self.overtime -= o
         return self
+    
+    @property
+    def reason(self):
+        if self.normal >= 0 and self.overtime >= 0:
+            return "Sufficient normal and overtime hours."
+        reason = ""
+        if self.normal < 0:
+            reason += f"Rotina: está faltando {abs(self.normal)} horas.\n"
+        if self.overtime < 0:
+            reason += f"Plantão: está faltando {abs(self.overtime)} horas.\n"
+        return reason
 
 
 def get_user_base_total(user, split_the_fifth=False):
@@ -81,44 +92,35 @@ def get_user_base_total(user, split_the_fifth=False):
     return user_delta
 
 
-def gen_base_compliance_report():
+def gen_base_compliance_report(month: Month = None):
     """
     Generate a report of users at risk of losing vacation eligibility for changes on the base schedule.
     """
 
-    users = User.objects.filter(is_active=True, is_invisible=False, is_manager=False) # managers cannot lose eligibility
-    # Also, exclude users who currently have non-compliant status (they cannot lose what they don't have)
-    for user in users:
-        user_delta = get_user_base_total(user, split_the_fifth=True) 
-        print(user_delta)
-
     data = {
-     "year": 2025,
-     "month": 11,
-     "has_risk": True,
-     "items": [
-             {
-             "user_id": 42,
-             "user_name": "Charles",
-             "current_entitlement_days": 10,
-             "will_expire_days": 4,
-             "reason": "Carryover expires at month boundary",
-             "can_keep": True,
-             "keep_key": "42-2025-11"
-             },
-             {
-             "user_id": 77,
-             "user_name": "Bruno",
-             "current_entitlement_days": 5,
-             "will_expire_days": 5,
-             "reason": "Exceeded carryover window",
-             "can_keep": False
-            }
-        ]
+        "year": month.year if month else timezone.now().year,
+        "month": month.number if month else timezone.now().month,
+        "has_risk": False,
+        "items": []
     }
+    
+    users = User.objects.filter(is_active=True, is_invisible=False, is_manager=False) # managers cannot lose eligibility
+    # TODO: exclude users who currently have non-compliant status (they cannot lose what they don't have)
+    for user in users:
+        user_delta = get_user_base_total(user, split_the_fifth=True)
+        if user_delta.normal < 0 or user_delta.overtime < 0:
+            info = {
+             "user_id": user.id,
+             "user_name": user.name,
+             "current_entitlement_months": 10, # TODO: get actual value
+             "reason": user_delta.reason,
+            }
+            data["items"].append(info)
+            data["has_risk"] = True
 
+    data["items"] = sorted(data["items"], key=lambda x: x["user_name"].lower())
     return data
-
+    
 
 def get_user_month_total(user, split_the_fifth=False):
     """

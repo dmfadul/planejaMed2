@@ -27,7 +27,8 @@ class MonthImpactView(APIView):
     permission_classes = [IsAdmin]
 
     def get(self, request):
-        data = gen_base_compliance_report()
+        month = Month.objects.current()
+        data = gen_base_compliance_report(month=month)
         return Response(data, status=status.HTTP_200_OK)
 
 

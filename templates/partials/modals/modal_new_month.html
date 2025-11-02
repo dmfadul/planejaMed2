@@ -1,14 +1,13 @@
 <div class="modal fade" id="confirmCreateMonth" tabindex="-1" aria-labelledby="confirmCreateMonthLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content text-dark bg-white">
       <form id="createMonthForm" method="POST" action="{% url 'shifts:create_month' %}">
         {% csrf_token %}
-        <!-- Hidden inputs get filled from the button's data-* -->
         <input type="hidden" name="year" id="createMonthYear">
         <input type="hidden" name="month" id="createMonthMonth">
 
         <div class="modal-header">
-          <h5 class="modal-title" id="confirmCreateMonthLabel">Confirmar Criação do Mês</h5>
+          <h5 class="modal-title" id="confirmCreateMonthLabel">Confirmar criação do mês</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
 
@@ -16,66 +15,52 @@
           <!-- Status / errors -->
           <div id="impactAlert" class="alert d-none" role="alert"></div>
 
-          <!-- Loading state -->
+          <!-- Loading -->
           <div id="impactLoading" class="d-flex align-items-center gap-2">
             <div class="spinner-border" role="status" aria-hidden="true"></div>
-            <span>Carregando impacto das férias…</span>
+            <span>Carregando impacto…</span>
           </div>
 
           <!-- Results -->
           <div id="impactContent" class="d-none">
-            <p class="mb-2">
-              <strong>Mês alvo:</strong> <span id="impactTarget"></span>
-            </p>
-
-            <div id="noRiskBox" class="alert alert-success d-none">
-              Nenhum usuário perderá direito de férias ao criar este mês.
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <small class="text-muted">Mês alvo</small><br>
+                <strong id="impactTarget"></strong>
+              </div>
+              <div id="noRiskBox" class="alert alert-success py-1 px-2 m-0 d-none">
+                Nenhum usuário em risco.
+              </div>
             </div>
 
             <div id="riskBox" class="d-none">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="m-0">Usuários em risco de perder direito</h6>
-                <div class="form-check">
+                <h6 class="m-0">Usuários possivelmente afetados</h6>
+                <div class="form-check m-0">
                   <input class="form-check-input" type="checkbox" id="toggleSelectAll">
-                  <label class="form-check-label" for="toggleSelectAll">Selecionar todos para manter</label>
+                  <label class="form-check-label" for="toggleSelectAll">Selecionar todos</label>
                 </div>
               </div>
 
-              <div class="table-responsive">
-                <table class="table table-sm align-middle">
-                  <thead>
-                    <tr>
-                      <th style="width: 44px;">Manter</th>
-                      <th>Usuário</th>
-                      <th class="text-end">Dias atuais</th>
-                      <th class="text-end">Dias que expiram</th>
-                      <th>Motivo</th>
-                    </tr>
-                  </thead>
-                  <tbody id="impactTableBody">
-                    <!-- rows injected by JS -->
-                  </tbody>
-                </table>
-              </div>
-
+              <!-- Compact list instead of table -->
+              <div id="riskList" class="list-group mb-1"></div>
               <small class="text-muted" id="overrideCountText">0 selecionado(s) para manter.</small>
             </div>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button id="submitCreateMonth" type="submit" class="btn btn-primary" disabled>
-            Criar mês
-          </button>
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button id="submitCreateMonth" type="submit" class="btn btn-primary" disabled>Criar mês</button>
         </div>
       </form>
     </div>
   </div>
 </div>
+
 <script>
 (function () {
-  const IMPACT_URL = '/api/months/impact'; // e.g., GET ?year=2025&month=11
+  const IMPACT_URL = '/api/months/impact'; // GET ?year=YYYY&month=M
 
   const modalEl = document.getElementById('confirmCreateMonth');
   const formEl = document.getElementById('createMonthForm');
@@ -88,7 +73,7 @@
   const noRiskBox = document.getElementById('noRiskBox');
   const riskBox = document.getElementById('riskBox');
   const impactTarget = document.getElementById('impactTarget');
-  const tableBody = document.getElementById('impactTableBody');
+  const riskList = document.getElementById('riskList');
   const toggleSelectAll = document.getElementById('toggleSelectAll');
   const overrideCountText = document.getElementById('overrideCountText');
   const submitBtn = document.getElementById('submitCreateMonth');
@@ -100,7 +85,7 @@
     riskBox.classList.add('d-none');
     submitBtn.disabled = true;
     impactLoading.classList.remove('d-none');
-    tableBody.innerHTML = '';
+    riskList.innerHTML = '';
     overrideCountText.textContent = '0 selecionado(s) para manter.';
     toggleSelectAll.checked = false;
   }
@@ -114,52 +99,82 @@
     submitBtn.disabled = true;
   }
 
+  // Normalize minimal item into a richer internal shape (with safe defaults)
+  function normalizeItem(base, year, month) {
+    const item = {
+      user_id: base.user_id,
+      user_name: base.user_name ?? '—',
+      reason: base.reason ?? '',
+      current_entitlement_months: base.current_entitlement_months ?? null,
+      // If server doesn't send these, assume keepable but unchecked:
+      can_keep: (typeof base.can_keep === 'boolean') ? base.can_keep : true,
+      keep_key: base.keep_key ?? `${base.user_id}-${year}-${String(month).padStart(2, '0')}`,
+      will_expire_days: base.will_expire_days ?? null, // we won't show it in UI anymore
+    };
+    return item;
+  }
+
   function setStateSuccess(payload) {
     impactLoading.classList.add('d-none');
     impactContent.classList.remove('d-none');
     impactAlert.classList.add('d-none');
 
-    const { year, month, has_risk, items } = payload;
+    const { year, month, has_risk } = payload;
+    const items = Array.isArray(payload.items) ? payload.items : [];
+
     impactTarget.textContent = `${String(month).padStart(2, '0')}/${year}`;
 
-    if (!has_risk || !items || items.length === 0) {
+    if (!has_risk || items.length === 0) {
       noRiskBox.classList.remove('d-none');
       riskBox.classList.add('d-none');
-      // Safe to allow creation immediately
-      submitBtn.disabled = false;
+      submitBtn.disabled = false; // safe to create right away
       return;
     }
 
-    // Build rows
+    // Build compact list
     riskBox.classList.remove('d-none');
-    const rows = items.map(item => {
-      const disabled = item.can_keep ? '' : 'disabled';
-      const title = item.can_keep ? '' : 'title="Não pode ser mantido manualmente"';
-      return `
-        <tr>
-          <td>
-            <input
-              type="checkbox"
-              class="form-check-input keep-checkbox"
-              data-user-id="${item.user_id}"
-              ${disabled} ${title}
-            >
-          </td>
-          <td>${escapeHtml(item.user_name)}</td>
-          <td class="text-end">${item.current_entitlement_days}</td>
-          <td class="text-end">${item.will_expire_days}</td>
-          <td>${escapeHtml(item.reason)}</td>
-        </tr>`;
-    }).join('');
-    tableBody.innerHTML = rows;
+    const rows = items.map(raw => {
+      const item = normalizeItem(raw, year, month);
 
-    // With risks present, still allow creation; admin may choose zero overrides
+      const disabledAttr = item.can_keep ? '' : 'disabled';
+      const titleAttr = item.can_keep ? '' : 'title="Não pode ser mantido manualmente"';
+      const monthsBadge = (item.current_entitlement_months ?? '') !== ''
+        ? `<span class="badge text-bg-light ms-1">${item.current_entitlement_months} meses</span>`
+        : '';
+
+      const reasonLine = item.reason
+        ? `<div class="small text-muted mt-1">${escapeHtml(item.reason)}</div>`
+        : '';
+
+      return `
+        <label class="list-group-item d-flex align-items-start gap-2">
+          <input
+            type="checkbox"
+            class="form-check-input mt-1 keep-checkbox"
+            data-user-id="${item.user_id}"
+            data-keep-key="${escapeHtml(item.keep_key)}"
+            ${disabledAttr} ${titleAttr}
+          >
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center">
+              <strong>${escapeHtml(item.user_name)}</strong>
+              ${monthsBadge}
+            </div>
+            ${reasonLine}
+          </div>
+        </label>
+      `;
+    }).join('');
+
+    riskList.innerHTML = rows;
+
+    // With risks present, allow creation (admin may choose zero overrides)
     submitBtn.disabled = false;
     updateOverrideCount();
   }
 
   function updateOverrideCount() {
-    const checks = tableBody.querySelectorAll('.keep-checkbox:checked');
+    const checks = riskList.querySelectorAll('.keep-checkbox:checked');
     overrideCountText.textContent = `${checks.length} selecionado(s) para manter.`;
   }
 
@@ -171,13 +186,13 @@
 
   // Select all toggle
   toggleSelectAll.addEventListener('change', () => {
-    const boxes = tableBody.querySelectorAll('.keep-checkbox:not(:disabled)');
+    const boxes = riskList.querySelectorAll('.keep-checkbox:not(:disabled)');
     boxes.forEach(b => { b.checked = toggleSelectAll.checked; });
     updateOverrideCount();
   });
 
   // Per-row change updates counter
-  tableBody.addEventListener('change', (ev) => {
+  riskList.addEventListener('change', (ev) => {
     if (ev.target && ev.target.classList.contains('keep-checkbox')) {
       updateOverrideCount();
     }
@@ -188,11 +203,11 @@
     // Remove previous hidden override inputs
     Array.from(formEl.querySelectorAll('input[name="keep_entitlements[]"]')).forEach(n => n.remove());
 
-    const checks = tableBody.querySelectorAll('.keep-checkbox:checked');
+    const checks = riskList.querySelectorAll('.keep-checkbox:checked');
     checks.forEach(chk => {
       const hid = document.createElement('input');
       hid.type = 'hidden';
-      hid.name = 'keep_entitlements[]';         // Django: request.POST.getlist('keep_entitlements[]')
+      hid.name = 'keep_entitlements[]'; // Django: request.POST.getlist('keep_entitlements[]')
       hid.value = chk.getAttribute('data-user-id');
       formEl.appendChild(hid);
     });
@@ -204,14 +219,11 @@
     const year = btn?.dataset?.year || yearInput.value;
     const month = btn?.dataset?.month || monthInput.value;
 
-    // reflect in hidden inputs
     yearInput.value = year;
     monthInput.value = month;
 
-    // UI state
     setStateLoading();
 
-    // Fetch
     const url = new URL(IMPACT_URL, window.location.origin);
     url.searchParams.set('year', year);
     url.searchParams.set('month', month);

@@ -29,4 +29,5 @@ class ComplianceHistory(models.Model):
         ]
 
     # add method to get user 'uptodate' with his compliance status
+    # add method to test for eligibility based on last 6 months
     
