@@ -78,16 +78,20 @@ def get_user_base_total(user, split_the_fifth=False):
         user_rules = vac_rules.get("new_policy_hours")
 
     user_delta = total - user_rules
-
-    print(f"User Base Total: {total}")
-    print(f"User Rules: {user_rules}")
-    print(f"User Delta: {user_delta}")
+    return user_delta
 
 
 def gen_base_compliance_report():
     """
     Generate a report of users at risk of losing vacation eligibility for changes on the base schedule.
     """
+
+    users = User.objects.filter(is_active=True, is_invisible=False, is_manager=False) # managers cannot lose eligibility
+    # Also, exclude users who currently have non-compliant status (they cannot lose what they don't have)
+    for user in users:
+        user_delta = get_user_base_total(user, split_the_fifth=True) 
+        print(user_delta)
+
     data = {
      "year": 2025,
      "month": 11,

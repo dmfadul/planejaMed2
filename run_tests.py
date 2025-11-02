@@ -16,9 +16,9 @@ from user_requests.models import UserRequest, Notification
 from shifts.models import Shift
 from core.models import User
 from vacations.models import Vacation, complianceHistory
-from vacations.services import get_user_base_total
+from vacations.services import gen_base_compliance_report
 
 
 user = User.objects.filter(crm="26704").first()
 print("User:", user)
-get_user_base_total(user, split_the_fifth=True)
+gen_base_compliance_report()

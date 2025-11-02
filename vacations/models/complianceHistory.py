@@ -27,3 +27,6 @@ class ComplianceHistory(models.Model):
         indexes = [
             models.Index(fields=['user', 'month']),
         ]
+
+    # add method to get user 'uptodate' with his compliance status
+    
