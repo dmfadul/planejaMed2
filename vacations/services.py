@@ -49,7 +49,7 @@ class TotalBaseHours:
         return self
 
 
-def get_users_base_total(user, split_the_fifth=False):
+def get_user_base_total(user, split_the_fifth=False):
     """
     compute the total base hours for a user, considering split_the_fifth flag.
     To be run when new month is created (base is 'set in place').
@@ -84,7 +84,39 @@ def get_users_base_total(user, split_the_fifth=False):
     print(f"User Delta: {user_delta}")
 
 
-def get_users_month_total(user, split_the_fifth=False):
+def gen_base_compliance_report():
+    """
+    Generate a report of users at risk of losing vacation eligibility for changes on the base schedule.
+    """
+    data = {
+     "year": 2025,
+     "month": 11,
+     "has_risk": True,
+     "items": [
+             {
+             "user_id": 42,
+             "user_name": "Charles",
+             "current_entitlement_days": 10,
+             "will_expire_days": 4,
+             "reason": "Carryover expires at month boundary",
+             "can_keep": True,
+             "keep_key": "42-2025-11"
+             },
+             {
+             "user_id": 77,
+             "user_name": "Bruno",
+             "current_entitlement_days": 5,
+             "will_expire_days": 5,
+             "reason": "Exceeded carryover window",
+             "can_keep": False
+            }
+        ]
+    }
+
+    return data
+
+
+def get_user_month_total(user, split_the_fifth=False):
     """
     compute the total hours in a month for a user, considering split_the_fifth flag.
     To be run when new month is opened (shifts exchanges are closed).
