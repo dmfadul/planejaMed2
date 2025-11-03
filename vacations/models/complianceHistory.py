@@ -28,13 +28,23 @@ class ComplianceHistory(models.Model):
             models.Index(fields=['user', 'month']),
         ]
 
-    def populate_month(self):
+    def populate_month(cls):
         """
         Populate the month field based on gen_base_compliance_report and gen_month_compliance_report.
         """
+        # TODO: implement logic to set the month based on reports
         pass
 
-
-    # TODO: add method to get user 'uptodate' with his compliance status
-    # TODO: add method to test for eligibility based on last 6 months
+    def is_eligible(cls):
+        """
+        Check if the user is eligible based on compliance status.
+        """
+        # TODO: add method to test for eligibility based on last X months (get x from settings)
+        pass
     
+    def mark_compliant_from(cls, user, from_month):
+        """
+        Mark the user as compliant from the given month onwards until a non-compliant month is found.
+        """
+        # TODO: add method to get user 'uptodate' with his compliance status
+        pass
