@@ -40,7 +40,6 @@ class MonthAPIview(APIView):
             # Return current month info
             current_month = Month.objects.current()
             serializer = MonthSerializer(current_month)
-            print("Fetching current month info  for user:", serializer.data)
         else:
             try:
                 month_id = int(selector)
@@ -54,6 +53,11 @@ class MonthAPIview(APIView):
             serializer = MonthSerializer(month)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        """Create a new month."""
+        print("Creating new month via API...", request.data)
+        return Response([], status=status.HTTP_201_CREATED)
 
 
 class CenterAPIview(APIView):

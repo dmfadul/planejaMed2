@@ -3,12 +3,13 @@ import logging
 from core.models import User
 import core.constants as constants
 from django.contrib import messages
-from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from shifts.services.table_services import process_table_payload, build_table_data
 from shifts.models import ShiftType, ShiftSnapshot, TemplateShift, Shift, Center, Month
+
 
 
 
@@ -158,7 +159,17 @@ def update_holiday(request):
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
 def create_month(request):
-    print("Creating new month...")
+    ctype = (request.META.get("CONTENT_TYPE") or "").lower()
+    if "application/json" in ctype:
+        try:
+            data = json.loads(request.body.decode("utf-8") or "{}")
+        except json.JSONDecodeError:
+            return HttpResponseBadRequest("Invalid JSON")
+    else:
+        data = request.POST
+        print("no cytipe")
+
+    print("Creating new month...", data)
     next_month = Month.objects.next()
     if next_month:
         raise ValueError(f"Já existe um mês {next_month} criado.")
@@ -172,17 +183,20 @@ def create_month(request):
        
     next_number, next_year = curr_month.next_number_year()
 
-    new_month = Month.new_month(next_number, next_year)
-    new_month.populate_month()
-    new_month.fix_users()
+    # new_month = Month.new_month(next_number, next_year)
+    # new_month.populate_month()
+    # new_month.fix_users()
 
     logger.info(f'{request.user.crm} created a new month')
     messages.success(request, "Mês criado com sucesso.")
 
-    kwargs = {"center_abbr": "CCG",
-              "month_num": new_month.number,
-              "year": new_month.year}
+    # kwargs = {"center_abbr": "CCG",
+    #           "month_num": new_month.number,
+    #           "year": new_month.year}
 
+    kwargs = {"center_abbr": "CCG",
+                "month_num": 2,
+                "year": 2025}
     return redirect("shifts:month_table", **kwargs)
 
 

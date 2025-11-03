@@ -1,7 +1,7 @@
 <div class="modal fade" id="confirmCreateMonth" tabindex="-1" aria-labelledby="confirmCreateMonthLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content text-dark bg-white">
-      <form id="createMonthForm" method="POST" action="{% url 'shifts:create_month' %}">
+      <form id="createMonthForm" method="POST" action="{% url 'shifts_api:months' %}">
         {% csrf_token %}
         <input type="hidden" name="year" id="createMonthYear">
         <input type="hidden" name="month" id="createMonthMonth">
