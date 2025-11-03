@@ -11,6 +11,7 @@ from django.views.decorators.http import require_GET
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404, redirect
 from vacations.services import gen_base_compliance_report
+from shifts.models import ShiftType, ShiftSnapshot
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,9 @@ class MonthAPIview(APIView):
             new_month = Month.new_month(next_number, next_year)
             new_month.populate_month()
             new_month.fix_users(keepers_id=keepers_id)
+
+            ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)  
+            # ShiftSnapshot.take_snapshot(curr_month, ShiftType.ORIGINAL) # move to month unlock
 
         logger.info(f'{request.user.crm} created a new month')
         messages.success(request, "Mês criado com sucesso.")
