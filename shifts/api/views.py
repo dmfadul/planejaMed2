@@ -35,6 +35,8 @@ class MonthImpactView(APIView):
     def get(self, request):
         month = Month.objects.current()
         data = gen_base_compliance_report(month=month)
+        # TODO: exclude users who currently have non-compliant status (they cannot lose what they don't have)
+
         return Response(data, status=status.HTTP_200_OK)
 
 

@@ -28,6 +28,13 @@ class ComplianceHistory(models.Model):
             models.Index(fields=['user', 'month']),
         ]
 
-    # add method to get user 'uptodate' with his compliance status
-    # add method to test for eligibility based on last 6 months
+    def populate_month(self):
+        """
+        Populate the month field based on gen_base_compliance_report and gen_month_compliance_report.
+        """
+        pass
+
+
+    # TODO: add method to get user 'uptodate' with his compliance status
+    # TODO: add method to test for eligibility based on last 6 months
     

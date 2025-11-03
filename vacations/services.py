@@ -105,7 +105,6 @@ def gen_base_compliance_report(month: Month = None):
     }
     
     users = User.objects.filter(is_active=True, is_invisible=False, is_manager=False) # managers cannot lose eligibility
-    # TODO: exclude users who currently have non-compliant status (they cannot lose what they don't have)
     for user in users:
         user_delta = get_user_base_total(user, split_the_fifth=True)
         if user_delta.normal < 0 or user_delta.overtime < 0:
