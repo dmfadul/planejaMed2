@@ -10,9 +10,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from shifts.services.table_services import process_table_payload, build_table_data
 from shifts.models import ShiftType, ShiftSnapshot, TemplateShift, Shift, Center, Month
 
-
-
-
 logger = logging.getLogger(__name__) 
 
 
@@ -156,48 +153,48 @@ def update_holiday(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 
-@user_passes_test(lambda u: u.is_superuser)
-@require_POST
-def create_month(request):
-    ctype = (request.META.get("CONTENT_TYPE") or "").lower()
-    if "application/json" in ctype:
-        try:
-            data = json.loads(request.body.decode("utf-8") or "{}")
-        except json.JSONDecodeError:
-            return HttpResponseBadRequest("Invalid JSON")
-    else:
-        data = request.POST
-        print("no cytipe")
+# @user_passes_test(lambda u: u.is_superuser)
+# @require_POST
+# def create_month(request):
+#     ctype = (request.META.get("CONTENT_TYPE") or "").lower()
+#     if "application/json" in ctype:
+#         try:
+#             data = json.loads(request.body.decode("utf-8") or "{}")
+#         except json.JSONDecodeError:
+#             return HttpResponseBadRequest("Invalid JSON")
+#     else:
+#         data = request.POST
+#         print("no cytipe")
 
-    print("Creating new month...", data)
-    next_month = Month.objects.next()
-    if next_month:
-        raise ValueError(f"Já existe um mês {next_month} criado.")
+#     print("Creating new month...", data)
+#     next_month = Month.objects.next()
+#     if next_month:
+#         raise ValueError(f"Já existe um mês {next_month} criado.")
     
-    curr_month = Month.objects.current()
-    if not curr_month:
-        raise ValueError("Nenhum mês atual encontrado.")
+#     curr_month = Month.objects.current()
+#     if not curr_month:
+#         raise ValueError("Nenhum mês atual encontrado.")
     
-    ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)
-    ShiftSnapshot.take_snapshot(curr_month, ShiftType.ORIGINAL)
+#     ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)
+#     ShiftSnapshot.take_snapshot(curr_month, ShiftType.ORIGINAL)
        
-    next_number, next_year = curr_month.next_number_year()
+#     next_number, next_year = curr_month.next_number_year()
 
-    # new_month = Month.new_month(next_number, next_year)
-    # new_month.populate_month()
-    # new_month.fix_users()
+#     # new_month = Month.new_month(next_number, next_year)
+#     # new_month.populate_month()
+#     # new_month.fix_users()
 
-    logger.info(f'{request.user.crm} created a new month')
-    messages.success(request, "Mês criado com sucesso.")
+#     logger.info(f'{request.user.crm} created a new month')
+#     messages.success(request, "Mês criado com sucesso.")
 
-    # kwargs = {"center_abbr": "CCG",
-    #           "month_num": new_month.number,
-    #           "year": new_month.year}
+#     # kwargs = {"center_abbr": "CCG",
+#     #           "month_num": new_month.number,
+#     #           "year": new_month.year}
 
-    kwargs = {"center_abbr": "CCG",
-                "month_num": 2,
-                "year": 2025}
-    return redirect("shifts:month_table", **kwargs)
+#     kwargs = {"center_abbr": "CCG",
+#                 "month_num": 2,
+#                 "year": 2025}
+#     return redirect("shifts:month_table", **kwargs)
 
 
 @user_passes_test(lambda u: u.is_superuser)

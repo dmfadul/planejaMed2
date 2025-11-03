@@ -1,14 +1,19 @@
-from urllib import request
+import logging
 from rest_framework import status
+from django.db import transaction
+from django.contrib import messages
 from core.permissions import IsAdmin
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from django.shortcuts import get_object_or_404
-from vacations.services import gen_base_compliance_report
 from django.views.decorators.http import require_GET
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404, redirect
+from vacations.services import gen_base_compliance_report
+
+logger = logging.getLogger(__name__)
+
 
 from shifts.models import (
     Center,
@@ -56,8 +61,37 @@ class MonthAPIview(APIView):
     
     def post(self, request):
         """Create a new month."""
-        print("Creating new month via API...", request.data)
-        return Response([], status=status.HTTP_201_CREATED)
+        if not request.user.is_superuser and not request.user.is_admin:
+            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+        
+        next_month = Month.objects.next()
+        if next_month:
+            return Response(
+                {"detail": f"Month {next_month.number}/{next_month.year} already exists."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        keepers_id = request.POST.getlist("keep_entitlements[]", [])
+        if keepers_id:
+            # TODO: implement keeping entitlements logic
+            pass
+        
+        curr_month = Month.objects.current()
+        next_number, next_year = curr_month.next_number_year()
+
+        with transaction.atomic():
+            new_month = Month.new_month(next_number, next_year)
+            new_month.populate_month()
+            new_month.fix_users(keepers_id=keepers_id)
+
+        logger.info(f'{request.user.crm} created a new month')
+        messages.success(request, "Mês criado com sucesso.")
+
+        kwargs = {"center_abbr": "CCG",
+                  "month_num": new_month.number,
+                  "year": new_month.year}        
+
+        return redirect("shifts:month_table", **kwargs)
 
 
 class CenterAPIview(APIView):
@@ -75,12 +109,15 @@ class CenterAPIview(APIView):
         # Fetch and return the list of centers
         centers = Center.objects.all()
         serializer = CenterSerializer(centers, many=True)
-        print("Centers retrieved:", serializer.data)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
     def post(self, request):
         """Create a new center."""
+        if not request.user.is_superuser and not request.user.is_admin:
+            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+        
         serializer = CenterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -98,6 +135,9 @@ class CenterAPIview(APIView):
     
     def delete(self, request, pk=None):
         """Delete a center."""
+        if not request.user.is_superuser and not request.user.is_admin:
+            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+        
         center = get_object_or_404(Center, pk=pk)
         center.delete()
 
