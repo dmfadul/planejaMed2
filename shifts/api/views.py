@@ -73,9 +73,6 @@ class MonthAPIview(APIView):
             )
 
         keepers_id = request.POST.getlist("keep_entitlements[]", [])
-        if keepers_id:
-            # TODO: implement keeping entitlements logic
-            pass
         
         curr_month = Month.objects.current()
         next_number, next_year = curr_month.next_number_year()
@@ -84,6 +81,8 @@ class MonthAPIview(APIView):
             new_month = Month.new_month(next_number, next_year)
             new_month.populate_month()
             new_month.fix_users(keepers_id=keepers_id)
+
+            # TODO: implement keeping entitlements logic pass keepers_id, either empty or not
 
             ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)  
             # ShiftSnapshot.take_snapshot(curr_month, ShiftType.ORIGINAL) # move to month unlock
