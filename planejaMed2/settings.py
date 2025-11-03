@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'shifts',
     'user_requests',
     'vacations',
+    'finance',
 ]
 
 MIDDLEWARE = [
