@@ -19,7 +19,7 @@ from vacations.models import Vacation, complianceHistory
 from vacations.services import gen_base_compliance_report
 from vacations.models.complianceHistory import ComplianceHistory
 
-ComplianceHistory.populate_month(check_type="BASE")
+ComplianceHistory.populate_from_base(check_type="BASE")
 
 # user = User.objects.filter(crm="26704").first()
 # print("User:", user)
