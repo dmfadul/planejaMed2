@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404, redirect
 from vacations.services import gen_base_compliance_report
 from shifts.models import ShiftType, ShiftSnapshot
+from vacations.models import ComplianceHistory
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +85,10 @@ class MonthAPIview(APIView):
             new_month.populate_month()
             new_month.fix_users(keepers_id=keepers_id)
 
-            # TODO: implement keeping entitlements logic pass keepers_id, either empty or not
+            ComplianceHistory.populate_compliance_history(
+                check_type="BASE",
+                keeper_ids=keepers_id
+            )
 
             ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)  
             # ShiftSnapshot.take_snapshot(curr_month, ShiftType.ORIGINAL) # move to month unlock
