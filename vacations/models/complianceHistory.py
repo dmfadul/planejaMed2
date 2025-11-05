@@ -34,19 +34,28 @@ class ComplianceHistory(models.Model):
         ]
 
     def _rule_version_for(user):
-        return "old_policy" if user.date_joined <= VACATION_RULES else "new_policy"
+        return "old_policy" if user.date_joined <= VACATION_RULES.get("new_policy_start_date") else "new_policy"
 
     @classmethod
-    def populate_from_base(cls, keeper_ids=None):
+    def populate_compliance_history(cls, check_type, keeper_ids=None):
         """
-        Populate ComplianceHistory for a given month from the BASE compliance reports.
+        Populate ComplianceHistory for a given month from the compliance reports.
+        check_type: "BASE" or "MONTH"
+        keeper_ids: list of user IDs to be marked as compliant regardless of report
         """
         
-        month = Month.objects.current()
         keeper_ids = set(keeper_ids or [])
         
-        reports = gen_base_compliance_report()
-        if not reports or not reports.get("has_risk"):
+        if check_type == "BASE":
+            month = Month.objects.current()
+            compliance_report = gen_base_compliance_report()
+        elif check_type == "MONTH":
+            month = Month.get_previous()
+            compliance_report = gen_month_compliance_report(month=month)
+        else:
+            raise ValueError("Invalid check_type. Must be 'BASE' or 'MONTH'.")
+        
+        if not compliance_report or not compliance_report.get("has_risk"):
             return
         
         users = User.objects.filter(is_active=True, is_invisible=False)
@@ -62,75 +71,41 @@ class ComplianceHistory(models.Model):
             for u in users
         ]
 
-        # items = reports.get("items", [])
-        # # map user_id → reason payload straight from the report
-        # raw_at_risk = {row["user_id"]: row.get("reason") for row in items if "user_id" in row}
+        items = compliance_report.get("items", [])
+        reasons = {row["user_id"]: row.get("reason") for row in items if "user_id" in row}
+        non_compliant_ids = set(reasons.keys()) - keeper_ids
 
-        # # effective at-risk excludes keepers
-        # effective_at_risk_ids = set(raw_at_risk.keys()) - keeper_ids
-
-        # # Fetch all users once (you can narrow this to your roster if you have a scope)
-        # all_user_ids = set(User.objects.values_list("id", flat=True))
-        # # If you have a roster queryset, use that instead of all users:
-        # # roster_user_ids = set(Roster.active_for_month(month).values_list("user_id", flat=True))
-        # # all_user_ids = roster_user_ids
-
-        # rest_ids = all_user_ids - effective_at_risk_ids - keeper_ids
-
-        # # Batch fetch users we'll touch
-        # users_by_id = {u.id: u for u in User.objects.filter(id__in=(effective_at_risk_ids | keeper_ids | rest_ids))}
-
-        # with transaction.atomic():
-        #     # 1) Upsert NONCOMPLIANT for effective at-risk (keepers were removed already)
-        #     for uid in effective_at_risk_ids:
-        #         user = users_by_id.get(uid)
-        #         if not user:
-        #             continue
-        #         cls.objects.update_or_create(
-        #             user=user,
-        #             month=month,
-        #             defaults={
-        #                 "status": cls.ComplianceStatus.NONCOMPLIANT,
-        #                 "rule_version": cls._rule_version_for(user),
-        #                 # JSONField: keep a structured payload
-        #                 "reason": {"check": check_type, "details": raw_at_risk.get(uid) or {}},
-        #                 "source": "system",
-        #             },
-        #         )
-
-        #     # 2) Explicitly mark KEEPERS as COMPLIANT (source=manual as you wanted)
-        #     for uid in keeper_ids:
-        #         user = users_by_id.get(uid)
-        #         if not user:
-        #             continue
-        #         cls.objects.update_or_create(
-        #             user=user,
-        #             month=month,
-        #             defaults={
-        #                 "status": cls.ComplianceStatus.COMPLIANT,
-        #                 "rule_version": cls._rule_version_for(user),
-        #                 "reason": {},  # empty for compliant
-        #                 "source": "manual",
-        #             },
-        #         )
-
-        #     # 3) Everyone else → COMPLIANT (source=system)
-        #     for uid in rest_ids:
-        #         user = users_by_id.get(uid)
-        #         if not user:
-        #             continue
-        #         cls.objects.update_or_create(
-        #             user=user,
-        #             month=month,
-        #             defaults={
-        #                 "status": cls.ComplianceStatus.COMPLIANT,
-        #                 "rule_version": cls._rule_version_for(user),
-        #                 "reason": {},
-        #                 "source": "system",
-        #             },
-        #         )
-
-
+        with transaction.atomic():
+            if check_type == "BASE":
+                # Bulk create baseline compliant records
+                cls.objects.bulk_create(baseline_objs, ignore_conflicts=True)
+            
+            # Update non-compliant users (excluding keepers)
+            for user in users.filter(id__in=non_compliant_ids):
+                cls.objects.update_or_create(
+                    user=user,
+                    month=month,
+                    defaults={
+                        "status": cls.ComplianceStatus.NONCOMPLIANT,
+                        "rule_version": cls._rule_version_for(user),
+                        "reason": {"check": check_type, "details": reasons.get(user.id) or {}},
+                        "source": "system",
+                    },
+                )
+            
+            # Update keepers to compliant
+            for user in users.filter(id__in=keeper_ids):
+                cls.objects.update_or_create(
+                    user=user,
+                    month=month,
+                    defaults={
+                        "status": cls.ComplianceStatus.COMPLIANT,
+                        "rule_version": cls._rule_version_for(user),
+                        "reason": {"check": check_type, "details": reasons.get(user.id) or {}}, # keep reason for future reference
+                        "source": "manual",
+                    },
+                )
+                        
     @classmethod
     def is_eligible(cls):
         """
