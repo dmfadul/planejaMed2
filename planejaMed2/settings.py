@@ -12,22 +12,34 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(
+    DJANGO_DEBUG=(bool, False),
+    DJANGO_ALLOWED_HOSTS=(list, []),
+)
+environ.Env.read_env(BASE_DIR / '.env')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+SECRET_KEY = env('DJANGO_SECRET_KEY')
+DEBUG = env('DJANGO_DEBUG')
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[])
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ctt%=n7&l9j%a^wc!0pu+twpz+6z!$(aaummu8=t-eqvzzz3ml'
+CSRF_TRUSTED_ORIGINS = env.list('DJANGO_CSRF_TRUSTED_ORIGINS', default=[])
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DB: default to sqlite at project root unless DATABASE_URL is provided
+DATABASES = {
+    "default": env.db(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+}
 
-ALLOWED_HOSTS = []
+STATIC_URL = "static/"
+STATIC_ROOT = env("DJANGO_STATIC_ROOT", default=str(BASE_DIR.parent / "static"))
+MEDIA_URL = "media/"
+MEDIA_ROOT = env("DJANGO_MEDIA_ROOT", default=str(BASE_DIR.parent / "media"))
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
