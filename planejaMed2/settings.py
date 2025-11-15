@@ -41,6 +41,30 @@ MEDIA_ROOT = env("DJANGO_MEDIA_ROOT", default=str(BASE_DIR.parent / "media"))
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# Security settings – only enforced when not in DEBUG
+if not DEBUG:
+    # 1. Force HTTPS at Django level as well (Nginx already redirects)
+    SECURE_SSL_REDIRECT = True
+
+    # 2. Cookies only sent over HTTPS
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # 3. Extra cookie hardening
+    SESSION_COOKIE_HTTPONLY = True  # default but explicit is good
+    CSRF_COOKIE_HTTPONLY = False    # must stay False for Django’s JS-based CSRF
+
+    # 4. HSTS (HTTP Strict Transport Security)
+    # Start small (e.g. 1 day) and increase once you're sure HTTPS is stable.
+    SECURE_HSTS_SECONDS = 86400          # 1 day for now
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False  # set True later if you use subdomains
+    SECURE_HSTS_PRELOAD = False          # set True only if you intend to submit to HSTS preload list
+
+    # 5. Misc secure headers
+    SECURE_CONTENT_TYPE_NOSNIFF = True   # prevents MIME sniffing
+    SECURE_REFERRER_POLICY = "same-origin"
+    X_FRAME_OPTIONS = "DENY"             # clickjacking protection (you already have middleware, but explicit is fine)
+
 # Application definition
 
 INSTALLED_APPS = [
