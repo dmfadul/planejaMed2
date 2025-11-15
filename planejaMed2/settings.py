@@ -21,7 +21,7 @@ env = environ.Env(
     DJANGO_DEBUG=(bool, False),
     DJANGO_ALLOWED_HOSTS=(list, []),
 )
-environ.Env.read_env(BASE_DIR / '.env')
+environ.Env.read_env(BASE_DIR.parent / '.env')
 
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env('DJANGO_DEBUG')
@@ -33,6 +33,11 @@ CSRF_TRUSTED_ORIGINS = env.list('DJANGO_CSRF_TRUSTED_ORIGINS', default=[])
 DATABASES = {
     "default": env.db(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
 }
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
 
 STATIC_URL = "/static/"
 STATIC_ROOT = env("DJANGO_STATIC_ROOT", default=str(BASE_DIR.parent / "static"))
@@ -132,16 +137,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
