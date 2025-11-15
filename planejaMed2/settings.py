@@ -29,11 +29,6 @@ ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[])
 
 CSRF_TRUSTED_ORIGINS = env.list('DJANGO_CSRF_TRUSTED_ORIGINS', default=[])
 
-# DB: default to sqlite at project root unless DATABASE_URL is provided
-DATABASES = {
-    "default": env.db(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
-}
-
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
@@ -95,6 +90,18 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'planejaMed2.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
