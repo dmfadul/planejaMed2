@@ -12,11 +12,16 @@ function renderTable(tableData){
 }
 
 function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
+    console.log("Rendering headers:", data);
     const thead = document.createElement('thead');
     const row1 = document.createElement('tr');
     data.header1.forEach((cell, idx) => {
-        const cellDay = cell.cellID.split('-')[1];
-        
+        let cellDay = null;
+        if (typeof cell.cellID === 'string' && cell.cellID.includes('-')) {
+            cellDay = cell.cellID.split('-')[1];
+        } else {
+            cellDay = cell.cellID;
+        }
         const th = document.createElement('th');
         th.textContent = cell.label;
         th.id = cell.cellID;
