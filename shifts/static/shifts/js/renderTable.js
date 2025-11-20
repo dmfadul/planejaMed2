@@ -12,7 +12,6 @@ function renderTable(tableData){
 }
 
 function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
-    console.log("Rendering headers:", data);
     const thead = document.createElement('thead');
     const row1 = document.createElement('tr');
     data.header1.forEach((cell, idx) => {
