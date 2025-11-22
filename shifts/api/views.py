@@ -72,7 +72,7 @@ class MonthAPIview(APIView):
         with transaction.atomic():
             new_month = Month.new_month(next_number, next_year)
             new_month.populate_month()
-            new_month.fix_users(keepers_id=keepers_id)
+            new_month.fix_users()
 
             ComplianceHistory.populate_compliance_history(
                 check_type="BASE",
