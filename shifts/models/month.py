@@ -135,7 +135,10 @@ class Month(models.Model):
     def gen_calendar_table(self):
         return gen_calendar_table(self.start_date, self.end_date)
 
-
+    def unlock(self):
+        self.is_locked = False
+        self.is_current = True
+        self.save()
 
 
 class Holiday(models.Model):

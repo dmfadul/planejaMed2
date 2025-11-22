@@ -30,17 +30,6 @@ from .serializers import (
 )
 
 
-class MonthImpactView(APIView):
-    permission_classes = [IsAdmin]
-
-    def get(self, request):
-        month = Month.objects.current()
-        data = gen_base_compliance_report(month=month)
-        # TODO: exclude users who currently have non-compliant status (they cannot lose what they don't have)
-
-        return Response(data, status=status.HTTP_200_OK)
-
-
 class MonthAPIview(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -91,7 +80,7 @@ class MonthAPIview(APIView):
             )
 
             ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)  
-            # ShiftSnapshot.take_snapshot(curr_month, ShiftType.ORIGINAL) # move to month unlock
+            # ShiftSnapshot.take_snapshot(curr_month, ShiftType.ORIGINAL) # TODO: move to month unlock
 
         logger.info(f'{request.user.crm} created a new month')
         messages.success(request, "Mês criado com sucesso.")
@@ -101,7 +90,30 @@ class MonthAPIview(APIView):
                   "year": new_month.year}        
 
         return redirect("shifts:month_table", **kwargs)
+    
 
+class MonthImpactView(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self, request):
+        month = Month.objects.current()
+        data = gen_base_compliance_report(month=month)
+        # TODO: exclude users who currently have non-compliant status (they cannot lose what they don't have)
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class MonthUnlockView(APIView):
+    permission_classes = [IsAdmin]
+
+    def post(self, request):
+        
+        month = Month.objects.next()
+
+        return Response(
+            {"detail": f"Month {month.number}/{month.year} unlocked."},
+            status=status.HTTP_200_OK,
+        )
 
 class CenterAPIview(APIView):
     permission_classes = [IsAuthenticated]
