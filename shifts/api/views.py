@@ -96,6 +96,14 @@ class MonthImpactView(APIView):
     permission_classes = [IsAdmin]
 
     def get(self, request):
+        mode = request.query_params.get('mode', 'create').lower()
+        year = request.query_params.get('year')
+        month = request.query_params.get('month')
+
+        print(f"Generating month impact report: mode={mode}, year={year}, month={month}")
+        if mode == "unlock":
+            return
+
         month = Month.objects.current()
         data = gen_base_compliance_report(month=month)
         # TODO: exclude users who currently have non-compliant status (they cannot lose what they don't have)

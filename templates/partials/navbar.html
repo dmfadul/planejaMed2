@@ -67,9 +67,37 @@
           </a>
           <ul class="dropdown-menu">
             {% if not lck_month_exists %}
-            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#confirmCreateMonth">Criar Mês</a></li>
+            <li>
+              <a class="dropdown-item"
+                 href="#"
+                 data-bs-toggle="modal"
+                 data-bs-target="#monthImpactModal"
+                 data-mode="create"
+                 data-title="Confirmar criação do mês"
+                 data-submit-label="Criar mês"
+                 data-action-url="{% url 'shifts_api:months' %}"
+                 data-impact-url="/api/months/impact"
+                 data-year="{{ current_year }}"
+                 data-month="{{ current_month }}">
+                Criar Mês
+              </a>
+            </li>
             {% else %}
-            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#confirmUnlockMonth">Destrancar Mês</a></li>
+            <li>
+              <a class="dropdown-item"
+                 href="#"
+                 data-bs-toggle="modal"
+                 data-bs-target="#monthImpactModal"
+                 data-mode="unlock"
+                 data-title="Confirmar destrancamento do mês"
+                 data-submit-label="Destrancar Mês"
+                 data-action-url="{% url 'shifts:unlock_month' %}"  
+                 data-impact-url="/api/months/impact"
+                 data-year="{{ month.year }}"
+                 data-month="{{ month.number }}">
+                Destrancar Mês
+              </a>
+            </li>
             {% endif %}
             <li><a class="dropdown-item" href="{% url 'shifts:sum_doctors_base' %}">Horas-Médico (Bases)</a></li>
             <li><a class="dropdown-item open-month-modal" href="#" data-bs-toggle="modal" data-bs-target="#monthsModal" data-mode="sum-doctors" >Horas-Médico (Mês)</a></li>

@@ -1,13 +1,14 @@
-<div class="modal fade" id="confirmCreateMonth" tabindex="-1" aria-labelledby="confirmCreateMonthLabel" aria-hidden="true">
+<div class="modal fade" id="monthImpactModal" tabindex="-1" aria-labelledby="monthImpactLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content text-dark bg-white">
-      <form id="createMonthForm" method="POST" action="{% url 'shifts_api:months' %}">
+      <form id="monthImpactForm" method="POST">
         {% csrf_token %}
-        <input type="hidden" name="year" id="createMonthYear">
-        <input type="hidden" name="month" id="createMonthMonth">
+        <input type="hidden" name="year" id="monthImpactYear">
+        <input type="hidden" name="month" id="monthImpactMonth">
+        <input type="hidden" name="mode" id="monthImpactMode">  <!-- create | unlock, if useful server-side -->
 
         <div class="modal-header">
-          <h5 class="modal-title" id="confirmCreateMonthLabel">Confirmar criação do mês</h5>
+          <h5 class="modal-title" id="monthImpactLabel">Confirmar</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
         </div>
 
@@ -42,7 +43,6 @@
                 </div>
               </div>
 
-              <!-- Compact list instead of table -->
               <div id="riskList" class="list-group mb-1"></div>
               <small class="text-muted" id="overrideCountText">0 selecionado(s) para manter.</small>
             </div>
@@ -51,21 +51,23 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-          <button id="submitCreateMonth" type="submit" class="btn btn-primary" disabled>Criar mês</button>
+          <button id="monthImpactSubmit" type="submit" class="btn btn-primary" disabled>
+            Confirmar
+          </button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+
 <script>
 (function () {
-  const IMPACT_URL = '/api/months/impact'; // GET ?year=YYYY&month=M
-
-  const modalEl = document.getElementById('confirmCreateMonth');
-  const formEl = document.getElementById('createMonthForm');
-  const yearInput = document.getElementById('createMonthYear');
-  const monthInput = document.getElementById('createMonthMonth');
+  const modalEl = document.getElementById('monthImpactModal');
+  const formEl = document.getElementById('monthImpactForm');
+  const yearInput = document.getElementById('monthImpactYear');
+  const monthInput = document.getElementById('monthImpactMonth');
+  const modeInput = document.getElementById('monthImpactMode');
 
   const impactLoading = document.getElementById('impactLoading');
   const impactContent = document.getElementById('impactContent');
@@ -76,7 +78,10 @@
   const riskList = document.getElementById('riskList');
   const toggleSelectAll = document.getElementById('toggleSelectAll');
   const overrideCountText = document.getElementById('overrideCountText');
-  const submitBtn = document.getElementById('submitCreateMonth');
+  const submitBtn = document.getElementById('monthImpactSubmit');
+  const titleEl = document.getElementById('monthImpactLabel');
+
+  let currentImpactUrl = '/api/months/impact';
 
   function setStateLoading() {
     impactAlert.classList.add('d-none');
@@ -99,19 +104,16 @@
     submitBtn.disabled = true;
   }
 
-  // Normalize minimal item into a richer internal shape (with safe defaults)
   function normalizeItem(base, year, month) {
-    const item = {
+    return {
       user_id: base.user_id,
       user_name: base.user_name ?? '—',
       reason: base.reason ?? '',
       current_entitlement_months: base.current_entitlement_months ?? null,
-      // If server doesn't send these, assume keepable but unchecked:
       can_keep: (typeof base.can_keep === 'boolean') ? base.can_keep : true,
       keep_key: base.keep_key ?? `${base.user_id}-${year}-${String(month).padStart(2, '0')}`,
-      will_expire_days: base.will_expire_days ?? null, // we won't show it in UI anymore
+      will_expire_days: base.will_expire_days ?? null,
     };
-    return item;
   }
 
   function setStateSuccess(payload) {
@@ -127,11 +129,10 @@
     if (!has_risk || items.length === 0) {
       noRiskBox.classList.remove('d-none');
       riskBox.classList.add('d-none');
-      submitBtn.disabled = false; // safe to create right away
+      submitBtn.disabled = false;
       return;
     }
 
-    // Build compact list
     riskBox.classList.remove('d-none');
     const rows = items.map(raw => {
       const item = normalizeItem(raw, year, month);
@@ -167,8 +168,6 @@
     }).join('');
 
     riskList.innerHTML = rows;
-
-    // With risks present, allow creation (admin may choose zero overrides)
     submitBtn.disabled = false;
     updateOverrideCount();
   }
@@ -184,49 +183,56 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   }
 
-  // Select all toggle
   toggleSelectAll.addEventListener('change', () => {
     const boxes = riskList.querySelectorAll('.keep-checkbox:not(:disabled)');
     boxes.forEach(b => { b.checked = toggleSelectAll.checked; });
     updateOverrideCount();
   });
 
-  // Per-row change updates counter
   riskList.addEventListener('change', (ev) => {
     if (ev.target && ev.target.classList.contains('keep-checkbox')) {
       updateOverrideCount();
     }
   });
 
-  // On submit, inject selected overrides as hidden inputs
+  // Inject overrides on submit (both create and unlock can reuse this)
   formEl.addEventListener('submit', () => {
-    // Remove previous hidden override inputs
     Array.from(formEl.querySelectorAll('input[name="keep_entitlements[]"]')).forEach(n => n.remove());
 
     const checks = riskList.querySelectorAll('.keep-checkbox:checked');
     checks.forEach(chk => {
       const hid = document.createElement('input');
       hid.type = 'hidden';
-      hid.name = 'keep_entitlements[]'; // Django: request.POST.getlist('keep_entitlements[]')
+      hid.name = 'keep_entitlements[]';
       hid.value = chk.getAttribute('data-user-id');
       formEl.appendChild(hid);
     });
   });
 
-  // Load impact when modal opens
+  // When modal opens, read all configuration from the clicked link
   modalEl.addEventListener('show.bs.modal', (ev) => {
     const btn = ev.relatedTarget;
-    const year = btn?.dataset?.year || yearInput.value;
-    const month = btn?.dataset?.month || monthInput.value;
+    const mode = btn?.dataset?.mode || 'create';
+    const year = btn?.dataset?.year;
+    const month = btn?.dataset?.month;
+    const title = btn?.dataset?.title || 'Confirmar';
+    const submitLabel = btn?.dataset?.submitLabel || 'Confirmar';
+    const actionUrl = btn?.dataset?.actionUrl || formEl.getAttribute('action') || '';
+    currentImpactUrl = btn?.dataset?.impactUrl || currentImpactUrl;
 
+    titleEl.textContent = title;
+    submitBtn.textContent = submitLabel;
+    formEl.action = actionUrl;
+    modeInput.value = mode;
     yearInput.value = year;
     monthInput.value = month;
 
     setStateLoading();
 
-    const url = new URL(IMPACT_URL, window.location.origin);
+    const url = new URL(currentImpactUrl, window.location.origin);
     url.searchParams.set('year', year);
     url.searchParams.set('month', month);
+    url.searchParams.set('mode', mode); // if backend wants to distinguish
 
     fetch(url.toString(), {
       headers: { 'Accept': 'application/json' },
@@ -246,7 +252,6 @@
       });
   });
 
-  // Optional: reset state when closing
   modalEl.addEventListener('hidden.bs.modal', () => setStateLoading());
 })();
 </script>
