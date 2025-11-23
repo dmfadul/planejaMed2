@@ -1,11 +1,8 @@
-from django.db import models, transaction
-from core.constants import VACATION_RULES
 from core.models import User
 from shifts.models import Month
-from vacations.services import (
-    gen_base_compliance_report,
-    gen_month_compliance_report
-)
+from django.db import models, transaction
+from core.constants import VACATION_RULES
+from vacations.services import gen_compliance_report
 
 
 class ComplianceHistory(models.Model):
@@ -48,10 +45,10 @@ class ComplianceHistory(models.Model):
         
         if check_type == "BASE":
             month = Month.objects.current()
-            compliance_report = gen_base_compliance_report()
+            compliance_report = gen_compliance_report(month=month, report_type="BASE")
         elif check_type == "MONTH":
             month = Month.get_previous()
-            compliance_report = gen_month_compliance_report(month=month)
+            compliance_report = gen_compliance_report(month=month, report_type="MONTH")
         else:
             raise ValueError("Invalid check_type. Must be 'BASE' or 'MONTH'.")
         

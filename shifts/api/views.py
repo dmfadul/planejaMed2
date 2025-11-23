@@ -10,9 +10,10 @@ from rest_framework.decorators import api_view
 from django.views.decorators.http import require_GET
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404, redirect
-from vacations.services import gen_base_compliance_report
+from vacations.services import gen_compliance_report
 from shifts.models import ShiftType, ShiftSnapshot
 from vacations.models import ComplianceHistory
+    
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +81,6 @@ class MonthAPIview(APIView):
             )
 
             ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)  
-            # ShiftSnapshot.take_snapshot(curr_month, ShiftType.ORIGINAL) # TODO: move to month unlock
 
         logger.info(f'{request.user.crm} created a new month')
         messages.success(request, "Mês criado com sucesso.")
@@ -98,24 +98,15 @@ class MonthImpactView(APIView):
     def get(self, request):
         mode = request.query_params.get('mode', 'create').lower()
 
-        month = Month.objects.current()
-        data = gen_base_compliance_report(month=month)
-        # TODO: exclude users who currently have non-compliant status (they cannot lose what they don't have)
+        if mode == 'create':
+            month = Month.objects.current()
+            data = gen_compliance_report(month=month, report_type="BASE")
+        elif mode == 'unlock':
+            month = Month.objects.next()
+            data = gen_compliance_report(month=month, report_type="MONTH")
 
         return Response(data, status=status.HTTP_200_OK)
-
-
-class MonthUnlockView(APIView):
-    permission_classes = [IsAdmin]
-
-    def post(self, request):
-        
-        month = Month.objects.next()
-
-        return Response(
-            {"detail": f"Month {month.number}/{month.year} unlocked."},
-            status=status.HTTP_200_OK,
-        )
+    
 
 class CenterAPIview(APIView):
     permission_classes = [IsAuthenticated]

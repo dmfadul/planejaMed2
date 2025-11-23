@@ -1,6 +1,7 @@
 import json
 import logging
 from core.models import User
+from django.db import transaction
 import core.constants as constants
 from django.contrib import messages
 from django.views.decorators.http import require_POST
@@ -153,62 +154,31 @@ def update_holiday(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 
-# @user_passes_test(lambda u: u.is_superuser)
-# @require_POST
-# def create_month(request):
-#     ctype = (request.META.get("CONTENT_TYPE") or "").lower()
-#     if "application/json" in ctype:
-#         try:
-#             data = json.loads(request.body.decode("utf-8") or "{}")
-#         except json.JSONDecodeError:
-#             return HttpResponseBadRequest("Invalid JSON")
-#     else:
-#         data = request.POST
-#         print("no cytipe")
-
-#     print("Creating new month...", data)
-#     next_month = Month.objects.next()
-#     if next_month:
-#         raise ValueError(f"Já existe um mês {next_month} criado.")
-    
-#     curr_month = Month.objects.current()
-#     if not curr_month:
-#         raise ValueError("Nenhum mês atual encontrado.")
-    
-#     ShiftSnapshot.take_snapshot(curr_month, ShiftType.BASE)
-#     ShiftSnapshot.take_snapshot(curr_month, ShiftType.ORIGINAL)
-       
-#     next_number, next_year = curr_month.next_number_year()
-
-#     # new_month = Month.new_month(next_number, next_year)
-#     # new_month.populate_month()
-#     # new_month.fix_users()
-
-#     logger.info(f'{request.user.crm} created a new month')
-#     messages.success(request, "Mês criado com sucesso.")
-
-#     # kwargs = {"center_abbr": "CCG",
-#     #           "month_num": new_month.number,
-#     #           "year": new_month.year}
-
-#     kwargs = {"center_abbr": "CCG",
-#                 "month_num": 2,
-#                 "year": 2025}
-#     return redirect("shifts:month_table", **kwargs)
-
 
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
 def unlock_month(request):
+    from vacations.models import ComplianceHistory
+
+    keepers_id = request.POST.getlist("keep_entitlements[]", [])
+    print("keepers_id:", keepers_id)
+    
     next_month = Month.objects.next()
     if not next_month:
         raise ValueError("Nenhum mês bloqueado encontrado.")
     
-    next_month.unlock()
+    with transaction.atomic():
+        next_month.unlock()
 
-    messages.success(request, "Mês desbloqueado com sucesso.")
-    logger.info(f'{request.user.crm} unlocked month {next_month}')
+        ComplianceHistory.populate_compliance_history(
+            check_type="MONTH",
+            keeper_ids=keepers_id
+        )
 
+        logger.info(f'{request.user.crm} unlocked month {next_month}')
+
+        messages.success(request, "Mês desbloqueado com sucesso.")
+        
     kwargs = {"center_abbr": "CCG",
               "month_num": next_month.number,
               "year": next_month.year}
