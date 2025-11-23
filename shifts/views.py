@@ -200,21 +200,11 @@ def update_holiday(request):
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
 def unlock_month(request):
-    print("Unlocking month...")
     next_month = Month.objects.next()
     if not next_month:
         raise ValueError("Nenhum mês bloqueado encontrado.")
     
-    curr_month = Month.objects.current()
-    curr_month.is_current = False
-    curr_month.save()
-
-    next_month.is_locked = False
-    next_month.is_current = True
-    
-    next_month.save()
-
-    ShiftSnapshot.take_snapshot(next_month, ShiftType.REALIZED)
+    next_month.unlock()
 
     messages.success(request, "Mês desbloqueado com sucesso.")
     logger.info(f'{request.user.crm} unlocked month {next_month}')

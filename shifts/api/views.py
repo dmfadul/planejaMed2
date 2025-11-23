@@ -97,12 +97,6 @@ class MonthImpactView(APIView):
 
     def get(self, request):
         mode = request.query_params.get('mode', 'create').lower()
-        year = request.query_params.get('year')
-        month = request.query_params.get('month')
-
-        print(f"Generating month impact report: mode={mode}, year={year}, month={month}")
-        if mode == "unlock":
-            return
 
         month = Month.objects.current()
         data = gen_base_compliance_report(month=month)

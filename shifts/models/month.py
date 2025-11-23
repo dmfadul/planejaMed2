@@ -136,9 +136,18 @@ class Month(models.Model):
         return gen_calendar_table(self.start_date, self.end_date)
 
     def unlock(self):
+        from . import ShiftSnapshot, ShiftType
+
+        previous = self.get_previous()
+        if previous:
+            previous.is_current = False
+            previous.save()
+
         self.is_locked = False
         self.is_current = True
         self.save()
+
+        ShiftSnapshot.take_snapshot(self, ShiftType.ORIGINAL)
 
 
 class Holiday(models.Model):

@@ -32,6 +32,7 @@ class ShiftSnapshot(models.Model):
 
     @classmethod
     def take_snapshot(cls, month, shift_type):
+    # TODO: decide if we want to keep snapshots. If so, we need add realized and original snapshots 
         cls.delete_snapshot(month, shift_type)
 
         if shift_type == ShiftType.BASE:
