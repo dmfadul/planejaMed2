@@ -47,7 +47,7 @@ class ComplianceHistory(models.Model):
             month = Month.objects.current()
             compliance_report = gen_compliance_report(month=month, report_type="BASE")
         elif check_type == "MONTH":
-            month = Month.get_previous()
+            month = Month.objects.current().get_previous()
             compliance_report = gen_compliance_report(month=month, report_type="MONTH")
         else:
             raise ValueError("Invalid check_type. Must be 'BASE' or 'MONTH'.")
