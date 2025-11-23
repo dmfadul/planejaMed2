@@ -51,9 +51,9 @@ class VacationRequest(APIView):
         )
         serializer.is_valid(raise_exception=True)
 
-        with transaction.atomic():
-            instance = serializer.save(requester=request.user)
-            instance.notify_request()
+        # with transaction.atomic():
+        #     instance = serializer.save(requester=request.user)
+        #     instance.notify_request()
 
         return Response({"message": "Vacation request created"}, status=status.HTTP_201_CREATED)
 
