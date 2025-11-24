@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.db import transaction
 from rest_framework.views import APIView
@@ -35,12 +36,13 @@ class UserRequestAPIView(APIView):
 
 class VacationRequest(APIView):
     def post(self, request):
-        leave_type = request.data.get("type")
-        start_date = request.data.get("startDate")
-        end_date = request.data.get("endDate")
+        request_type = request.data.get("type")
+        start_date = datetime.strptime(request.data.get("startDate"), "%Y-%m-%d").date()
+        end_date = datetime.strptime(request.data.get("endDate"), "%Y-%m-%d").date()
 
+        print(request_type, start_date, end_date)
         payload = {
-            "request_type": leave_type,
+            "request_type": request_type,
             "start_date": start_date,
             "end_date": end_date,
         }
@@ -51,6 +53,7 @@ class VacationRequest(APIView):
         )
         serializer.is_valid(raise_exception=True)
 
+        # print("Validated data:", serializer.validated_data)
         # with transaction.atomic():
         #     instance = serializer.save(requester=request.user)
         #     instance.notify_request()

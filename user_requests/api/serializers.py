@@ -1,3 +1,4 @@
+import datetime
 from core.models import User
 from vacations.models import Vacation
 from rest_framework import serializers
@@ -20,15 +21,15 @@ class VacationRequestSerializer(serializers.ModelSerializer):
     start_date = serializers.DateField()
     end_date = serializers.DateField()
 
-    leave_type = serializers.ChoiceField(choices=Vacation.VacationType.choices)
+    request_type = serializers.ChoiceField(choices=Vacation.VacationType.choices)
 
     class Meta:
         model = VacationRequest
         fields = [
-            "start_date", "end_date", "leave_type",
+            "start_date", "end_date", "request_type",
             # included but not writable (returned in the response)
             "id", "created_at", "is_open", "is_approved", "closing_date",
-            "requester", "user", "requestee", "responder",
+            "requester", "requestee", "responder",
         ]
         read_only_fields = [
             "id", "created_at", "is_open", "is_approved", "closing_date",
@@ -36,8 +37,20 @@ class VacationRequestSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
+        requester = attrs.get('requester')
         start_date = attrs.get('start_date')
         end_date = attrs.get('end_date')
+
+        # if requester.is_invisible:
+        #     raise serializers.ValidationError("SysAdmins cannot request vacations.")
+        
+        if not requester.is_active:
+            raise serializers.ValidationError("Inactive users cannot request vacations.")
+
+        if start_date < datetime.date.today():
+            raise serializers.ValidationError("Start date cannot be in the past.")
+        
+
 
         if start_date and end_date and start_date > end_date:
             raise serializers.ValidationError("End date must be after start date.")
