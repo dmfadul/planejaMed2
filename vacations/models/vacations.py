@@ -29,4 +29,25 @@ class Vacation(models.Model):
     
     @property
     def phase(self):
+        """Determine the current phase of the vacation. Scheduled, in progress, completed, etc."""
         pass
+
+    @property
+    def duration_days(self):
+        from core.constants import VACATION_RULES
+        """
+        Calculate the total number of days for the vacation.
+        Enforce minimum days per request and other rules.
+        """
+        
+        actual_duration = (self.end_date - self.start_date).days + 1
+        min_duration = VACATION_RULES.get('min_days_per_request', 0)
+        sick_leave_to_vacation = VACATION_RULES.get('sick_leave_to_vacation', 0) # max number of sick days that are deducted from vacation days
+
+        if self.vacation_type == Vacation.VacationType.SICK and actual_duration > sick_leave_to_vacation:
+            return sick_leave_to_vacation
+
+        if self.vacation_type == Vacation.VacationType.REGULAR and actual_duration < min_duration:
+            return min_duration
+
+        return actual_duration

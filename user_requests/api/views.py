@@ -40,7 +40,6 @@ class VacationRequest(APIView):
         start_date = datetime.strptime(request.data.get("startDate"), "%Y-%m-%d").date()
         end_date = datetime.strptime(request.data.get("endDate"), "%Y-%m-%d").date()
 
-        print(request_type, start_date, end_date)
         payload = {
             "request_type": request_type,
             "start_date": start_date,

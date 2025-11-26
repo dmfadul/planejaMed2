@@ -22,6 +22,7 @@ async function submitBenefits(btn){
   if (!type || !start || !end) return showError('Preencha todos os campos.');
   if (end < start) return showError('A data final não pode ser anterior à inicial.');
 
+    // TODO: Have the modal display the serializer validation errors from the backend
   btn.disabled = true; const old = btn.textContent; btn.textContent = 'Enviando…';
   try {
     const res = await fetch('/api/vacation-requests/', {

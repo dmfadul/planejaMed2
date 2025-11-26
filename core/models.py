@@ -69,6 +69,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         
         return f"{self.name.split()[0]} {self.name.split()[-1]}"
     
+    @property
+    def has_pre_approved_vacation(self):
+        return self.is_manager
+
 class MaintenanceMode(models.Model):
     enabled = models.BooleanField(default=False)
 

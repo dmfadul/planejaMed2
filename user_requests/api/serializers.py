@@ -13,6 +13,26 @@ from user_requests.models import (
 )
 
 
+def _check_vacation_entitlement(self, user: User, start_date: datetime.date):
+    pass
+
+def _unused_vacation_days(user: User, year: int) -> int:
+    from core.constants import VACATION_RULES
+
+    previous_vacations = Vacation.objects.filter(
+    user=user,
+    vacation_type=Vacation.VacationType.REGULAR,
+    status=Vacation.VacationStatus.APPROVED,
+    start_date__year=year
+    )
+
+    if len(previous_vacations) >= VACATION_RULES.get('max_split'):
+        return -1  # Indicates no more vacations can be requested this year
+
+    total_days_taken = sum(v.duration_days for v in previous_vacations)
+    return VACATION_RULES.get('duration_days') - total_days_taken
+
+
 class VacationRequestSerializer(serializers.ModelSerializer):
     requester = serializers.HiddenField(default=serializers.CurrentUserDefault())
     requestee = serializers.HiddenField(default=None)
@@ -35,27 +55,54 @@ class VacationRequestSerializer(serializers.ModelSerializer):
             "id", "created_at", "is_open", "is_approved", "closing_date",
             "requestee", "responder",
         ]
-
+    
     def validate(self, attrs):
+        from core.constants import VACATION_RULES
+
         requester = attrs.get('requester')
         start_date = attrs.get('start_date')
         end_date = attrs.get('end_date')
+        request_type = attrs.get('request_type')
+        duration = (end_date - start_date).days + 1
 
-        # if requester.is_invisible:
-        #     raise serializers.ValidationError("SysAdmins cannot request vacations.")
+        if duration > VACATION_RULES.get('duration_days'):
+            raise serializers.ValidationError(
+                f"Cannot request more than {VACATION_RULES.get('duration_days')} days of vacation."
+            )
+
+        if requester.is_invisible:
+            raise serializers.ValidationError("SysAdmins cannot request vacations.")
         
         if not requester.is_active:
             raise serializers.ValidationError("Inactive users cannot request vacations.")
 
+        if duration <= 0:
+            raise serializers.ValidationError("A data de início deve ser anterior à data de término.")
+
         if start_date < datetime.date.today():
-            raise serializers.ValidationError("Start date cannot be in the past.")
-        
+            raise serializers.ValidationError("A data de início não pode estar no passado.")
 
+        if not requester.has_pre_approved_vacation:
+            _check_vacation_entitlement(requester, start_date)
+            # TODO: finish this function
 
-        if start_date and end_date and start_date > end_date:
-            raise serializers.ValidationError("End date must be after start date.")
+        if not request_type == Vacation.VacationType.SICK:
+            available_days = _unused_vacation_days(requester, start_date.year)
+            if available_days == -1:
+                raise serializers.ValidationError(
+                    f"""Você já tirou o número máximo de
+                    divisões de férias ({VACATION_RULES.get('max_split')}) este ano."""
+                )
+            if available_days == 0:
+                raise serializers.ValidationError("Você não tem mais dias de férias restantes este ano.")
+            
+            if duration > available_days:
+                raise serializers.ValidationError(
+                    f"Você só tem {available_days} dias de férias restantes este ano."
+                )
 
         return attrs
+    
 
 # class UserRequestSerializer(serializers.ModelSerializer):    
 #     class Meta:
