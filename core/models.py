@@ -52,11 +52,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False) # == is_admin. Should be cced on all messages
 
     date_joined = models.DateTimeField(default=now)
-    compliant_since = models.DateField(null=True, blank=True)
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'crm'    
+    USERNAME_FIELD = 'crm'
 
     def __str__(self):
         return self.name

@@ -15,30 +15,83 @@ function getCookie(name){
 
 async function submitBenefits(btn){
   hideError();
-  const type = document.getElementById('benefitType').value;
+  const type  = document.getElementById('benefitType').value;
   const start = document.getElementById('startDate').value;
   const end   = document.getElementById('endDate').value;
 
   if (!type || !start || !end) return showError('Preencha todos os campos.');
   if (end < start) return showError('A data final não pode ser anterior à inicial.');
 
-    // TODO: Have the modal display the serializer validation errors from the backend
-  btn.disabled = true; const old = btn.textContent; btn.textContent = 'Enviando…';
+  btn.disabled = true;
+  const old = btn.textContent;
+  btn.textContent = 'Enviando…';
+
   try {
     const res = await fetch('/api/vacation-requests/', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-      body: JSON.stringify({ type, startDate: start, endDate: end })
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+        type,
+        startDate: start,
+        endDate: end
+        // use the field names your serializer expects (e.g. start_date/end_date)
+      })
     });
-    if (!res.ok) throw new Error('Falha ao enviar. Tente novamente.');
-    bootstrap.Modal.getInstance(document.getElementById('modalBenefits')).hide();
-    // TODO: replace alert with your toast
-    alert('Solicitação enviada com sucesso!');
+
+    let data = null;
+    try {
+      data = await res.json();   // try to parse JSON even on errors
+    } catch (_) {
+      // response might not be JSON (500, etc.)
+    }
+
+    if (res.ok) {
+      bootstrap.Modal
+        .getInstance(document.getElementById('modalBenefits'))
+        .hide();
+      alert('Solicitação enviada com sucesso!');
+      return;
+    }
+
+    // Build a nice message from DRF serializer errors
+    let msg = 'Falha ao enviar. Tente novamente.';
+
+    if (data) {
+      if (typeof data === 'string') {
+        // e.g. a simple string error
+        msg = data;
+      } else if (data.detail) {
+        // DRF sometimes uses "detail"
+        msg = data.detail;
+      } else if (typeof data === 'object') {
+        const lines = [];
+        for (const [field, errors] of Object.entries(data)) {
+          const label = field === 'non_field_errors' ? '' : `${field}: `;
+          if (Array.isArray(errors)) {
+            lines.push(label + errors.join(', '));
+          } else {
+            lines.push(label + String(errors));
+          }
+        }
+        if (lines.length) {
+          msg = lines.join('\n');
+        }
+      }
+    }
+
+    showError(msg);
+
   } catch (e) {
-    showError(e.message);
+    // network / unexpected error
+    showError('Erro de rede. Tente novamente.');
   } finally {
-    btn.disabled = false; btn.textContent = old;
+    btn.disabled = false;
+    btn.textContent = old;
   }
 }
+
 
 document.getElementById('benefitsSubmitBtn').addEventListener('click', (e)=> submitBenefits(e.currentTarget));

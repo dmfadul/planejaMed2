@@ -13,7 +13,8 @@ from user_requests.models import (
 )
 
 
-def _check_vacation_entitlement(self, user: User, start_date: datetime.date):
+def _check_vacation_entitlement(user: User, start_date: datetime.date):
+    user.compliant_since
     pass
 
 def _unused_vacation_days(user: User, year: int) -> int:
@@ -84,7 +85,7 @@ class VacationRequestSerializer(serializers.ModelSerializer):
 
         if not requester.has_pre_approved_vacation:
             _check_vacation_entitlement(requester, start_date)
-            # TODO: finish this function
+            # TODO: finish this function. If the user is not entitled to vacation, raise ValidationError
 
         if not request_type == Vacation.VacationType.SICK:
             available_days = _unused_vacation_days(requester, start_date.year)
