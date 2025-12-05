@@ -21,13 +21,10 @@ def _check_vacation_entitlement(user: User, start_date: datetime.date):
     if first_date is None:
         raise serializers.ValidationError("Você não tem direito a férias ainda.")
     
-    diff_years = start_date.year - first_date.year
-    diff_months = start_date.month - first_date.month
-    diff_time = diff_years * 12 + diff_months
-    
+    diff_months = (start_date.year - first_date.year) * 12 + (start_date.month - first_date.month)
     min_months = VACATION_RULES.get('minimum_months_worked', 0)
 
-    if diff_time < min_months:
+    if diff_months < min_months:
         raise serializers.ValidationError(
             f"""Não foi atingido o tempo mínimo ({min_months} meses) para férias.
             O usuário está em conformidade desde {first_date.strftime('%m/%Y')}"""
