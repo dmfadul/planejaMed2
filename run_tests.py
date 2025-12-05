@@ -16,11 +16,8 @@ from user_requests.models import UserRequest, Notification
 from shifts.models import Shift
 from core.models import User
 from vacations.models import Vacation, complianceHistory
-from vacations.services import gen_base_compliance_report
 from vacations.models.complianceHistory import ComplianceHistory
 
-ComplianceHistory.populate_compliance_history(check_type="BASE")
+user = User.objects.filter(crm="40506").first()
+print("User:", user.compliant_since)
 
-# user = User.objects.filter(crm="26704").first()
-# print("User:", user)
-# gen_base_compliance_report()

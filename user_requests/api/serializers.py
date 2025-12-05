@@ -14,8 +14,25 @@ from user_requests.models import (
 
 
 def _check_vacation_entitlement(user: User, start_date: datetime.date):
-    user.compliant_since
-    pass
+    from core.constants import VACATION_RULES
+    """Check if the user is entitled to request vacation based on their joining date and rules."""
+    
+    first_date = user.compliant_since
+    if first_date is None:
+        raise serializers.ValidationError("Você não tem direito a férias ainda.")
+    
+    diff_years = start_date.year - first_date.year
+    diff_months = start_date.month - first_date.month
+    diff_time = diff_years * 12 + diff_months
+    
+    min_months = VACATION_RULES.get('minimum_months_worked', 0)
+
+    if diff_time < min_months:
+        raise serializers.ValidationError(
+            f"""Não foi atingido o tempo mínimo ({min_months} meses) para férias.
+            O usuário está em conformidade desde {first_date.strftime('%m/%Y')}"""
+        )
+    return 0
 
 def _unused_vacation_days(user: User, year: int) -> int:
     from core.constants import VACATION_RULES

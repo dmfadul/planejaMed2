@@ -72,6 +72,24 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_pre_approved_vacation(self):
         return self.is_manager
 
+    @property
+    def compliant_since(self):
+        import datetime
+        """Return a date (01/first month) the user has been continuously compliant since."""
+
+        first_month = None
+        for entry in sorted(self.compliance_history.all(), key=lambda e: e.month.number):
+            if entry.status == entry.ComplianceStatus.COMPLIANT and first_month is None:
+                first_month = entry.month
+            elif entry.status != entry.ComplianceStatus.COMPLIANT:
+                first_month = None
+
+        first_date = f"{first_month.year}-{first_month.number:02d}-01" if first_month else None
+        first_date = datetime.datetime.strptime(first_date, "%Y-%m-%d").date() if first_date else None
+        
+        return first_date
+
+
 class MaintenanceMode(models.Model):
     enabled = models.BooleanField(default=False)
 
