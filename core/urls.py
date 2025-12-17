@@ -5,6 +5,7 @@ from django.contrib.auth import views as auth_views
 from .views import (
     CustomLoginView,
     CustomLogoutView,
+    UserCreateView,
     ProfileUpdateView,
     maintenance_notice,
     maintenance_status
@@ -16,6 +17,7 @@ urlpatterns = [
     path('', lambda request: redirect('/CCG/', permanent=False)),
     path("login/", CustomLoginView.as_view(authentication_form=CustomAForm), name="login"),
     path("logout/", CustomLogoutView.as_view(), name="logout"),
+    path("user/create/", UserCreateView.as_view(), name="user_create"),
     path("profile/update/", ProfileUpdateView.as_view(), name="profile_update"),
     path("maintenance/", maintenance_notice, name="maintenance_notice"),
     path("maintenance/status/", maintenance_status, name="maintenance_status"),

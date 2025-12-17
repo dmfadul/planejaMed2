@@ -1,5 +1,5 @@
 from .models import MaintenanceMode
-from .forms import ProfileForm
+from .forms import UserCreateForm, ProfileForm
 
 from django.contrib import messages
 from django.contrib.auth import logout, get_user_model
@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import UpdateView
+from django.views.generic import CreateView, UpdateView
 
 User = get_user_model()
 
@@ -29,6 +29,18 @@ class CustomLogoutView(View):
         return redirect(reverse_lazy("core:login"))
 
 
+class UserCreateView(LoginRequiredMixin, CreateView):
+    model = User
+    form_class = UserCreateForm
+    template_name = "core/user_create.html"
+    success_url = reverse_lazy("core:user_create")
+
+    def form_valid(self, form):
+        resp = super().form_valid(form)
+        messages.success(self.request, f"Usuário '{self.object.name}' criado com sucesso.")
+        return resp
+
+
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = ProfileForm
@@ -39,7 +51,7 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
         return self.request.user
     
     def form_valid(self, form):
-        messages.success(self.request, "Profile updated successfully.")
+        messages.success(self.request, "Perfil atualizado com sucesso.")
         return super().form_valid(form)
 
 
