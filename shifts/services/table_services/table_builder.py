@@ -129,7 +129,6 @@ def build_sumtable(center, table_data, template, month=None):
         shifts = Shift.objects.filter(
             center=center,
             month=month,
-            user__is_active=True,
             user__is_invisible=False
             ).all()
         
