@@ -21,3 +21,16 @@ from vacations.models.complianceHistory import ComplianceHistory
 user = User.objects.filter(crm="40506").first()
 print("User:", user.compliant_since)
 
+
+# FINAL TASKS:
+# TODO: Check how the system handles excluded users when creating a new month.
+# TODO: test excluded users handling with 'Eduardo Santos', 'Fernanda Leite', 'Fernanda Betes (?)', 'Pedro Rosa(?)'.
+# TODO: add add new user functionality to root panel.
+# TODO: test add new user functionality with 'André Tuma de Carvalho'
+# TODO: New .ico for the project.
+# TODO: transfer old vacation data from planejaMed1 to planejaMed2.
+
+
+# POSSIBLE IMPROVEMENTS:
+# TODO: Put all user's centers together
+
