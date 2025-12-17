@@ -3,12 +3,6 @@
 <div class="container py-4" style="max-width: 720px;">
   <h3 class="mb-3">Editar perfil</h3>
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-success">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-
   <form method="post" novalidate>
     {% csrf_token %}
 
@@ -22,7 +16,15 @@
       </div>
     {% endfor %}
 
-    <button class="btn btn-primary" type="submit">Save</button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary" type="submit">Salvar</button>
+      <a class="btn btn-outline-light" href="{% url 'core:password_change' %}">
+        Alterar senha
+      </a>
+    </div>
   </form>
+
+  <hr class="my-4">
+
 </div>
 {% endblock %}
