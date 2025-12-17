@@ -1,9 +1,18 @@
 from django import forms
-from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import AuthenticationForm
 
 User = get_user_model()
 
+
+class CustomAuthenticationForm(AuthenticationForm):
+    error_messages = {
+        'invalid_login': (
+            "Por favor, insira um CRM e uma senha corretos."
+        ),
+        'inactive': ("Esta conta está inativa."),
+    }
 
 class ProfileForm(forms.ModelForm):
     class Meta:

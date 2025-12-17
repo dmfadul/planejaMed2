@@ -1,5 +1,6 @@
 from django.urls import path
 from django.shortcuts import redirect
+from .forms import CustomAuthenticationForm as CustomAForm
 from django.contrib.auth import views as auth_views
 from .views import (
     CustomLoginView,
@@ -13,7 +14,7 @@ app_name = "core"
 
 urlpatterns = [
     path('', lambda request: redirect('/CCG/', permanent=False)),
-    path("login/", CustomLoginView.as_view(), name="login"),
+    path("login/", CustomLoginView.as_view(authentication_form=CustomAForm), name="login"),
     path("logout/", CustomLogoutView.as_view(), name="logout"),
     path("profile/update/", ProfileUpdateView.as_view(), name="profile_update"),
     path("maintenance/", maintenance_notice, name="maintenance_notice"),
