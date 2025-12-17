@@ -9,7 +9,7 @@ User = get_user_model()
 class CustomAuthenticationForm(AuthenticationForm):
     error_messages = {
         'invalid_login': (
-            "Por favor, insira um CRM e uma senha corretos."
+            "Por favor, insira um CRM e uma senha válidos."
         ),
         'inactive': ("Esta conta está inativa."),
     }

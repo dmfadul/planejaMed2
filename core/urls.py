@@ -21,6 +21,9 @@ urlpatterns = [
     path("profile/update/", ProfileUpdateView.as_view(), name="profile_update"),
     path("maintenance/", maintenance_notice, name="maintenance_notice"),
     path("maintenance/status/", maintenance_status, name="maintenance_status"),
+]
+
+urlpatterns += [
     path(
         "password/change/",
         auth_views.PasswordChangeView.as_view(template_name="core/password_change.html"),
