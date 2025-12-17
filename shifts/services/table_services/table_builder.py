@@ -120,9 +120,18 @@ def build_doctors_sumtable(table_data, template, month=None):
 
 def build_sumtable(center, table_data, template, month=None):
     if template == "sum_days_base":
-        shifts = TemplateShift.objects.filter(center=center)
+        shifts = TemplateShift.objects.filter(
+            center=center,
+            user__is_active=True,
+            user__is_invisible=False
+        ).all()
     elif template == "sum_days_month":
-        shifts = Shift.objects.filter(center=center, month=month).all()
+        shifts = Shift.objects.filter(
+            center=center,
+            month=month,
+            user__is_active=True,
+            user__is_invisible=False
+            ).all()
         
     hours_by_day = {}
     for s in shifts:
