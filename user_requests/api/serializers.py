@@ -74,29 +74,34 @@ class VacationRequestSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         from core.constants import VACATION_RULES
 
+        mode = self.context.get("mode", "solicitation")
         requester = attrs.get('requester')
         start_date = attrs.get('start_date')
         end_date = attrs.get('end_date')
         request_type = attrs.get('request_type')
         duration = (end_date - start_date).days + 1
 
+        if requester.is_invisible:
+            raise serializers.ValidationError("SysAdmins cannot request vacations.")
+    
+        if not requester.is_active:
+            raise serializers.ValidationError("Inactive users cannot request vacations.")
+        
+        if start_date < datetime.date.today():
+            raise serializers.ValidationError("A data de início não pode estar no passado.")
+        
+        if duration <= 0:
+            raise serializers.ValidationError("A data de início deve ser anterior à data de término.")
+
+        if mode == "registry":
+            # In registry mode, skip entitlement and availability checks
+            return attrs
+
         if duration > VACATION_RULES.get('duration_days'):
             raise serializers.ValidationError(
                 f"Cannot request more than {VACATION_RULES.get('duration_days')} days of vacation."
             )
-
-        if requester.is_invisible:
-            raise serializers.ValidationError("SysAdmins cannot request vacations.")
-        
-        if not requester.is_active:
-            raise serializers.ValidationError("Inactive users cannot request vacations.")
-
-        if duration <= 0:
-            raise serializers.ValidationError("A data de início deve ser anterior à data de término.")
-
-        if start_date < datetime.date.today():
-            raise serializers.ValidationError("A data de início não pode estar no passado.")
-
+      
         if not requester.has_pre_approved_vacation:
             _check_vacation_entitlement(requester, start_date)
             # TODO: finish this function. If the user is not entitled to vacation, raise ValidationError

@@ -36,6 +36,7 @@ class UserRequestAPIView(APIView):
 
 class VacationRequest(APIView):
     def post(self, request):
+        mode = request.data.get("mode", "solicitation")
         request_type = request.data.get("type")
         start_date = datetime.strptime(request.data.get("startDate"), "%Y-%m-%d").date()
         end_date = datetime.strptime(request.data.get("endDate"), "%Y-%m-%d").date()
@@ -48,15 +49,19 @@ class VacationRequest(APIView):
 
         serializer = VacationRequestSerializer(
             data=payload,
-            context={"request": request}
+            context={
+                "request": request,
+                "mode": mode
+            }
         )
         serializer.is_valid(raise_exception=True)
 
-        # TODO: Uncomment and implement saving logic
-        # print("Validated data:", serializer.validated_data)
-        # with transaction.atomic():
-        #     instance = serializer.save(requester=request.user)
-        #     instance.notify_request()
+        with transaction.atomic():
+            instance = serializer.save(requester=request.user)
+            instance.notify_request()
+
+            if mode == "registry":
+                instance.approve(request.user)
 
         return Response({"message": "Vacation request created"}, status=status.HTTP_201_CREATED)
 

@@ -23,10 +23,9 @@ print("User:", user.compliant_since)
 
 
 # FINAL TASKS:
-# TODO: add a register vacation admin function to the admin panel.
-# TODO: add a rights-report to the admin panel.
-# TODO: add a vacation payment calculation function to the admin panel.
+# TODO: add a rights-report to the admin panel. (necessary for testing)
 # TODO: transfer old vacation data from planejaMed1 to planejaMed2.
+# TODO: add a vacation payment calculation function to the admin panel.
 
 
 # NEXT MONTH'S TASKS:

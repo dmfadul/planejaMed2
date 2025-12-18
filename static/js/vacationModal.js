@@ -1,9 +1,20 @@
-const openBenefits = () => {
+const openBenefits = (mode = 'solicitation') => {
   document.getElementById('benefitsForm').reset();
   hideError();
+
+  document.getElementById('benefitsMode').value = mode;
+
   new bootstrap.Modal('#modalBenefits').show();
 };
-document.getElementById('benefitsSolicitar').addEventListener('click', e => { e.preventDefault(); openBenefits(); });
+document.getElementById('benefitsSolicitar').addEventListener('click', e => {
+  e.preventDefault();
+  openBenefits(e.currentTarget.dataset.benefitsMode || 'solicitation');
+});
+
+document.getElementById('benefitsRegistrar').addEventListener('click', e => {
+  e.preventDefault();
+  openBenefits(e.currentTarget.dataset.benefitsMode);
+});
 
 function showError(msg){ const el = document.getElementById('benefitsError'); el.textContent = msg; el.classList.remove('d-none'); }
 function hideError(){ const el = document.getElementById('benefitsError'); el.textContent = ''; el.classList.add('d-none'); }
@@ -15,6 +26,7 @@ function getCookie(name){
 
 async function submitBenefits(btn){
   hideError();
+  const mode = document.getElementById('benefitsMode').value; // NEW
   const type  = document.getElementById('benefitType').value;
   const start = document.getElementById('startDate').value;
   const end   = document.getElementById('endDate').value;
@@ -34,6 +46,7 @@ async function submitBenefits(btn){
         'X-CSRFToken': getCookie('csrftoken')
       },
       body: JSON.stringify({
+        mode,
         type,
         startDate: start,
         endDate: end

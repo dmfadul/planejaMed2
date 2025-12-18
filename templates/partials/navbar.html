@@ -27,7 +27,7 @@
             Benefícios
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#" id="benefitsSolicitar">Solicitar</a></li>
+            <li><a class="dropdown-item" href="#" id="benefitsSolicitar" data-benefits-mode="solicitation">Solicitar</a></li>
             <li><a class="dropdown-item" href="#">Consultar</a></li>
           </ul>
         </li>
@@ -104,6 +104,10 @@
             {% endif %}
             <li><a class="dropdown-item" href="{% url 'shifts:sum_doctors_base' %}">Horas-Médico (Bases)</a></li>
             <li><a class="dropdown-item open-month-modal" href="#" data-bs-toggle="modal" data-bs-target="#monthsModal" data-mode="sum-doctors" >Horas-Médico (Mês)</a></li>
+            <li>
+              <a class="dropdown-item" href="#" id="benefitsRegistrar" data-benefits-mode="registry">Registrar Benefício</a>
+            </li>
+
           </ul>
         </li>
         {% endif %}
