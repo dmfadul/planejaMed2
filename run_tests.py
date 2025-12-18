@@ -23,7 +23,9 @@ print("User:", user.compliant_since)
 
 
 # FINAL TASKS:
-# TODO: check bases sums
+# TODO: add a register vacation admin function to the admin panel.
+# TODO: add a rights-report to the admin panel.
+# TODO: add a vacation payment calculation function to the admin panel.
 # TODO: transfer old vacation data from planejaMed1 to planejaMed2.
 
 
@@ -33,6 +35,9 @@ print("User:", user.compliant_since)
 # TODO: Add new function to change user's alias. (Currently only admins can do that through the admin panel)
 # TODO: clean up user creation form and move it to admin control (currently, only root users can create new users)
 
+# LONG TERM TASKS:
+# TODO: change letters by numbers (with ª, º) in summation tables. Or use two letters for better clarity.
+# TODO: add counting to HORAS-MÉDICO table.
 
 # POSSIBLE FUTURE TASKS:
 # add an automatic email notification to users when their compliance status changes.

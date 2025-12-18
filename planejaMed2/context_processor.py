@@ -12,6 +12,7 @@ def global_context(request):
     # Return the context dictionary
     return {
         'centers': centers,
+        'current_month_name': Month.get_current().name,
         'lck_month_exists': lck_month_exists,
     }
 
