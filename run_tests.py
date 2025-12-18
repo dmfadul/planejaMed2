@@ -23,10 +23,7 @@ print("User:", user.compliant_since)
 
 
 # FINAL TASKS:
-
-# TODO: test add new user functionality with 'André Tuma de Carvalho'
-# TODO: exclude 'Fernanda Betes (?)', 'Pedro Rosa(?)'.
-
+# TODO: check bases sums
 # TODO: transfer old vacation data from planejaMed1 to planejaMed2.
 
 
@@ -35,3 +32,8 @@ print("User:", user.compliant_since)
 # TODO: Add new function to remove users. (currently only admins can do that through the admin panel)
 # TODO: Add new function to change user's alias. (Currently only admins can do that through the admin panel)
 # TODO: clean up user creation form and move it to admin control (currently, only root users can create new users)
+
+
+# POSSIBLE FUTURE TASKS:
+# add an automatic email notification to users when their compliance status changes.
+# add an automatic password reset email functionality.

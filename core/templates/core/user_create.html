@@ -3,12 +3,6 @@
 <div class="container py-4" style="max-width: 820px;">
   <h3 class="mb-3">Add new user</h3>
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-success">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-
   <form method="post" novalidate>
     {% csrf_token %}
 
