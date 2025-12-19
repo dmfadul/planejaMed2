@@ -26,6 +26,5 @@ urlpatterns = [
     path('requests/', include('user_requests.urls')),
     path('api/', include('core.api_urls')),
     path('<str:center_abbr>/', calendar, name='home'),
-    # path('api/user_requests/', include('user_requests.api.urls')),
-    # path('api/', include('api.urls')),
+    path('vacations/', include('vacations.urls')),
 ]
