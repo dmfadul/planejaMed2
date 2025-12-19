@@ -85,8 +85,8 @@ class User(AbstractBaseUser, PermissionsMixin):
                 first_month = None
 
         first_date = f"{first_month.year}-{first_month.number:02d}-01" if first_month else None
-        first_date = datetime.datetime.strptime(first_date, "%Y-%m").date() if first_date else None
-        
+        first_date = datetime.datetime.strptime(first_date, "%Y-%m-%d").date() if first_date else None
+
         return first_date
     
     @property
