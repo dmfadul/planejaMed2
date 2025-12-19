@@ -24,5 +24,6 @@ def grant_manumission(request):
 
     crm = payload.get("crm")
     print("CRM received:", crm)
+    # TODO: implement the manumission logic here
 
     return JsonResponse({"message": "CRM received", "crm": crm})

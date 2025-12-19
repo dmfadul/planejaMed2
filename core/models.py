@@ -75,7 +75,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def compliant_since(self):
         import datetime
-        """Return a date (01/first month) the user has been continuously compliant since."""
+        """Return a date (first month) the user has been continuously compliant since."""
 
         first_month = None
         for entry in sorted(self.compliance_history.all(), key=lambda e: e.month.number):
@@ -85,9 +85,20 @@ class User(AbstractBaseUser, PermissionsMixin):
                 first_month = None
 
         first_date = f"{first_month.year}-{first_month.number:02d}-01" if first_month else None
-        first_date = datetime.datetime.strptime(first_date, "%Y-%m-%d").date() if first_date else None
+        first_date = datetime.datetime.strptime(first_date, "%Y-%m").date() if first_date else None
         
         return first_date
+    
+    @property
+    def months_compliant_count(self):
+        """Return the number of consecutive months the user has been compliant."""
+        count = 0
+        for entry in sorted(self.compliance_history.all(), key=lambda e: e.month.number, reverse=True):
+            if entry.status == entry.ComplianceStatus.COMPLIANT:
+                count += 1
+            else:
+                break
+        return count
 
 
 class MaintenanceMode(models.Model):

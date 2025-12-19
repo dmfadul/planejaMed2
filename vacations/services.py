@@ -130,16 +130,18 @@ def gen_compliance_report(month: Month, report_type: str, exclude_noncompliant=F
         "items": []
     }
     
-    users = User.objects.filter(is_active=True, is_invisible=False, is_manager=False) # managers cannot lose eligibility
+    users = User.objects.filter(
+        is_active=True,
+        is_invisible=False,
+        is_manager=False,                   # managers cannot lose eligibility
+        compliant_since__isnull=False       # only compliant users
+    )
+
     for user in users:
-        # TODO: exclude users who currently have non-compliant status (they cannot lose what they don't have)
-        # TODO: implement a compliant property on User model to simplify this check
         if report_type == "BASE":
             user_delta = get_user_base_total(user, split_the_fifth=True)
-            curr_entitlement_months = 10  # TODO: get actual BASE value
         elif report_type == "MONTH":
             user_delta = get_user_month_total(user, month=month)
-            curr_entitlement_months = 10  # TODO: get actual MONTH value
         else:
             raise ValueError("Invalid report_type. Must be 'BASE' or 'MONTH'.")
         
@@ -147,7 +149,7 @@ def gen_compliance_report(month: Month, report_type: str, exclude_noncompliant=F
             info = {
              "user_id": user.id,
              "user_name": user.name,
-             "current_entitlement_months": curr_entitlement_months,
+             "current_entitlement_months": user.months_compliant_count,
              "reason": user_delta.reason,
             }
             data["items"].append(info)

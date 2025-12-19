@@ -30,12 +30,13 @@ print("User:", user.compliant_since)
 
 
 # NEXT MONTH'S TASKS:
+# TODO: FINANCIAL MODULE
 # TODO: Put all user's centers together
-# TODO: Add new function to remove users. (currently only admins can do that through the admin panel)
-# TODO: Add new function to change user's alias. (Currently only admins can do that through the admin panel)
-# TODO: clean up user creation form and move it to admin control (currently, only root users can create new users)
 
 # LONG TERM TASKS:
+# TODO: Add new function to change user's alias. (Currently only admins can do that through the admin panel)
+# TODO: clean up user creation form and move it to admin control (currently, only root users can create new users)
+# TODO: Add new function to remove users. (currently only admins can do that through the admin panel)
 # TODO: change letters by numbers (with ª, º) in summation tables. Or use two letters for better clarity.
 # TODO: add counting to HORAS-MÉDICO table.
 
