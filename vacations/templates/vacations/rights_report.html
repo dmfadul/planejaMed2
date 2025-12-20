@@ -17,8 +17,10 @@
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th>User</th>
+              <th class="fw-semibold">User</th>
               <th>Compliant Since</th>
+              <th>Pre-approved</th>
+              <th>Policy</th>
               <th class="text-end"></th>
             </tr>
           </thead>
@@ -28,21 +30,33 @@
               <tr>
                 <td class="fw-semibold">{{ user.name }}</td>
                 <td>{{ user.compliant_since }}</td>
-                <td class="text-end">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  data-crm="{{ user.crm }}"
-                  onclick="grantFreedom(this)"
-                >
-                  Alforria
-                </button>
 
+                <td>
+                  {% if user.has_pre_approved_vacation %}
+                    <span class="badge text-bg-success">Yes</span>
+                  {% else %}
+                    <span class="badge text-bg-secondary">No</span>
+                  {% endif %}
+                </td>
+
+                <td>
+                  {{ user.vacation_policy|default:"—" }}
+                </td>
+
+                <td class="text-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    data-crm="{{ user.crm }}"
+                    onclick="grantFreedom(this)"
+                  >
+                    Alforria
+                  </button>
                 </td>
               </tr>
             {% empty %}
               <tr>
-                <td colspan="3" class="text-center text-muted py-4">
+                <td colspan="5" class="text-center text-muted py-4">
                   No entries found.
                 </td>
               </tr>
@@ -74,13 +88,11 @@
       });
 
       if (!res.ok) {
-        // optional: showToast('Error...') if you want
         console.error("Request failed:", res.status);
         return;
       }
 
       const data = await res.json();
-      // optional: showToast(data.message || "Done!");
       console.log("Server response:", data);
 
     } catch (err) {
@@ -89,4 +101,3 @@
   }
 </script>
 {% endblock %}
-

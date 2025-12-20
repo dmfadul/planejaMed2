@@ -134,10 +134,11 @@ def gen_compliance_report(month: Month, report_type: str, exclude_noncompliant=F
         is_active=True,
         is_invisible=False,
         is_manager=False,                   # managers cannot lose eligibility
-        compliant_since__isnull=False       # only compliant users
     )
 
     for user in users:
+        if user.compliant_since is None and exclude_noncompliant:
+            continue
         if report_type == "BASE":
             user_delta = get_user_base_total(user, split_the_fifth=True)
         elif report_type == "MONTH":

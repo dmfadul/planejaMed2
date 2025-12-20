@@ -69,6 +69,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"{self.name.split()[0]} {self.name.split()[-1]}"
     
     @property
+    def vacation_policy(self):
+        from core.constants import VACATION_RULES
+
+        if self.date_joined <= VACATION_RULES.get("new_policy_start_date"):
+            rules = VACATION_RULES.get('old_policy_hours')
+            return f"old policy {rules.get('normal', '')}/{rules.get('overtime', '')}"
+        else:
+            rules = VACATION_RULES.get('new_policy_hours', '')
+            return f"new policy {rules.get('normal', '')}/{rules.get('overtime', '')}"
+
+    @property
     def has_pre_approved_vacation(self):
         return self.is_manager
 

@@ -100,10 +100,10 @@ class MonthImpactView(APIView):
 
         if mode == 'create':
             month = Month.objects.current()
-            data = gen_compliance_report(month=month, report_type="BASE")
+            data = gen_compliance_report(month=month, report_type="BASE", exclude_noncompliant=True)
         elif mode == 'unlock':
             month = Month.objects.next()
-            data = gen_compliance_report(month=month, report_type="MONTH")
+            data = gen_compliance_report(month=month, report_type="MONTH", exclude_noncompliant=True)
 
         return Response(data, status=status.HTTP_200_OK)
     
