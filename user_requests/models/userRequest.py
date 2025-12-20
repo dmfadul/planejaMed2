@@ -150,8 +150,8 @@ class UserRequest(models.Model):
                 center=self.center,
                 month=self.month,
                 day=self.day,
-                start_hour=self.start_hour,
-                end_hour=self.end_hour
+                start_time=self.start_hour,
+                end_time=self.end_hour
             )
 
         # EXCLUDE: donor = user to be excluded
