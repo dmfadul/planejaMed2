@@ -28,6 +28,9 @@ print("User:", user.compliant_since)
 # TODO: transfer old vacation data from planejaMed1 to planejaMed2.
 # TODO: add a vacation payment calculation function to the admin panel.
 
+# TODO: translate from english to portuguese.
+# TODO: add tests
+
 
 # NEXT MONTH'S TASKS:
 # TODO: FINANCIAL MODULE
