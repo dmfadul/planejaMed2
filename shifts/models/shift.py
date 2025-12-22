@@ -250,38 +250,77 @@ class Shift(AbstractShift):
         return None  # No conflict
 
     @classmethod
+    @transaction.atomic
     def add(cls, doctor, center, month, day, start_time, end_time):
+        # Lock all shifts for this doctor/day to avoid races
+        existing = (
+            cls.objects
+            .select_for_update()
+            .filter(user=doctor, month=month, day=day)
+            .order_by("start_time", "end_time")
+        )
+    
+        # In-memory candidate (no pk yet)
         new_shift = cls(
             user=doctor,
             center=center,
             month=month,
             day=day,
             start_time=start_time,
-            end_time=end_time
+            end_time=end_time,
         )
-
-        existing_shifts = cls.objects.filter(
-            user=doctor,
-            month=month,
-            day=day,
-        ).all()
-
-        for old_shift in existing_shifts:
-            shifts_overlap = not set(old_shift.hour_list).isdisjoint(set(new_shift.hour_list))
-            if shifts_overlap and not old_shift.center == new_shift.center:
+    
+        # 1) Hard conflict: overlap with a DIFFERENT center
+        new_hours = set(new_shift.hour_list)
+        for old in existing:
+            overlap = not set(old.hour_list).isdisjoint(new_hours)
+            if overlap and old.center_id != center.id:
                 raise ValueError(
-                    f"Conflito - {old_shift.user.name} já tem esse horário no centro {old_shift.center.abbreviation}"
+                    f"Conflito - {old.user.name} já tem esse horário no centro {old.center.abbreviation}"
                 )
-
-            if old_shift.center == new_shift.center:
-                # Attempt to merge the shifts
-                merged_shift = cls.merge(old_shift, new_shift)
-                if merged_shift != -1:
-                    # If the merge was successful, delete the old shift
-                    old_shift.delete()
-                    new_shift = merged_shift
-        
+    
+        # 2) Save now so reverse-relations are safe if merge() touches them
         new_shift.save()
+    
+        def touches_or_overlaps(a, b):
+            return (
+                a.end_time == b.start_time or
+                b.end_time == a.start_time or
+                not set(a.hour_list).isdisjoint(set(b.hour_list))
+            )
+    
+        # 3) Keep merging with same-center candidates that touch/overlap
+        while True:
+            candidate = (
+                cls.objects
+                .select_for_update()
+                .filter(user=doctor, month=month, day=day, center=center)
+                .exclude(pk=new_shift.pk)
+                .order_by("start_time", "end_time")
+                .first()
+            )
+    
+            # Find *any* candidate that touches/overlaps (not just overlap)
+            merge_target = None
+            for s in (
+                cls.objects
+                .select_for_update()
+                .filter(user=doctor, month=month, day=day, center=center)
+                .exclude(pk=new_shift.pk)
+                .order_by("start_time", "end_time")
+            ):
+                if touches_or_overlaps(s, new_shift):
+                    merge_target = s
+                    break
+                
+            if not merge_target:
+                break
+            
+            merged = cls.merge(merge_target, new_shift)
+            if merged == -1:
+                break
+            new_shift = merged  # merged is saved; old ones deleted inside merge()
+    
         return new_shift
 
     @classmethod

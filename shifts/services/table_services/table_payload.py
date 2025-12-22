@@ -14,6 +14,7 @@ def process_table_payload(request):
     action = state.get("action")   
     table_type = state.get("tableType")
 
+    print("Processing table payload:", action, table_type)
     center = get_object_or_404(Center, abbreviation=state.get("center"))
     
     if action == "add":
@@ -116,6 +117,7 @@ def add_shift(state, table_type, center):
                       day=day,
                       start_time=start_time,
                       end_time=end_time)
+            print("adding")
             
             new_shifts = Shift.objects.filter(
                 user=doctor,

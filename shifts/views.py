@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def month_table(request, center_abbr, month_num, year):
+    print("Rendering month_table view")
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month = get_object_or_404(Month, number=month_num, year=year)
 

@@ -30,6 +30,7 @@ print("User:", user.compliant_since)
 
 # TODO: translate from english to portuguese.
 # TODO: add tests
+# TODO: fix bug when creating/unlocking month from users hours view.
 
 
 # NEXT MONTH'S TASKS:
