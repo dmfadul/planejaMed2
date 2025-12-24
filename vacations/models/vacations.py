@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from core.models import User
 
 
@@ -25,11 +25,49 @@ class Vacation(models.Model):
     
 
     def __str__(self):
-        return f"{self.user.username} - {self.vacation_type} from {self.start_date} to {self.end_date} ({self.status})"
+        return f"{self.user.name} - {self.vacation_type} from {self.start_date} to {self.end_date} ({self.status})"
     
+
+    @classmethod
+    def overlaps_qs(cls, *, user, start_date, end_date, exclude_pk=None):
+        """
+        Overlap rule (inclusive): [start_date, end_date] overlaps if:
+        existing.start_date <= end_date AND existing.end_date >= start_date
+        """
+        qs = cls.objects.filter(user=user, start_date__lte=end_date, end_date__gte=start_date)
+        if exclude_pk is not None:
+            qs = qs.exclude(pk=exclude_pk)
+        return qs
+
+    @classmethod
+    def create_vacation(cls, *, user, start_date, end_date, vacation_type):
+        # Basic validation
+        if start_date > end_date:
+            raise ValueError("start_date cannot be after end_date.")
+
+        with transaction.atomic():
+            # Lock potentially-conflicting rows to avoid race conditions
+            overlapping = (
+                cls.overlaps_qs(user=user, start_date=start_date, end_date=end_date)
+                .select_for_update()
+            )
+
+            if overlapping.exists():
+                return -1  # Indicate conflict
+
+            vacation = cls.objects.create(
+                user=user,
+                start_date=start_date,
+                end_date=end_date,
+                vacation_type=vacation_type,
+                status=cls.VacationStatus.APPROVED,
+            )
+            return vacation
+
     @property
     def phase(self):
         """Determine the current phase of the vacation. Scheduled, in progress, completed, etc."""
+        # TODO: Implement phase determination logic
         pass
 
     @property

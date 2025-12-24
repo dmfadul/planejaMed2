@@ -62,9 +62,9 @@ class Notification(models.Model):
         """Notify relevant users about a UserRequest event."""
         from user_requests.models import UserRequest as UR
 
-        if req.request_type in V.VacationType.REGULAR:
+        if req.request_type == V.VacationType.REGULAR:
             temp_key = f'request_pending_regular_vacation'
-        elif req.request_type in V.VacationType.SICK:
+        elif req.request_type == V.VacationType.SICK:
             temp_key = f'request_pending_sick_leave'
         elif req.request_type == UR.RequestType.DONATION and (req.donor and req.donor == req.requester):
             temp_key = f'request_pending_donation_offered'
@@ -94,7 +94,25 @@ class Notification(models.Model):
                 'sender_name':  req.requester.name,
                 'start_date':  req.start_date.strftime("%d/%m/%y"),
                 'end_date':    req.end_date.strftime("%d/%m/%y"),
+                'vacation_type': req.get_request_type_display(),
             }
+
+            cls.from_template(
+                template_key=temp_key,  # your vacation pending template
+                sender=req.requester,
+                receiver=req.requestee,
+                context=ctx,
+                related_obj=req,
+            )
+
+            cls.from_template(
+                template_key="vacation_request_received",  # NEW TEMPLATE
+                sender=req.requester,
+                receiver=req.requester,
+                context=ctx,
+                related_obj=req,
+            )
+            return
         else:
             ctx = {
                 'sender_name':      req.requester.name,
@@ -125,6 +143,7 @@ class Notification(models.Model):
             context=ctx,
             related_obj=req,
         )
+        return
     
     @classmethod
     def notify_vacation_response(cls, req, response):
@@ -202,6 +221,23 @@ class Notification(models.Model):
 # Placeholders correspond to context keys
     
     TEMPLATE_REGISTRY = {
+        'vacation_request_received': {
+            'kind': Kind.CANCEL,
+            'title': "Pedido de férias enviado",
+            'body': (
+                "Seu pedido de {vacation_type} de {start_date} até {end_date} foi enviado "
+                "e está aguardando aprovação. Aperte Cancelar para cancelar o pedido."
+            ),
+        },
+
+        'vacation_request_pending': {
+            'kind': Kind.ACTION,
+            'title': "Pedido de férias pendente",
+            'body': (
+                "{sender_name} solicitou {vacation_type} de {start_date} até {end_date}."
+            ),
+        },
+
         'request_pending_regular_vacation': {
             'kind': Kind.ACTION,
             'title': "Requisição de férias pendente",

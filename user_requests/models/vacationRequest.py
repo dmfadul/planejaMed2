@@ -28,12 +28,20 @@ class VacationRequest(models.Model):
     @property
     def target(self):
         return self.requester
-    
+
     def accept(self, responder):
         if not responder.is_superuser:
             raise PermissionError("Only admins(superusers) can accept vacation requests.")
         
-        # TODO: create the Vacation record
+        vacation = Vacation.create_vacation(
+            user=self.requester,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            vacation_type=self.request_type
+        )
+        if vacation == -1:
+            self.refuse(responder)
+            return -1  # Indicate conflict
 
         self.close()
         self.is_approved = True
@@ -43,15 +51,20 @@ class VacationRequest(models.Model):
         self.remove_notifications()
         self.notify_response("accept")
 
+        return True
+
     def refuse(self, responder):
         if not responder.is_superuser:
             raise PermissionError("Only admins(superusers) can refuse vacation requests.")
         
-        self.responder = responder # TODO: check if responder really saves or if needs save call
+        self.responder = responder
         self.close()
+        self.save(update_fields=['responder'])
         self.remove_notifications()
 
         self.notify_response("refuse")
+
+        return True
 
     def cancel(self, cancellor):
         if not cancellor == self.requester:
@@ -60,6 +73,8 @@ class VacationRequest(models.Model):
         self.responder = cancellor # TODO: check if responder really saves or if needs save call
         self.close()
         self.remove_notifications()
+
+        return True
 
     def close(self):
         """Close without action (e.g. if request is fulfilled outside the system)"""

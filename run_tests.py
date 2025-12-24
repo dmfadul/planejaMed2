@@ -23,8 +23,7 @@ print("User:", user.compliant_since)
 
 
 # FINAL TASKS:
-# TODO: transfer old compliance data from planejaMed1 to planejaMed2.
-# TODO: add a vacations report to the admin panel. (necessary for testing)
+# TODO: add a vacations dashboard to the admin panel. (necessary for testing)
 # TODO: transfer old vacation data from planejaMed1 to planejaMed2.
 # TODO: add a vacation payment calculation function to the admin panel.
 
@@ -34,6 +33,7 @@ print("User:", user.compliant_since)
 
 
 # NEXT MONTH'S TASKS:
+# TODO: add vacation consult/cancel options to user panel.
 # TODO: FINANCIAL MODULE
 # TODO: Put all user's centers together
 
