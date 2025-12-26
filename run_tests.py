@@ -33,6 +33,9 @@ print("User:", user.compliant_since)
 
 
 # NEXT MONTH'S TASKS:
+# TODO: fix order in schedule (dates are not in order by month)
+# TODO: userRequest has no toast notification when created.
+# TODO: there are incorrect hours (ex: d: 07:00 - 13:00) in hours selection menu.
 # TODO: add vacation consult/cancel options to user panel.
 # TODO: FINANCIAL MODULE
 # TODO: Put all user's centers together

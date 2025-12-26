@@ -10,7 +10,7 @@ from core.models import User
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def report(request):
+def rights_report(request):
     users = sorted(User.objects.filter(is_active=True, is_invisible=False).all(), key=lambda u: u.name)
     return render(request, "vacations/rights_report.html", {"users": users})
 

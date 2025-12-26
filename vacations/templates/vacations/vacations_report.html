@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Relatório de Férias{% endblock %}
+
+{% block css %}
+  {# Optional: only if you truly need these styles #}
+  <link rel="stylesheet" href="{% static 'dataview/css/table.css' %}">
+  <link rel="stylesheet" href="{% static 'css/buttons.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="container py-4">
+
+    {% if user_is_admin %}
+      <div class="text-center mb-3">
+        <button type="button" class="btn btn-outline-primary" onclick="getPrivilegeRights();">
+          Checar Férias
+        </button>
+      </div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Médico</th>
+                <th>CRM</th>
+                <th>Benefício</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Mês Contábil</th>
+                <th>Status</th>
+
+                {% if user_is_admin %}
+                  <th class="text-end"></th>
+                {% endif %}
+                {% if user_is_root %}
+                  <th class="text-end"></th>
+                  <th class="text-end"></th>
+                  <th class="text-end"></th>
+                {% endif %}
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for vacation in vacations %}
+                <tr>
+                  <td class="fw-semibold">{{ vacation.name }}</td>
+                  <td>{{ vacation.crm }}</td>
+                  <td>{{ vacation.type }}</td>
+                  <td>{{ vacation.start_date }}</td>
+                  <td>{{ vacation.end_date }}</td>
+                  <td>{{ vacation.fiscal_month_txt|linebreaksbr }}</td>
+                  <td>{{ vacation.status }}</td>
+
+                  {% if user_is_admin %}
+                    <td class="text-end">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-success"
+                        onclick="showPay(this)"
+                        data-id="{{ vacation.id }}"
+                        data-month="{{ vacation.fiscal_month }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#payModal"
+                        title="Pagamento"
+                      >
+                        $
+                      </button>
+                    </td>
+                  {% endif %}
+
+                  {% if user_is_root %}
+                    <td class="text-end">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-primary
+                          {% if vacation.status == 'Em andamento' or vacation.status == 'Concluído' or vacation.status == 'Pago' or vacation.status == 'Não Pago' or vacation.status == 'deferido' %}
+                            disabled
+                          {% endif %}"
+                        onclick="changeStatus(this, 'defered')"
+                        data-id="{{ vacation.id }}"
+                        {% if vacation.status == 'Em andamento' or vacation.status == 'Concluído' or vacation.status == 'Pago' or vacation.status == 'Não Pago' or vacation.status == 'deferido' %}
+                          disabled
+                        {% endif %}
+                      >
+                        Deferir
+                      </button>
+                    </td>
+
+                    <td class="text-end">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-warning {% if vacation.status == 'Pago' %}disabled{% endif %}"
+                        onclick="changeStatus(this, 'paid')"
+                        data-id="{{ vacation.id }}"
+                        data-month="{{ vacation.fiscal_month }}"
+                        {% if vacation.status == 'Pago' %}disabled{% endif %}
+                      >
+                        Pagar
+                      </button>
+                    </td>
+
+                    <td class="text-end">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-danger"
+                        onclick="changeStatus(this, 'deleted')"
+                        data-id="{{ vacation.id }}"
+                      >
+                        Cancelar
+                      </button>
+                    </td>
+                  {% endif %}
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="10" class="text-center text-muted py-4">
+                    Nenhuma férias encontrada.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}
+
+{% block modal %}
+  {# Page-specific modal (fits your base pattern perfectly) #}
+  <div class="modal fade" id="payModal" tabindex="-1" aria-labelledby="payModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="payModalLabel">Confirmar Ação</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+
+        <div class="modal-body" id="modalBody">
+          {# JS injects content here #}
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="cancelButton">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary" id="saveButton">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  {# Page-specific JS (recommended) #}
+  <script src="{% static 'privilege/scripts/showPay.js' %}"></script>
+  <script src="{% static 'scripts/vacations.js' %}"></script>
+
+  {# If your JS does POST/PUT, you probably need CSRF:
+     You already load getCookie.js globally, so use it there. #}
+{% endblock %}
