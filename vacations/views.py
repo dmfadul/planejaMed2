@@ -15,6 +15,12 @@ def rights_report(request):
     return render(request, "vacations/rights_report.html", {"users": users})
 
 
+@user_passes_test(lambda u: u.is_superuser)
+def vacations_dashboard(request):
+
+    return render(request, "vacations/vacations_dashboard.html", {})
+
+
 @require_POST
 def grant_manumission(request):
     try:
