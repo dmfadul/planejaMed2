@@ -94,7 +94,7 @@ class Notification(models.Model):
                 'sender_name':  req.requester.name,
                 'start_date':  req.start_date.strftime("%d/%m/%y"),
                 'end_date':    req.end_date.strftime("%d/%m/%y"),
-                'vacation_type': req.get_request_type_display(),
+                'vacation_type': "Férias" if req.get_request_type_display() == "REGULAR" else "Licença Médica",
             }
 
             cls.from_template(
@@ -148,14 +148,9 @@ class Notification(models.Model):
     @classmethod
     def notify_vacation_response(cls, req, response):
         """Notify relevant users about a VacationRequest response event."""
-        # Do I need to add Cancelable notification to requester?
-        from user_requests.models import UserRequest as UR
-
-        was_solicited = ((req.request_type == UR.RequestType.DONATION) and
-                         (req.donee == req.requestee))
 
         cls.from_template(
-            template_key="request_responded",
+            template_key="vacation_request_responded",
             sender=req.responder,
             receiver=req.requester,
 
@@ -221,28 +216,11 @@ class Notification(models.Model):
 # Placeholders correspond to context keys
     
     TEMPLATE_REGISTRY = {
-        'vacation_request_received': {
-            'kind': Kind.CANCEL,
-            'title': "Pedido de férias enviado",
-            'body': (
-                "Seu pedido de {vacation_type} de {start_date} até {end_date} foi enviado "
-                "e está aguardando aprovação. Aperte Cancelar para cancelar o pedido."
-            ),
-        },
-
-        'vacation_request_pending': {
-            'kind': Kind.ACTION,
-            'title': "Pedido de férias pendente",
-            'body': (
-                "{sender_name} solicitou {vacation_type} de {start_date} até {end_date}."
-            ),
-        },
-
         'request_pending_regular_vacation': {
             'kind': Kind.ACTION,
             'title': "Requisição de férias pendente",
             'body':
-                "{sender_name} solicitou férias "
+                "{sender_name} solicitou férias ##"
                 "de {start_date} até {end_date}.",
         },
 
@@ -273,6 +251,16 @@ class Notification(models.Model):
                 "dos horários: {start_hour} - {end_hour} "
                 "no centro {center} no dia {date}. "
                 "Aperte Cancelar para cancelar a solicitação.",
+        },
+
+        # "Your vacation request is received."
+        'vacation_request_received': {
+            'kind': Kind.CANCEL,
+            'title': "Pedido de férias enviado",
+            'body': (
+                "Seu pedido de {vacation_type} de {start_date} até {end_date} foi enviado "
+                "e está aguardando aprovação. Aperte Cancelar para cancelar o pedido."
+            ),
         },
 
         # “Your request is created and waiting for a response.”
@@ -320,7 +308,7 @@ class Notification(models.Model):
             'kind': Kind.INFO,
             'title': "Requisição respondida",
             'body':
-                "{sender_name} {response} {{{receiver_id}}} Pedido DE {req_type}."
+                "{sender_name} {response} seu Pedido DE {req_type}."
                 "de {start_date} até {end_date}.",
         },
     }
