@@ -11,10 +11,13 @@ document.getElementById('benefitsSolicitar').addEventListener('click', e => {
   openBenefits(e.currentTarget.dataset.benefitsMode || 'solicitation');
 });
 
-document.getElementById('benefitsRegistrar').addEventListener('click', e => {
+const registrar = document.getElementById('benefitsRegistrar');
+if (registrar) {
+  registrar.addEventListener('click', e => {
   e.preventDefault();
   openBenefits(e.currentTarget.dataset.benefitsMode);
-});
+  });
+}
 
 function showError(msg){ const el = document.getElementById('benefitsError'); el.textContent = msg; el.classList.remove('d-none'); }
 function hideError(){ const el = document.getElementById('benefitsError'); el.textContent = ''; el.classList.add('d-none'); }
@@ -25,6 +28,7 @@ function getCookie(name){
 }
 
 async function submitBenefits(btn){
+  console.log("submitBenefits called");
   hideError();
   const mode = document.getElementById('benefitsMode').value; // NEW
   const type  = document.getElementById('benefitType').value;
