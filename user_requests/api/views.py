@@ -72,14 +72,14 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         
-        if user.is_staff:
+        if user.is_staff or user.is_superuser:
             return Notification.objects.filter(is_deleted=False).order_by('-created_at')
         
-        if user.is_superuser:
-            return Notification.objects.filter(
-                models.Q(receiver__isnull=True) | models.Q(receiver=user),
-                is_deleted=False
-            )
+        # if user.is_superuser:
+        #     return Notification.objects.filter(
+        #         models.Q(receiver__isnull=True) | models.Q(receiver=user),
+        #         is_deleted=False
+        #     )
         
         return Notification.objects.filter(
             receiver=user, is_deleted=False

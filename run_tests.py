@@ -23,16 +23,17 @@ print("User:", user.compliant_since)
 
 
 # FINAL TASKS:
+# TODO: add alert (have to keep following the vacation compliance rules) to vacation authorization message.
 # TODO: add a vacations dashboard to the admin panel. (necessary for testing)
 # TODO: transfer old vacation data from planejaMed1 to planejaMed2.
 # TODO: add a vacation payment calculation function to the admin panel.
 
 # TODO: translate from english to portuguese.
 # TODO: add tests
-# TODO: fix bug when creating/unlocking month from users hours view.
 
 
 # NEXT MONTH'S TASKS:
+# TODO: fix bug when creating/unlocking month from users hours view.
 # TODO: fix order in schedule (dates are not in order by month)
 # TODO: userRequest has no toast notification when created.
 # TODO: there are incorrect hours (ex: d: 07:00 - 13:00) in hours selection menu.
