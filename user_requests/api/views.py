@@ -1,6 +1,6 @@
 from datetime import datetime
-from django.db import models
-from django.db import transaction
+from django.db import models, transaction
+from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -71,25 +71,17 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        qs = Notification.objects.filter(is_deleted=False)
         
         if user.is_staff or user.is_superuser:
-            notifications = Notification.objects.filter(is_deleted=False).order_by('-created_at')
-            relevant_notifications = []
-            for n in notifications:
-                if n.kind in ['cancel', 'info'] and not (n.receiver is None or n.receiver == user):
-                    continue
-                relevant_notifications.append(n)
-            return relevant_notifications
-
-        # if user.is_superuser:
-        #     return Notification.objects.filter(
-        #         models.Q(receiver__isnull=True) | models.Q(receiver=user),
-        #         is_deleted=False
-        #     )
+            qs = qs.exclude(
+                Q(kind__in=['cancel', 'info']) &
+                Q(receiver__isnull=False) &
+                ~Q(receiver=user)
+            )
+            return qs.order_by('-created_at')
         
-        return Notification.objects.filter(
-            receiver=user, is_deleted=False
-        ).order_by('-created_at')
+        return qs.filter(receiver=user).order_by('-created_at')
     
     def get_serializer_context(self):
         """Pass viewer_id to serializer for rendering logic."""
