@@ -79,7 +79,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
                 if n.kind in ['cancel', 'info'] and not (n.receiver is None or n.receiver == user):
                     continue
                 relevant_notifications.append(n)
-                print(n.kind, n.title, n.receiver)
             return relevant_notifications
 
         # if user.is_superuser:
