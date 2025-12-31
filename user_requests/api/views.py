@@ -73,8 +73,15 @@ class NotificationViewSet(viewsets.ModelViewSet):
         user = self.request.user
         
         if user.is_staff or user.is_superuser:
-            return Notification.objects.filter(is_deleted=False).order_by('-created_at')
-        
+            notifications = Notification.objects.filter(is_deleted=False).order_by('-created_at')
+            relevant_notifications = []
+            for n in notifications:
+                if n.kind in ['cancel', 'info'] and not (n.receiver is None or n.receiver == user):
+                    continue
+                relevant_notifications.append(n)
+                print(n.kind, n.title, n.receiver)
+            return relevant_notifications
+
         # if user.is_superuser:
         #     return Notification.objects.filter(
         #         models.Q(receiver__isnull=True) | models.Q(receiver=user),
