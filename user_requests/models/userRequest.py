@@ -162,6 +162,10 @@ class UserRequest(models.Model):
             # self.remove_notifications()
             # self.notify_response("accept") seems redundant here
             to_delete_shift = self.shift.split(self.start_hour, self.end_hour)
+
+            self.shift = None  # avoid FK constraint issues
+            self.save(update_fields=['shift'])
+
             to_delete_shift.delete()
 
             # No need to delete other requests on same shift
