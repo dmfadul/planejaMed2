@@ -159,8 +159,7 @@ class UserRequest(models.Model):
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The excludee must be the current assignee of the shift.")
 
-            # self.remove_notifications()
-            # self.notify_response("accept") seems redundant here
+            self.notify_response("accept")
             to_delete_shift = self.shift.split(self.start_hour, self.end_hour)
 
             self.shift = None  # avoid FK constraint issues
@@ -170,6 +169,7 @@ class UserRequest(models.Model):
 
             # No need to delete other requests on same shift
             # as they are supposed to be cascaded by shift deletion
+            # but there is need to delete related notifications
 
         self.close()
 
@@ -177,7 +177,8 @@ class UserRequest(models.Model):
         self.save(update_fields=['is_approved'])
 
         self.remove_notifications()
-        self.notify_response("accept")
+        if self.request_type != self.RequestType.EXCLUDE:
+            self.notify_response("accept")
 
     
     def refuse(self, responder):

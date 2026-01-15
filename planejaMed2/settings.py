@@ -78,7 +78,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'core',
     'shifts',
-    'user_requests',
+    'user_requests.apps.UserRequestsConfig',
     'vacations',
     'finance',
 ]
