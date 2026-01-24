@@ -6,6 +6,8 @@
         <link rel="stylesheet" href="{% static 'shifts/css/doctor_basetable.css' %}">
     {% elif table_data.template == "sum_days_base" or table_data.template == "sum_days_month" %}
         <link rel="stylesheet" href="{% static 'shifts/css/sum_days.css' %}">
+    {% elif table_data.template == "sum_doctors_month" %}
+        <link rel="stylesheet" href="{% static 'shifts/css/sum_doctors.css' %}">
     {% endif %}
 {% endblock %}
 
@@ -31,8 +33,9 @@
 <script src="{% static 'shifts/js/modals.js' %}"></script>
 <script src="{% static 'shifts/js/editing.js' %}"></script>
 <script src="{% static 'shifts/js/sendData.js' %}"></script>
-<script src="{% static 'shifts/js/addListeners.js' %}"></script>
-
+{% if table_data.template != "sum_doctors_month" %}
+    <script src="{% static 'shifts/js/addListeners.js' %}"></script>
+{% endif %}
 <script>
     let tableData = {{ table_data|safe }}
 
