@@ -341,8 +341,9 @@ class Shift(AbstractShift):
         """Returns a dict of overtime and normal hours."""
         actual_date = self.get_date()
 
+
         is_holiday = self.day in [h.day for h in self.month.holidays.all()]
-        is_weekend = actual_date.weekday in [5, 6]  # Saturday or Sunday
+        is_weekend = actual_date.weekday() in [5, 6]  # Saturday or Sunday
 
         if is_holiday or is_weekend:
             return {"normal": 0, "overtime": len(self.hour_list)}
