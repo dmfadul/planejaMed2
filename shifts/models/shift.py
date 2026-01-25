@@ -327,7 +327,7 @@ class Shift(AbstractShift):
     def gen_date(cls, month, day):
         """Generates the date of the shift as a datetime object."""
 
-        if END_DAY <= day <= 31:
+        if END_DAY < day <= 31:
             actual_month, actual_year = month.prv_number_year()
         else:
             actual_month, actual_year = month.number, month.year
@@ -340,7 +340,7 @@ class Shift(AbstractShift):
     def get_overtime_count(self):
         """Returns a dict of overtime and normal hours."""
         actual_date = self.get_date()
-
+        print(actual_date, actual_date.weekday())
 
         is_holiday = self.day in [h.day for h in self.month.holidays.all()]
         is_weekend = actual_date.weekday() in [5, 6]  # Saturday or Sunday

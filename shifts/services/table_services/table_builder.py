@@ -86,7 +86,6 @@ def build_doctors_sumtable(table_data, template, month=None):
                 shifts[cell_id_norm] = 0
 
             hours_dict = s.get_overtime_count()
-            print("hours_dict", hours_dict)
             
             shifts[cell_id_over] += hours_dict["overtime"]
             shifts[cell_id_norm] += hours_dict["normal"]      
