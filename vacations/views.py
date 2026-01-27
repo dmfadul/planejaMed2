@@ -17,6 +17,7 @@ def rights_report(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def vacations_dashboard(request):
+    print("Accessing vacations dashboard")
 
     return render(request, "vacations/vacations_dashboard.html", {})
 
