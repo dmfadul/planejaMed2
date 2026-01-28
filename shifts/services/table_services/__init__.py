@@ -1,2 +1,3 @@
 from .table_builder import build_table_data
 from .table_payload import process_table_payload
+from .table_utils import gen_month_table_printable

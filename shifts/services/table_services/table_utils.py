@@ -1,5 +1,5 @@
 from shifts.models import TemplateShift as TS
-from shifts.models import Center
+from shifts.models import Center, Shift
 from collections import defaultdict
 from core.constants import DIAS_SEMANA, SHIFT_CODES
 
@@ -98,3 +98,38 @@ def translate_to_table(shifts:list) -> dict:
         output[key] = TS.stringfy_codes(values)
     
     return output
+
+
+def gen_month_table_printable(center, month, names_only=False, include_crm=False, abbr_names=False):
+    """This function generates a printable version of the month table"""
+    
+    weekdays = [DIAS_SEMANA[day.weekday()][:3] for day in month.days]
+    monthdays = [d.day for d in month.days]
+    table_header = [['']+weekdays, ['']+monthdays]
+
+    table = table_header
+    users = sorted(month.users.all(), key=lambda u: u.name)
+    
+    for user in users:
+        name = user.alias if abbr_names else user.name
+        if names_only:
+            row = [name]
+        elif include_crm:
+            row = [f"{name} ({user.crm})"]
+        else:
+            row = [(name, user.crm)]
+
+        for day in month.days:
+            shifts = Shift.objects.filter(
+                user=user,
+                center=center,
+                month=month,
+                day=day.day,
+            ).order_by('start_time')
+
+            shifts = [TS.convert_to_code(shift.start_time, shift.end_time) for shift in shifts]
+            shifts = TS.stringfy_codes(shifts)
+            row.append(shifts)
+        table.append(row)
+
+    return table

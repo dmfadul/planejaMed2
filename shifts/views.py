@@ -1,3 +1,10 @@
+from io import BytesIO
+from datetime import date
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+
 import json
 import logging
 from core.models import User
@@ -8,8 +15,12 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from shifts.services.table_services import process_table_payload, build_table_data
 from shifts.models import ShiftType, ShiftSnapshot, TemplateShift, Shift, Center, Month
+from shifts.services.table_services import (
+    process_table_payload,
+    build_table_data,
+    gen_month_table_printable
+)
 
 logger = logging.getLogger(__name__) 
 
@@ -187,12 +198,76 @@ def unlock_month(request):
     return redirect("shifts:month_table", **kwargs)
 
 
+@user_passes_test(lambda u: u.is_superuser)
 def print_table(request, center_abbr, month_num, year):
-    from shifts.utils.table_utils import gen_month_table_printable
-
     center = get_object_or_404(Center, abbreviation=center_abbr)
-    month = get_object_or_404(Month, number=month_num, year=year)
+    month_obj = get_object_or_404(Month, number=month_num, year=year)
 
-    data_table = gen_month_table_printable(center, month)
+    data_table = gen_month_table_printable(center, month_obj, include_crm=True)
 
-    return HttpResponse(f"OK: {center.abbreviation} {month.number}/{month.year}")
+      # Same "compress header day names to first letter" logic
+    # In your Flask code you did: data_table[0][i] = data_table[0][i][0]
+    for i in range(1, len(data_table[0])):
+        cell = data_table[0][i]
+        if isinstance(cell, str) and cell:
+            data_table[0][i] = cell[0]
+
+    first_header = ["HOSPITAL UNIVERSITÁRIO EVANGÉLICO MACKENZIE"] + [""] * (len(data_table[0]) - 1)
+
+    second_header = ["Grupo de Anestesia Mackenzie"] + [""] * (len(data_table[0]) - 1)
+    second_header[len(data_table[0]) // 3] = f"{center.name} - {center.abbreviation}"
+
+    if len(data_table[0]) == 32:
+        second_header_index = 21
+    elif len(data_table[0]) == 29:
+        second_header_index = 19
+    else:
+        second_header_index = 20
+    second_header[second_header_index] = f"COMPETÊNCIA: {month_obj.name}/{month_obj.year}"
+
+    third_header = [f"RESPONSÁVEL: {month_obj.leader}"] + [""] * (len(data_table[0]) - 1)
+    third_header[len(data_table[0]) // 2] = f"CURITIBA, {date.today().day}/{month_obj.number}/{month_obj.year}"
+
+    # IMPORTANT: you had repeatRows=4, so keep 4 header rows.
+    # Your Flask code says repeatRows=4 but only prepended 2 headers + data_table (which already has 2 header rows)
+    data = [first_header, second_header] + data_table
+
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4),
+        topMargin=10,
+    )
+
+    table = Table(data)
+
+    style = TableStyle([
+        ("FONT", (0, 0), (-1, -1), "Helvetica", 8),
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+
+        ("SPAN", (0, 0), (len(data[0]) - 1, 0)),
+
+        ("SPAN", (0, 1), (len(data[0]) // 3 - 1, 1)),
+        ("SPAN", (len(data[0]) // 3, 1), (2 * len(data[0]) // 3 - 1, 1)),
+        ("SPAN", (2 * len(data[0]) // 3, 1), (-1, 1)),
+
+        ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+        ("VALIGN", (0, 0), (-1, 0), "MIDDLE"),
+        ("ALIGN", (0, 1), (-1, 1), "CENTER"),
+        ("VALIGN", (0, 1), (-1, 1), "MIDDLE"),
+    ])
+
+    table.setStyle(style)
+    table.repeatRows = 4  # same as Flask
+
+    doc.build([table])
+    buffer.seek(0)
+
+    pdf_bytes = buffer.getvalue()
+    resp = HttpResponse(pdf_bytes, content_type="application/pdf")
+    resp["Content-Disposition"] = 'inline; filename="report.pdf"'
+
+    return resp
+
+
