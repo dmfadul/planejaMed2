@@ -51,6 +51,17 @@ class Month(models.Model):
         return datetime(self.start_date.year, self.start_date.month, last_day)
     
     @property
+    def days(self):
+        '''Generate a list of all days (in date format) in the month period.'''
+        
+        days_list = []
+        current_day = self.start_date
+        while current_day <= self.end_date:
+            days_list.append(current_day)
+            current_day += timedelta(days=1)
+        return days_list
+
+    @property
     def size(self):
         return (self.end_date - self.start_date).days + 1
 
