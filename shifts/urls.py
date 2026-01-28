@@ -2,6 +2,7 @@ from django.urls import path
 from .views import month_table, basetable, doctor_basetable
 from .views import sum_days_base, sum_days_month, sum_doctors_base, sum_doctors_month
 from .views import update, update_holiday, unlock_month
+from .views import print_table
 
 app_name = "shifts"
 
@@ -19,4 +20,6 @@ urlpatterns = [
     path("update", update, name="update"), 
     path("update-holiday", update_holiday, name="update_holiday"),
     path("unlock_month/", unlock_month, name="unlock_month"),
+
+    path("printable/<str:center_abbr>/<int:month_num>/<int:year>/", print_table, name="print_table"),
     ]

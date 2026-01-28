@@ -5,7 +5,7 @@ from django.db import transaction
 import core.constants as constants
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from shifts.services.table_services import process_table_payload, build_table_data
@@ -185,3 +185,14 @@ def unlock_month(request):
               "year": next_month.year}
     
     return redirect("shifts:month_table", **kwargs)
+
+
+def print_table(request, center_abbr, month_num, year):
+    from shifts.utils.table_utils import gen_month_table_printable
+
+    center = get_object_or_404(Center, abbreviation=center_abbr)
+    month = get_object_or_404(Month, number=month_num, year=year)
+
+    data_table = gen_month_table_printable(center, month)
+
+    return HttpResponse(f"OK: {center.abbreviation} {month.number}/{month.year}")

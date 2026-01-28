@@ -22,7 +22,10 @@
         <button id="sum-hours-button" type="button" class="btn btn-outline-light btn-sm me-2">Somar</button>
         {% endif %}
         {% if table_data.template != "basetable" or table_data.template != "monthtable" %}
-        <button type="button" class="btn btn-outline-light btn-sm">Relatório</button>
+        <button type="button" class="btn btn-outline-light btn-sm me-2">Relatório</button>
+        {% endif %}
+        {% if table_data.template != "basetable" or table_data.template != "monthtable" %}
+        <button id="print-button" type="button" class="btn btn-outline-light btn-sm me-2">Imprimir</button>
         {% endif %}
     </div>
 

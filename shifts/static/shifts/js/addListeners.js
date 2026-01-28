@@ -9,6 +9,18 @@ function addListeners() {
 
     console.log("✅ addListeners running after table render. Found:", cells.length);
 
+    document.getElementById("print-button").addEventListener("click", function() {
+        var center = tableData.center;
+        var month = tableData.month_number;
+        var year = tableData.year;
+        var printUrl = `/shifts/printable/${center}/`;
+        if (month && year) {
+            printUrl += `${month}/${year}/`;
+        }
+        window.open(printUrl, '_blank');
+    });
+
+
     cells.forEach(cell => {
         cell.addEventListener('click', () => {
             clickCell(cell);
