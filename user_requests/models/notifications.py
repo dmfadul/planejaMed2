@@ -220,7 +220,7 @@ class Notification(models.Model):
             'kind': Kind.ACTION,
             'title': "Requisição de férias pendente",
             'body':
-                "{sender_name} solicitou férias ##"
+                "{sender_name} solicitou férias "
                 "de {start_date} até {end_date}.",
         },
 

@@ -11,7 +11,7 @@ class Vacation(models.Model):
         PENDING = 'pending', 'Pending'
         APPROVED = 'approved', 'Approved'
         REJECTED = 'rejected', 'Rejected'
-        # add revoked deferred and others(?)
+        OVERRIDDEN = 'overridden', 'Overridden'
 
     class paymentStatus(models.TextChoices):
         PAID = 'paid', 'Paid'
