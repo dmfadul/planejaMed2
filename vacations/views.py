@@ -19,7 +19,11 @@ def rights_report(request):
 def vacations_dashboard(request):
     print("Accessing vacations dashboard")
 
-    return render(request, "vacations/vacations_dashboard.html", {})
+    return render(request, "vacations/vacations_dashboard.html", context={
+        "vacations": [],
+        "user_is_admin": request.user.is_superuser,
+        "user_is_root": request.user.is_root
+    })
 
 
 @require_POST
