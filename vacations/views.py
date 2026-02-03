@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_POST
 
 from core.models import User 
-
+from vacations.models import Vacation
 
 @user_passes_test(lambda u: u.is_superuser)
 def rights_report(request):
@@ -17,12 +17,12 @@ def rights_report(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def vacations_dashboard(request):
-    print("Accessing vacations dashboard")
+    vacations = Vacation.objects.all()
 
     return render(request, "vacations/vacations_dashboard.html", context={
-        "vacations": [],
+        "vacations": vacations,
         "user_is_admin": request.user.is_superuser,
-        "user_is_root": request.user.is_root
+        "user_is_root": request.user.is_staff,
     })
 
 

@@ -48,8 +48,8 @@
             <tbody>
               {% for vacation in vacations %}
                 <tr>
-                  <td class="fw-semibold">{{ vacation.name }}</td>
-                  <td>{{ vacation.crm }}</td>
+                  <td class="fw-semibold">{{ vacation.user.abbr_name }}</td>
+                  <td>{{ vacation.user.crm }}</td>
                   <td>{{ vacation.type }}</td>
                   <td>{{ vacation.start_date }}</td>
                   <td>{{ vacation.end_date }}</td>
