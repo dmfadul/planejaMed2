@@ -13,8 +13,9 @@ class Vacation(models.Model):
         REJECTED = 'rejected', 'Rejected'
         OVERRIDDEN = 'overridden', 'Overridden'
 
-    class paymentStatus(models.TextChoices):
+    class PaymentStatus(models.TextChoices):
         PAID = 'paid', 'Paid'
+        PARTIAL = 'partial', 'Partial'
         UNPAID = 'unpaid', 'Unpaid'
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vacations')
@@ -27,6 +28,40 @@ class Vacation(models.Model):
     def __str__(self):
         return f"{self.user.name} - {self.vacation_type} from {self.start_date} to {self.end_date} ({self.status})"
     
+    @property
+    def type(self):
+        display_type = "Férias" if self.vacation_type == self.VacationType.REGULAR else "Licença Médica"
+        return display_type
+    
+    @property
+    def display_start_date(self):
+        return self.start_date.strftime("%d/%m/%Y")
+
+    @property
+    def display_end_date(self):
+        return self.end_date.strftime("%d/%m/%Y")
+
+    @property
+    def fiscal_month(self):
+        from core.constants import STR_DAY, END_DAY
+
+        if self.start_date.day <= STR_DAY and self.end_date.day >= END_DAY:
+            if self.start_date.month == self.end_date.month and self.start_date.year == self.end_date.year:
+                first_month = self.start_date.month
+                first_year = self.start_date.year
+                second_month = (first_month % 12) + 1
+                second_year = first_year + (1 if second_month == 1 else 0)
+                fiscal_month = f"{first_month:02d}-{first_year%100}/{second_month:02d}-{second_year%100}"
+            else:
+                second_month = self.end_date.month
+                second_year = self.end_date.year
+                first_month = self.start_date.month
+                first_year = self.start_date.year
+                fiscal_month = f"{first_month:02d}-{first_year%100}/{second_month:02d}-{second_year%100}"
+        else:
+            fiscal_month = f"{self.end_date.strftime("%m-%y")}"
+
+        return fiscal_month
 
     @classmethod
     def overlaps_qs(cls, *, user, start_date, end_date, exclude_pk=None):

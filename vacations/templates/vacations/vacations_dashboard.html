@@ -31,7 +31,7 @@
                 <th>Benefício</th>
                 <th>Início</th>
                 <th>Fim</th>
-                <th>Mês Contábil</th>
+                <th>Mês Cont.</th>
                 <th>Status</th>
 
                 {% if user_is_admin %}
@@ -51,9 +51,9 @@
                   <td class="fw-semibold">{{ vacation.user.abbr_name }}</td>
                   <td>{{ vacation.user.crm }}</td>
                   <td>{{ vacation.type }}</td>
-                  <td>{{ vacation.start_date }}</td>
-                  <td>{{ vacation.end_date }}</td>
-                  <td>{{ vacation.fiscal_month_txt|linebreaksbr }}</td>
+                  <td>{{ vacation.display_start_date }}</td>
+                  <td>{{ vacation.display_end_date }}</td>
+                  <td>{{ vacation.fiscal_month|linebreaksbr }}</td>
                   <td>{{ vacation.status }}</td>
 
                   {% if user_is_admin %}
@@ -165,6 +165,4 @@
   <script src="{% static 'privilege/scripts/showPay.js' %}"></script>
   <script src="{% static 'scripts/vacations.js' %}"></script>
 
-  {# If your JS does POST/PUT, you probably need CSRF:
-     You already load getCookie.js globally, so use it there. #}
 {% endblock %}
