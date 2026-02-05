@@ -29,6 +29,17 @@ class Vacation(models.Model):
         return f"{self.user.name} - {self.vacation_type} from {self.start_date} to {self.end_date} ({self.status})"
     
     @property
+    def status_display(self):
+        status_mapping = {
+            self.VacationStatus.PENDING: "Pendente",
+            self.VacationStatus.APPROVED: "Aprovada",
+            self.VacationStatus.REJECTED: "Rejeitada",
+            self.VacationStatus.OVERRIDDEN: "Sobreposta",
+        }
+        status = self.status
+        return status_mapping.get(status, status)
+
+    @property
     def type(self):
         display_type = "Férias" if self.vacation_type == self.VacationType.REGULAR else "Licença Médica"
         return display_type

@@ -8,14 +8,15 @@ from django.views.decorators.http import require_POST
 
 from core.models import User 
 from vacations.models import Vacation
+from django.contrib.auth.decorators import login_required
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def rights_report(request):
     users = sorted(User.objects.filter(is_active=True, is_invisible=False).all(), key=lambda u: u.name)
     return render(request, "vacations/rights_report.html", {"users": users})
 
-
-@user_passes_test(lambda u: u.is_superuser)
+@login_required
 def vacations_dashboard(request):
     vacations = Vacation.objects.all()
 
