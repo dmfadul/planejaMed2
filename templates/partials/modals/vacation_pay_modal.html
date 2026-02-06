@@ -1,0 +1,48 @@
+<!-- Modal: Calcular Pagamento de Férias -->
+<div class="modal fade" id="modalVacationPay" tabindex="-1" aria-hidden="true" style="color:black;">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalVacationPayLabel">Calcular pagamento de férias</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="vacPayForm">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="vacPayStartDate" class="form-label">Data inicial</label>
+              <input type="date" id="vacPayStartDate" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label for="vacPayEndDate" class="form-label">Data final</label>
+              <input type="date" id="vacPayEndDate" class="form-control" required>
+            </div>
+          </div>
+        </form>
+
+        <!-- Loading -->
+        <div id="vacPayLoading" class="mt-3 d-none">
+          <div class="d-flex align-items-center gap-2">
+            <div class="spinner-border" role="status" aria-hidden="true"></div>
+            <div>Calculando…</div>
+          </div>
+        </div>
+
+        <!-- Result -->
+        <div id="vacPayResult" class="mt-3 d-none">
+          <h6 class="mb-2">Resultado</h6>
+          <pre class="bg-light p-3 rounded mb-0" style="white-space:pre-wrap;"></pre>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div id="vacPayError" class="text-danger d-none me-auto"></div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-primary" id="vacPaySubmitBtn">Calcular</button>
+      </div>
+
+    </div>
+  </div>
+</div>
