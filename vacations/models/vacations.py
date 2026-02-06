@@ -34,7 +34,7 @@ class Vacation(models.Model):
             self.VacationStatus.PENDING: "Pendente",
             self.VacationStatus.APPROVED: "Aprovada",
             self.VacationStatus.REJECTED: "Rejeitada",
-            self.VacationStatus.OVERRIDDEN: "Sobreposta",
+            self.VacationStatus.OVERRIDDEN: "Deferida",
         }
         status = self.status
         return status_mapping.get(status, status)
