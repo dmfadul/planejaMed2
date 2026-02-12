@@ -1,4 +1,45 @@
-from rest_framework import viewsets
+from datetime import datetime
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
-class VacationViewSet(viewsets.ModelViewSet):
-    pass
+
+class VacationPay(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        if not request.user.is_staff or not request.user.is_superuser:
+            return Response(
+                {"detail": "Acesso negado. Apenas administradores podem acessar este endpoint."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        
+        start_str = request.query_params.get("start")
+        end_str = request.query_params.get("end")
+
+        if not start_str or not end_str:
+            return Response(
+                {"detail": "Parâmetros 'start' e 'end' são obrigatórios."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            start_date = datetime.fromisoformat(start_str).date()
+            end_date = datetime.fromisoformat(end_str).date()
+        except ValueError:
+            return Response(
+                {"detail": "Formato de data inválido. Use YYYY-MM-DD."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if end_date < start_date:
+            return Response(
+                {"detail": "A data final não pode ser anterior à inicial."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
+        print("Calculating vacation pay for user:", start_date, end_date)
+        # Logic to calculate vacation pay
+        vacation_pay = 1000  # Placeholder value
+        return Response({'vacation_pay': vacation_pay})

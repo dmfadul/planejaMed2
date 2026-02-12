@@ -1,7 +1,8 @@
-from rest_framework.routers import DefaultRouter
-from vacations.api.views import VacationViewSet
+from django.urls import path
+from vacations.api.views import VacationPay
 
-router = DefaultRouter()
-router.register(r'vacation', VacationViewSet, basename='vacation')
+app_name = "vacations_api"
 
-urlpatterns = router.urls
+urlpatterns = [
+    path("vacations/pay/", VacationPay.as_view(), name="vacation_pay"),
+]

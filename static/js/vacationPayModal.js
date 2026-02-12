@@ -1,12 +1,6 @@
 // static/js/vacation_pay.js
 
 (function () {
-  // --- Small helpers ---
-  function getCookie(name) {
-    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return v ? v.pop() : '';
-  }
-
   function showError(msg) {
     const el = document.getElementById('vacPayError');
     if (!el) return;
@@ -26,13 +20,10 @@
     const pre = document.getElementById('vacPayResultPre');
     if (!wrap || !pre) return;
 
-    let text = '';
-    if (typeof objOrString === 'string') {
-      text = objOrString;
-    } else {
-      // pretty JSON for now (easy while backend is evolving)
-      text = JSON.stringify(objOrString, null, 2);
-    }
+    const text =
+      typeof objOrString === 'string'
+        ? objOrString
+        : JSON.stringify(objOrString, null, 2);
 
     pre.textContent = text;
     wrap.classList.remove('d-none');
@@ -42,6 +33,7 @@
     const wrap = document.getElementById('vacPayResult');
     const pre = document.getElementById('vacPayResultPre');
     if (!wrap || !pre) return;
+
     pre.textContent = '';
     wrap.classList.add('d-none');
   }
@@ -58,7 +50,6 @@
     new bootstrap.Modal('#modalVacationPay').show();
   }
 
-  // Build a readable message from DRF-like errors
   function buildErrorMessage(data) {
     if (!data) return 'Falha ao calcular. Tente novamente.';
     if (typeof data === 'string') return data;
@@ -92,28 +83,21 @@
     btn.textContent = 'Calculando…';
 
     try {
-      // Pick one approach:
-      // A) GET with query params (nice for "calculation" that doesn’t change state)
-      // const url = `/api/vacations/pay/?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
-
-      // B) POST JSON (nice if you’ll do validations / permissions / complex payload)
-      const url = '/api/vacations/pay/';
+      // Read-only calculation endpoint (GET)
+      // Example: GET /api/vacations/pay/?start=2026-02-01&end=2026-02-10
+      const url = `/api/vacations/pay/?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
 
       const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: JSON.stringify({ startDate: start, endDate: end }),
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        // credentials default is "same-origin" in most browsers, but you can force it:
+        // credentials: 'same-origin',
       });
 
       let data = null;
       try { data = await res.json(); } catch (_) {}
 
       if (res.ok) {
-        // Your backend should return the calculation payload:
-        // e.g. { days: 30, gross: 1234.56, net: 1000.00, breakdown: {...} }
         showResult(data ?? 'Cálculo concluído.');
         return;
       }
@@ -128,7 +112,6 @@
     }
   }
 
-  // --- Wire up events safely (only if elements exist on the page) ---
   document.addEventListener('DOMContentLoaded', () => {
     const openLink = document.getElementById('calculatePay');
     if (openLink) {
@@ -143,7 +126,6 @@
       submitBtn.addEventListener('click', (e) => submitVacationPay(e.currentTarget));
     }
 
-    // Optional: when modal closes, reset it
     const modalEl = document.getElementById('modalVacationPay');
     if (modalEl) {
       modalEl.addEventListener('hidden.bs.modal', resetForm);
