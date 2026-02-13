@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from vacations.models.vacations import Vacation
+
 
 class VacationPay(APIView):
     permission_classes = [IsAuthenticated]
@@ -39,7 +41,15 @@ class VacationPay(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         
-        print("Calculating vacation pay for user:", start_date, end_date)
-        # Logic to calculate vacation pay
-        vacation_pay = 1000  # Placeholder value
-        return Response({'vacation_pay': vacation_pay})
+        vacations = Vacation.objects.filter(
+            start_date__lte=end_date,
+            end_date__gte=start_date,
+            status=Vacation.VacationStatus.APPROVED
+        )
+        
+        output = ""
+        for v in vacations:
+            output += f"{v.user.name}:\n"
+            print("Calculating vacation pay for user:", v.user.name)
+
+        return Response(output)
