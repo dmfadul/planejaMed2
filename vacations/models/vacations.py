@@ -1,5 +1,6 @@
 from django.db import models, transaction
 from core.models import User
+from shifts.models import Shift, Month
 
 
 class Vacation(models.Model):
@@ -135,3 +136,25 @@ class Vacation(models.Model):
             return min_duration
 
         return actual_duration
+
+    def calculate_pay(self):
+        """
+        Return all the shifts (with date, weekday and center) that would happen during the 
+        Vacation period.
+        """
+
+        day = self.start_date.day
+        month_num = self.start_date.month
+        month = Month.objects.filter(year=self.start_date.year, number=month_num).first()
+        print("s", day, month_num, month)
+        if not month:
+            raise ValueError(f"Month {self.start_date.year}-{month_num} not found in database.")
+        print("t", day, month_num, month)
+
+        shifts = Shift.objects.filter(
+            month=month,
+
+            user=self.user,
+        ).order_by('center__name')
+
+        return shifts

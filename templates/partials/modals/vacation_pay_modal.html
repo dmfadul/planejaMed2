@@ -12,12 +12,35 @@
         <form id="vacPayForm">
           <div class="row g-3">
             <div class="col-md-6">
-              <label for="vacPayStartDate" class="form-label">Data inicial</label>
-              <input type="date" id="vacPayStartDate" class="form-control" required>
+              <label for="vacPayMonth" class="form-label">Mês</label>
+              <select id="vacPayMonth" class="form-select" required>
+                <option value="" selected disabled>Selecione…</option>
+                <option value="1">Janeiro</option>
+                <option value="2">Fevereiro</option>
+                <option value="3">Março</option>
+                <option value="4">Abril</option>
+                <option value="5">Maio</option>
+                <option value="6">Junho</option>
+                <option value="7">Julho</option>
+                <option value="8">Agosto</option>
+                <option value="9">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+              </select>
             </div>
+
             <div class="col-md-6">
-              <label for="vacPayEndDate" class="form-label">Data final</label>
-              <input type="date" id="vacPayEndDate" class="form-control" required>
+              <label for="vacPayYear" class="form-label">Ano</label>
+              <select id="vacPayYear" class="form-select" required>
+                <option value="" selected disabled>Selecione…</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+              </select>
             </div>
           </div>
         </form>

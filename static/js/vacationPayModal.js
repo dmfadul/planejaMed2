@@ -68,15 +68,24 @@
     return 'Falha ao calcular. Tente novamente.';
   }
 
+  function parseIntStrict(value) {
+    const n = Number.parseInt(String(value), 10);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
   async function submitVacationPay(btn) {
     hideError();
     hideResult();
 
-    const start = document.getElementById('vacPayStartDate')?.value || '';
-    const end = document.getElementById('vacPayEndDate')?.value || '';
+    const monthRaw = document.getElementById('vacPayMonth')?.value || '';
+    const yearRaw = document.getElementById('vacPayYear')?.value || '';
 
-    if (!start || !end) return showError('Preencha as duas datas.');
-    if (end < start) return showError('A data final não pode ser anterior à inicial.');
+    const month = parseIntStrict(monthRaw);
+    const year = parseIntStrict(yearRaw);
+
+    if (!monthRaw || !yearRaw) return showError('Preencha mês e ano.');
+    if (!Number.isInteger(month) || month < 1 || month > 12) return showError('Selecione um mês válido.');
+    if (!Number.isInteger(year) || year < 1900 || year > 3000) return showError('Informe um ano válido.');
 
     btn.disabled = true;
     const old = btn.textContent;
@@ -84,14 +93,12 @@
 
     try {
       // Read-only calculation endpoint (GET)
-      // Example: GET /api/vacations/pay/?start=2026-02-01&end=2026-02-10
-      const url = `/api/vacations/pay/?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
+      // Example: GET /api/vacations/pay/?month=2&year=2026
+      const url = `/api/vacations/pay/?month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}`;
 
       const res = await fetch(url, {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
-        // credentials default is "same-origin" in most browsers, but you can force it:
-        // credentials: 'same-origin',
       });
 
       let data = null;
