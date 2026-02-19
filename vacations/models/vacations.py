@@ -24,8 +24,8 @@ class Vacation(models.Model):
     end_date = models.DateField()
     vacation_type = models.CharField(max_length=20, choices=VacationType.choices, default=VacationType.REGULAR)
     status = models.CharField(max_length=20, choices=VacationStatus.choices, default=VacationStatus.PENDING)
+    # payment_status = models.CharField(max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.UNPAID)
     
-
     def __str__(self):
         return f"{self.user.name} - {self.vacation_type} from {self.start_date} to {self.end_date} ({self.status})"
     

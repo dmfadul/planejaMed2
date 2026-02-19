@@ -160,6 +160,21 @@ class Month(models.Model):
 
         ShiftSnapshot.take_snapshot(self, ShiftType.ORIGINAL)
 
+    def calculate_vacation_pay(self):
+        from vacations.models.vacations import Vacation
+
+        vacations = Vacation.objects.filter(
+            start_date__lte=self.end_date,
+            end_date__gte=self.start_date,
+            status__in=[
+                Vacation.VacationStatus.APPROVED,
+                Vacation.VacationStatus.OVERRIDDEN,
+            ]
+        )
+        print("Vacations in month:", vacations)
+
+        return 
+
 
 class Holiday(models.Model):
     month = models.ForeignKey(Month, on_delete=models.CASCADE, related_name='holidays')

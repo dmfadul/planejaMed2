@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from vacations.models.vacations import Vacation
+from shifts.models.month import Month
 
 
 class VacationPay(APIView):
@@ -20,16 +21,15 @@ class VacationPay(APIView):
         month_num = request.query_params.get("month")
         year_num = request.query_params.get("year")
 
+        month = Month.objects.filter(number=month_num, year=year_num).first()
+        if not month:
+            return Response(
+                {"detail": "Mês e ano não encontrados."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         
-        print("m", month_num, type(month_num), year_num, type(year_num))    
-        # start_str = request.query_params.get("start")
-        # end_str = request.query_params.get("end")
-
-        # if not start_str or not end_str:
-        #     return Response(
-        #         {"detail": "Parâmetros 'start' e 'end' são obrigatórios."},
-        #         status=status.HTTP_400_BAD_REQUEST,
-        #     )
+        pay = month.calculate_vacation_pay()
+        print("mn1", pay)    
 
         # try:
         #     start_date = datetime.fromisoformat(start_str).date()
