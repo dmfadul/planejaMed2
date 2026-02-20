@@ -4,7 +4,7 @@ from calendar import monthrange
 from datetime import datetime, timedelta
 from shifts.utils.calendar_utils import gen_date_row, gen_calendar_table
 from shifts.services.month_services import populate_month as _populate_month
-from core.constants import STR_DAY, END_DAY, MESES
+from core.constants import STR_DAY, END_DAY, MESES, DIAS_SEMANA
 
 
 class MonthManager(models.Manager):
@@ -162,6 +162,7 @@ class Month(models.Model):
 
     def calculate_vacation_pay(self):
         from vacations.models.vacations import Vacation
+        from shifts.models import Shift
 
         vacations = Vacation.objects.filter(
             start_date__lte=self.end_date,
@@ -171,9 +172,28 @@ class Month(models.Model):
                 Vacation.VacationStatus.OVERRIDDEN,
             ]
         )
-        print("Vacations in month:", vacations)
+            
+        output = ""
+        for vacation in vacations:
+            str_day = max(vacation.start_date, self.start_date.date()).day
+            end_day = min(vacation.end_date, self.end_date.date()).day
+            output += f"{vacation.user.name}:\n"
+            shifts = Shift.objects.filter(
+                month=self,
+                user=vacation.user,
+                day__range=(str_day, end_day),
+            ).order_by("center__name")
+        
+            for s in shifts:
+                s_month = f"{s.month.number:02d}"
+                s_weekday = DIAS_SEMANA[s.date.weekday()]
+                s_str_time = f"{s.start_time:02d}:00"
+                s_end_time = f"{s.end_time:02d}:00"
+                
+                output += f"""Dia {s.day}/{s_month} - {s_weekday}- {s_str_time}-{s_end_time} - {s.center.abbreviation} \n"""
+            output += "\n"
 
-        return 
+        return output
 
 
 class Holiday(models.Model):

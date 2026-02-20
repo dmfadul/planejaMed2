@@ -29,36 +29,5 @@ class VacationPay(APIView):
             )
         
         pay = month.calculate_vacation_pay()
-        print("mn1", pay)    
 
-        # try:
-        #     start_date = datetime.fromisoformat(start_str).date()
-        #     end_date = datetime.fromisoformat(end_str).date()
-        # except ValueError:
-        #     return Response(
-        #         {"detail": "Formato de data inválido. Use YYYY-MM-DD."},
-        #         status=status.HTTP_400_BAD_REQUEST,
-        #     )
-
-        # if end_date < start_date:
-        #     return Response(
-        #         {"detail": "A data final não pode ser anterior à inicial."},
-        #         status=status.HTTP_400_BAD_REQUEST,
-        #     )
-        
-        # vacations = Vacation.objects.filter(
-        #     start_date__lte=end_date,
-        #     end_date__gte=start_date,
-        #     status=Vacation.VacationStatus.APPROVED
-        # )
-        
-        # output = ""
-        # for v in vacations:
-        #     output += f"{v.user.name}:\n"
-        #     shifts = v.calculate_pay()
-        #     for s in shifts:
-        #         output += f"{s}\n"
-        #     output += "\n"
-
-        output = ""
-        return Response(output)
+        return Response(pay)
