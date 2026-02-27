@@ -54,7 +54,7 @@ class TemplateShift(AbstractShift):
             normal_hours = 0
             overtime_hours = len(self.hour_list)
             if split_the_fifth and self.index == 5:
-                overtime_hours /= 3
+                overtime_hours //= 3
 
             return {"normal": normal_hours, "overtime": overtime_hours}
 
@@ -64,8 +64,8 @@ class TemplateShift(AbstractShift):
         night_hours = day_night_hours["night"]
 
         if split_the_fifth and self.index == 5:
-            day_hours /= 3
-            night_hours /= 3
+            day_hours //= 3
+            night_hours //= 3
 
         return {
             "normal": day_hours,
