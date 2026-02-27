@@ -87,12 +87,15 @@ def build_doctors_sumtable(table_data, template, month=None):
 
             hours_dict = s.get_overtime_count()
             
-            shifts[cell_id_over] += hours_dict["overtime"]
-            shifts[cell_id_norm] += hours_dict["normal"]      
-            
-            total_overtime += hours_dict["overtime"]
-            total_normal += hours_dict["normal"]
-        
+            overtime = hours_dict["overtime"]
+            normal = hours_dict["normal"]
+
+            shifts[cell_id_over] += overtime
+            shifts[cell_id_norm] += normal
+
+            total_overtime += overtime
+            total_normal += normal
+
         # add zeroes for missing centers
         for center in Center.objects.filter(is_active=True).all():
             cell_id_over = f"cell-{doctor.crm}-{center.abbreviation}-overtime"
