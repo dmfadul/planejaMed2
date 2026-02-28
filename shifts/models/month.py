@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from shifts.utils.calendar_utils import gen_date_row, gen_calendar_table
 from shifts.services.month_services import populate_month as _populate_month
 from core.constants import STR_DAY, END_DAY, MESES, DIAS_SEMANA
+from django.db.models import Q
 
 
 class MonthManager(models.Manager):
@@ -178,12 +179,23 @@ class Month(models.Model):
             str_day = max(vacation.start_date, self.start_date.date()).day
             end_day = min(vacation.end_date, self.end_date.date()).day
             output += f"{vacation.user.name}:\n"
-            shifts = Shift.objects.filter(
-                month=self,
-                user=vacation.user,
-                day__range=(str_day, end_day),
-            ).order_by("center__name")
-        
+            
+            if str_day <= end_day:
+                shifts = Shift.objects.filter(
+                    month=self,
+                    user=vacation.user,
+                    day__range=(str_day, end_day),
+                )
+            else:
+                shifts = Shift.objects.filter(
+                    month=self,
+                    user=vacation.user,
+                ).filter(
+                    Q(day__gte=str_day) | Q(day__lte=end_day)
+                )
+
+            shifts = shifts.order_by("center__name")
+                   
             for s in shifts:
                 s_month = f"{s.month.number:02d}"
                 s_weekday = DIAS_SEMANA[s.date.weekday()]
