@@ -12,7 +12,7 @@ class VacationPay(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        if not request.user.is_staff or not request.user.is_superuser:
+        if not request.user.is_staff and not request.user.is_superuser:
             return Response(
                 {"detail": "Acesso negado. Apenas administradores podem acessar este endpoint."},
                 status=status.HTTP_403_FORBIDDEN,
