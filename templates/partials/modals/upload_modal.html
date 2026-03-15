@@ -1,0 +1,39 @@
+<div class="modal fade" id="documentUploadModal" tabindex="-1" data-bs-theme="dark" aria-labelledby="documentUploadModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="documentUploadForm" method="post" enctype="multipart/form-data" action="{% url 'finance:upload' %}">
+        {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="documentUploadModalLabel">Upload document</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="id_file" class="form-label">File</label>
+            <input type="file" name="file" id="id_file" class="form-control" required>
+          </div>
+
+          <!-- optional dropdown for doc type -->
+          <div class="mb-3">
+            <label for="id_doc_type" class="form-label">Document type</label>
+            <select name="doc_type" id="id_doc_type" class="form-select">
+              <option value="">Select...</option>
+              <option value="sheet_a">Sheet A</option>
+              <option value="sheet_b">Sheet B</option>
+              <option value="pdf_report">PDF Report</option>
+            </select>
+          </div>
+
+          <div id="uploadFeedback" class="small text-danger"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
