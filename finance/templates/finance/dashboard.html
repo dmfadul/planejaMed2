@@ -7,14 +7,6 @@
   <h2>Finance Dashboard</h2>
   <p class="text-muted">Placeholder for future financial analysis.</p>
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">
-        {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-
   <!-- Button to open modal -->
   <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#documentUploadModal">
     Upload Document
