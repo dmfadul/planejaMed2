@@ -108,18 +108,33 @@ class AbstractShift(models.Model):
         return code
         
 
-    def get_hours_count(self):
+    def get_hours_count(self) -> dict:
         shifts_map = SHIFTS_MAP
-        day_range = self.gen_hour_list(*shifts_map['d'])
         night_range = self.gen_hour_list(*shifts_map['n'])
+        morning_range = self.gen_hour_list(*shifts_map['m'])
+        afternoon_range = self.gen_hour_list(*shifts_map['t'])
+        cinderella_range = self.gen_hour_list(*shifts_map['c'])
+        vampire_range = self.gen_hour_list(*shifts_map['v'])
 
-        hours_count = {"day": 0, "night": 0}
+        hours_count = {"day": 0,
+                       "morning": 0,
+                       "afternoon": 0,
+                       "night": 0,
+                       "cinderella": 0,
+                       "vampire": 0}
+        
         for hour in self.hour_list:
-            if hour in day_range:
-                hours_count["day"] += 1
-            elif hour in night_range:
-                hours_count["night"] += 1
-
+            if hour in morning_range:
+                hours_count["morning"] += 1
+            elif hour in afternoon_range:
+                hours_count["afternoon"] += 1
+            elif hour in cinderella_range:
+                hours_count["cinderella"] += 1
+            elif hour in vampire_range:
+                hours_count["vampire"] += 1
+        
+        hours_count["day"] = hours_count["morning"] + hours_count["afternoon"]
+        hours_count["night"] = hours_count["cinderella"] + hours_count["vampire"]
         return hours_count
 
     @classmethod
