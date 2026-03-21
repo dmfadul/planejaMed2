@@ -122,7 +122,6 @@ def sum_days_base(request, center_abbr):
 
 @login_required
 def sum_days_month(request, center_abbr, month_num, year):
-    print("Rendering sum_days_month view")
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month = get_object_or_404(Month, number=month_num, year=year)
 
@@ -137,6 +136,14 @@ def sum_days_month(request, center_abbr, month_num, year):
 
     return render(request, "shifts/table.html", context)
 
+@login_required
+def understaffed_shifts(request, month_num, year):
+    month = get_object_or_404(Month, number=month_num, year=year)
+
+    context = {"table_data": {}}
+    
+    return render(request, "shifts/table.html", context)
+    
 
 @user_passes_test(lambda u: u.is_superuser)
 @require_POST
