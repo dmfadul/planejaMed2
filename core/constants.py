@@ -49,3 +49,8 @@ VACATION_RULES = {
     'max_split': 2,
     'sick_leave_to_vacation': 3,
 }
+
+BONUS_RULES = {
+    'bonus_hours': 48,
+    'bonus_perc': 0.3,
+}

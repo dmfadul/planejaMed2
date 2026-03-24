@@ -1,4 +1,4 @@
-from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA
+from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA, BONUS_RULES
 from .table_utils import translate_to_table, gen_headers
 from shifts.models import Center, Month, Shift, TemplateShift
 from shifts.models import TemplateShift as TS
@@ -66,6 +66,9 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
 
 
 def build_doctors_sumtable(table_data, template, month=None):
+    bonus_hours = BONUS_RULES["bonus_hours"]
+    bonus_perc = BONUS_RULES["bonus_perc"]
+
     doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
     table_data["doctors"] = []
     for doctor in doctors:
@@ -109,16 +112,24 @@ def build_doctors_sumtable(table_data, template, month=None):
         # add totals
         cell_id_tot_over = f"cell-{doctor.crm}-TOTAL-overtime"
         cell_id_tot_norm = f"cell-{doctor.crm}-TOTAL-normal"
+        cell_id_tot_adc = f"cell-{doctor.crm}-TOTAL"
         
         shifts[cell_id_tot_over] = total_overtime
         shifts[cell_id_tot_norm] = total_normal
+        adc = round(total_overtime * bonus_perc, 2) if total_overtime >= bonus_hours else 0
+        shifts[cell_id_tot_adc] = adc
 
         table_data["doctors"].append({"name": doctor.name,
                                       "abbr_name": doctor.abbr_name,
                                       "crm": doctor.crm,
                                       "shifts": shifts,})
-    
+            
     return table_data
+
+
+def build_balance_table(table_data, template, month=None):
+    # use build_sumtable(template="sum_days_month") logic to get hours by center
+    pass
 
 
 def build_sumtable(center, table_data, template, month=None):

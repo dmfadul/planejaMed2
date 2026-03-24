@@ -139,6 +139,9 @@ def sum_days_month(request, center_abbr, month_num, year):
 @login_required
 def understaffed_shifts(request, month_num, year):
     month = get_object_or_404(Month, number=month_num, year=year)
+    shifts = Shift.objects.filter(month=month)
+    for shift in shifts:
+        print(f"Shift {shift.id} on day {shift.day} at center {shift.center.abbreviation} has shift type with {shift.user.name}")
 
     context = {"table_data": {}}
     

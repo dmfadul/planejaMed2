@@ -340,7 +340,6 @@ class Shift(AbstractShift):
     def get_overtime_count(self):
         """Returns a dict of overtime and normal hours."""
         actual_date = self.get_date()
-        print(actual_date, actual_date.weekday())
 
         is_holiday = self.day in [h.day for h in self.month.holidays.all()]
         is_weekend = actual_date.weekday() in [5, 6]  # Saturday or Sunday
