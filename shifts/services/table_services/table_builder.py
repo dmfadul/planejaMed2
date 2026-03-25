@@ -64,6 +64,10 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
         table_data["center"] = ""
         return build_doctors_sumtable(table_data, template=template, month=month)
 
+    if template == "balance":
+        # add headers
+        return build_balance_table(table_data, template, month=month)
+    
 
 def build_doctors_sumtable(table_data, template, month=None):
     bonus_hours = BONUS_RULES["bonus_hours"]
@@ -127,9 +131,18 @@ def build_doctors_sumtable(table_data, template, month=None):
     return table_data
 
 
-def build_balance_table(table_data, template, month=None):
-    # use build_sumtable(template="sum_days_month") logic to get hours by center
-    pass
+def build_balance_table(table_data, template, month=None):    
+    center_data = {}
+    centers = Center.objects.filter(is_active=True).all()
+    for center in centers:
+        center_data[center.abbreviation] = build_sumtable(
+            center=center,
+            table_data=table_data.copy(),
+            template="sum_days_month",
+            month=month
+        )
+    print(center_data)
+    return center_data
 
 
 def build_sumtable(center, table_data, template, month=None):
