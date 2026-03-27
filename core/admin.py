@@ -15,14 +15,14 @@ class UserAdmin(BaseUserAdmin):
     add_form = UserCreationForm
 
     ordering = ("crm",)
-    list_display = ("crm", "name", "email", "is_active", "is_staff", "is_superuser")
+    list_display = ("crm", "name", "email", "is_active", "is_invisible", "is_staff", "is_superuser")
     search_fields = ("crm", "name", "email")
-    list_filter = ("is_active", "is_staff", "is_superuser", "is_manager")
+    list_filter = ("is_active", "is_invisible", "is_staff", "is_superuser", "is_manager")
 
     fieldsets = (
         (None, {"fields": ("crm", "password")}),
         (_("Personal info"), {"fields": ("name", "alias", "email", "phone", "rqe")}),
-        (_("Permissions"), {"fields": ("is_active", "is_staff", "is_superuser", "is_manager", "groups", "user_permissions")}),
+        (_("Permissions"), {"fields": ("is_active", "is_invisible", "is_staff", "is_superuser", "is_manager", "groups", "user_permissions")}),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
 

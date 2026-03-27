@@ -4,7 +4,10 @@ from .models import Shift, TemplateShift
 from .models import ShiftSnapshot
 
 
-admin.site.register(Month)
+@admin.register(Month)
+class MonthAdmin(admin.ModelAdmin):
+    filter_horizontal = ("users",)
+
 admin.site.register(Holiday)
 admin.site.register(Center)
 admin.site.register(Shift)
