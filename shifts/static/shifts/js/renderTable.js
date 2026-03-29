@@ -8,7 +8,9 @@ function renderTable(tableData){
         renderSumTable(tableData, table);
     } else if (tableData.template === "doctor_basetable") {
         renderDoctorTable(tableData, table);
-    } 
+    } else if (tableData.template === "balance") {
+        renderBalanceTable(tableData, table);
+    }
 }
 
 function renderHeaders(data, table, twoHeaders=true, showTitle=false) {

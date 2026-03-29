@@ -1,3 +1,4 @@
+from core.shifts_dict import STAFFING_HOURS
 from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA, BONUS_RULES
 from .table_utils import translate_to_table, gen_headers
 from shifts.models import Center, Month, Shift, TemplateShift
@@ -70,6 +71,7 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
     
 
 def build_doctors_sumtable(table_data, template, month=None):
+    print("Building doctors sumtable...")
     bonus_hours = BONUS_RULES["bonus_hours"]
     bonus_perc = BONUS_RULES["bonus_perc"]
 
@@ -131,17 +133,39 @@ def build_doctors_sumtable(table_data, template, month=None):
     return table_data
 
 
-def build_balance_table(table_data, template, month=None):    
+def build_balance_table(table_data, template, month=None):
+    staffing_hours = STAFFING_HOURS
+    
     center_data = {}
     centers = Center.objects.filter(is_active=True).all()
     for center in centers:
-        center_data[center.abbreviation] = build_sumtable(
+        
+        shifts = Shift.objects.filter(
             center=center,
-            table_data=table_data.copy(),
-            template="sum_days_month",
-            month=month
-        )
-    print(center_data)
+            month=month,
+            user__is_invisible=False
+            ).all()
+        
+        hours_by_day = {}
+        for s in shifts:
+            key = f"{s.day}"
+            if key not in hours_by_day:
+                hours_by_day[key] = {"normal": 0, "overtime": 0}
+
+            s_hours = s.get_overtime_count()
+            hours_by_day[key]["normal"] += s_hours.get("normal")
+            hours_by_day[key]["overtime"] += s_hours.get("overtime")
+
+        # compare with staffing needs and calculate balance
+
+        # for i in range(1, month.size + 1):
+        #     key = f"{i}"
+        #     if key not in hours_by_day:
+        #         hours_by_day[key] = {"day": 0, "night": 0}
+
+        # table_data["days"] = hours_by_day
+    
+    # sum_days_month
     return center_data
 
 

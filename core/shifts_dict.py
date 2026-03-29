@@ -1,4 +1,4 @@
-staffing_hours = {
+STAFFING_HOURS = {
     "CCG": {
         "weekday": {
             "morning": 54,
