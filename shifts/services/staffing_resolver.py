@@ -19,11 +19,19 @@ def get_staffing_hours(center: object, weekday_int: int, holiday: bool) -> int:
     if center_data is None:
         raise KeyError(f"Unknown center: {center}")
 
-    # exact match first, then fallback to "all"
-    day_data = center_data.get(day_type) or center_data.get("all")
+    if "all" in center_data:
+        return center_data["all"]
+    
+    if holiday and "holiday" in center_data:
+        return center_data["holiday"]
+    
+    day_data = center_data.get(day_type)
+
     if day_data is None:
-        raise KeyError(
-            f"No staffing rule found for center={center!r}, day_type={day_type!r}"
-        )
+        return {
+            "morning": 0,
+            "afternoon": 0,
+            "night": 0,
+        }
 
     return day_data

@@ -175,22 +175,19 @@ def build_balance_table(table_data, template, month):
 
             s_hours = s.get_hours_count()
 
+            second_key = None
             if holiday:
-                hours_by_day[key]["holiday"]["morning"] += s_hours.get("morning")
-                hours_by_day[key]["holiday"]["afternoon"] += s_hours.get("afternoon")
-                hours_by_day[key]["holiday"]["night"] += s_hours.get("night")
+                second_key = "holiday"
             elif weekday_int == 5:
-                hours_by_day[key]["saturday"]["morning"] += s_hours.get("morning")
-                hours_by_day[key]["saturday"]["afternoon"] += s_hours.get("afternoon")
-                hours_by_day[key]["saturday"]["night"] += s_hours.get("night")
+                second_key = "saturday"
             elif weekday_int == 6:
-                hours_by_day[key]["sunday"]["morning"] += s_hours.get("morning")
-                hours_by_day[key]["sunday"]["afternoon"] += s_hours.get("afternoon")
-                hours_by_day[key]["sunday"]["night"] += s_hours.get("night")
+                second_key = "sunday"
             else:
-                hours_by_day[key]["weekday"]["morning"] += s_hours.get("morning")
-                hours_by_day[key]["weekday"]["afternoon"] += s_hours.get("afternoon")
-                hours_by_day[key]["weekday"]["night"] += s_hours.get("night")
+                second_key = "weekday"
+
+            hours_by_day[key][second_key]["morning"] += s_hours.get("morning")
+            hours_by_day[key][second_key]["afternoon"] += s_hours.get("afternoon")
+            hours_by_day[key][second_key]["night"] += s_hours.get("night")
 
         # compare with staffing needs and calculate balance (still inside the center loop)
         balance = {}
@@ -209,8 +206,6 @@ def build_balance_table(table_data, template, month):
 
             print(day_hours)
             
-
-
         table_data["days"] = hours_by_day
     
     # sum_days_month
