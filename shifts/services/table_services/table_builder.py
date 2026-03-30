@@ -121,7 +121,7 @@ def build_doctors_sumtable(table_data, template, month=None):
         
         shifts[cell_id_tot_over] = total_overtime
         shifts[cell_id_tot_norm] = total_normal
-        adc = round(total_overtime * bonus_perc, 2) if total_overtime >= bonus_hours else 0
+        adc = round(total_overtime * bonus_perc, 0) if total_overtime >= bonus_hours else 0
         shifts[cell_id_tot_adc] = adc
 
         table_data["doctors"].append({"name": doctor.name,
