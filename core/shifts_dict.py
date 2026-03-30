@@ -38,7 +38,6 @@ STAFFING_HOURS = {
             "morning": 12,
             "afternoon": 12,
             "night": 12,
-
         },
         "sunday": {
             "morning": 12,

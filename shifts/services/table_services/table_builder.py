@@ -1,9 +1,9 @@
-from core.shifts_dict import STAFFING_HOURS
-from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA, BONUS_RULES
+from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA, BONUS_RULES, SHIFTS_MAP
 from .table_utils import translate_to_table, gen_headers
 from shifts.models import Center, Month, Shift, TemplateShift
 from shifts.models import TemplateShift as TS
 from core.models import User
+from ..staffing_resolver import get_staffing_hours
 
 
 def build_table_data(table_type, template, center=None, doctor=None, month=None):
@@ -71,7 +71,6 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
     
 
 def build_doctors_sumtable(table_data, template, month=None):
-    print("Building doctors sumtable...")
     bonus_hours = BONUS_RULES["bonus_hours"]
     bonus_perc = BONUS_RULES["bonus_perc"]
 
@@ -133,13 +132,10 @@ def build_doctors_sumtable(table_data, template, month=None):
     return table_data
 
 
-def build_balance_table(table_data, template, month=None):
-    staffing_hours = STAFFING_HOURS
-    
+def build_balance_table(table_data, template, month):
     center_data = {}
     centers = Center.objects.filter(is_active=True).all()
     for center in centers:
-        
         shifts = Shift.objects.filter(
             center=center,
             month=month,
@@ -148,22 +144,74 @@ def build_balance_table(table_data, template, month=None):
         
         hours_by_day = {}
         for s in shifts:
-            key = f"{s.day}"
+            day = s.day
+            weekday_int = s.date.weekday()
+            holiday = month.holidays.filter(day=day).exists()
+            key = f"{day}"
+            
             if key not in hours_by_day:
-                hours_by_day[key] = {"normal": 0, "overtime": 0}
+                hours_by_day[key] = {
+                    "weekday": {
+                        "morning": 0,
+                        "afternoon": 0,
+                        "night": 0,
+                    },
+                    "saturday": {
+                        "morning": 0,
+                        "afternoon": 0,
+                        "night": 0,
+                    },
+                    "sunday": {
+                        "morning": 0,
+                        "afternoon": 0,
+                        "night": 0,
+                    },
+                    "holiday": {
+                        "morning": 0,
+                        "afternoon": 0,
+                        "night": 0,
+                    },
+                }
 
-            s_hours = s.get_overtime_count()
-            hours_by_day[key]["normal"] += s_hours.get("normal")
-            hours_by_day[key]["overtime"] += s_hours.get("overtime")
+            s_hours = s.get_hours_count()
 
-        # compare with staffing needs and calculate balance
+            if holiday:
+                hours_by_day[key]["holiday"]["morning"] += s_hours.get("morning")
+                hours_by_day[key]["holiday"]["afternoon"] += s_hours.get("afternoon")
+                hours_by_day[key]["holiday"]["night"] += s_hours.get("night")
+            elif weekday_int == 5:
+                hours_by_day[key]["saturday"]["morning"] += s_hours.get("morning")
+                hours_by_day[key]["saturday"]["afternoon"] += s_hours.get("afternoon")
+                hours_by_day[key]["saturday"]["night"] += s_hours.get("night")
+            elif weekday_int == 6:
+                hours_by_day[key]["sunday"]["morning"] += s_hours.get("morning")
+                hours_by_day[key]["sunday"]["afternoon"] += s_hours.get("afternoon")
+                hours_by_day[key]["sunday"]["night"] += s_hours.get("night")
+            else:
+                hours_by_day[key]["weekday"]["morning"] += s_hours.get("morning")
+                hours_by_day[key]["weekday"]["afternoon"] += s_hours.get("afternoon")
+                hours_by_day[key]["weekday"]["night"] += s_hours.get("night")
 
-        # for i in range(1, month.size + 1):
-        #     key = f"{i}"
-        #     if key not in hours_by_day:
-        #         hours_by_day[key] = {"day": 0, "night": 0}
+        # compare with staffing needs and calculate balance (still inside the center loop)
+        balance = {}
+        for month_date in month.days:
+            day = month_date.day
+            weekday_int = month_date.weekday()
+            holiday = month.holidays.filter(day=day).exists()
 
-        # table_data["days"] = hours_by_day
+            staffing_hours = get_staffing_hours(
+                center=center,
+                weekday_int=weekday_int,
+                holiday=holiday,
+            )
+
+            day_hours = hours_by_day.get(f"{day}")
+
+            print(day_hours)
+            
+
+
+        table_data["days"] = hours_by_day
     
     # sum_days_month
     return center_data
