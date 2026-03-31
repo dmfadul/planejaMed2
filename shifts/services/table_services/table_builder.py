@@ -4,6 +4,7 @@ from shifts.models import Center, Month, Shift, TemplateShift
 from shifts.models import TemplateShift as TS
 from core.models import User
 from ..staffing_resolver import get_staffing_hours
+from collections import defaultdict
 
 
 def build_table_data(table_type, template, center=None, doctor=None, month=None):
@@ -132,69 +133,46 @@ def build_doctors_sumtable(table_data, template, month=None):
     return table_data
 
 
+
 def build_balance_table(table_data, template, month):
+    PERIODS = ("morning", "afternoon", "night")
+
+    def empty_periods():
+        return {
+            "morning": 0,
+            "afternoon": 0,
+            "night": 0,
+        }
+    
     center_data = {}
+
     centers = Center.objects.filter(is_active=True).all()
+    holiday_days = set(month.holidays.values_list("day", flat=True))
+
     for center in centers:
         shifts = Shift.objects.filter(
             center=center,
             month=month,
             user__is_invisible=False
-            ).all()
+        )
         
-        hours_by_day = {}
-        for s in shifts:
-            day = s.day
-            weekday_int = s.date.weekday()
-            holiday = month.holidays.filter(day=day).exists()
-            key = f"{day}"
-            
-            if key not in hours_by_day:
-                hours_by_day[key] = {
-                    "weekday": {
-                        "morning": 0,
-                        "afternoon": 0,
-                        "night": 0,
-                    },
-                    "saturday": {
-                        "morning": 0,
-                        "afternoon": 0,
-                        "night": 0,
-                    },
-                    "sunday": {
-                        "morning": 0,
-                        "afternoon": 0,
-                        "night": 0,
-                    },
-                    "holiday": {
-                        "morning": 0,
-                        "afternoon": 0,
-                        "night": 0,
-                    },
-                }
+        # day -> worked hours grouped by period
+        hours_by_day = defaultdict(empty_periods)
 
-            s_hours = s.get_hours_count()
+        # 1. Sum actual worked hours for each day
+        for shift in shifts:
+            day = shift.day
+            shift_hours = shift.get_hours_count()
 
-            second_key = None
-            if holiday:
-                second_key = "holiday"
-            elif weekday_int == 5:
-                second_key = "saturday"
-            elif weekday_int == 6:
-                second_key = "sunday"
-            else:
-                second_key = "weekday"
+            for period in PERIODS:
+                hours_by_day[day][period] += shift_hours.get(period, 0)
 
-            hours_by_day[key][second_key]["morning"] += s_hours.get("morning")
-            hours_by_day[key][second_key]["afternoon"] += s_hours.get("afternoon")
-            hours_by_day[key][second_key]["night"] += s_hours.get("night")
-
-        # compare with staffing needs and calculate balance (still inside the center loop)
-        balance = {}
+        # 2. Compare actual hours with required staffing hours
+        balance_by_day = {}
         for month_date in month.days:
             day = month_date.day
             weekday_int = month_date.weekday()
-            holiday = month.holidays.filter(day=day).exists()
+            holiday = day in holiday_days
 
             staffing_hours = get_staffing_hours(
                 center=center,
@@ -202,13 +180,16 @@ def build_balance_table(table_data, template, month):
                 holiday=holiday,
             )
 
-            day_hours = hours_by_day.get(f"{day}")
+            worked_hours = hours_by_day.get(day, empty_periods())
 
-            print(day_hours)
+            balance_by_day[day] = {
+                period: worked_hours.get(period, 0) - staffing_hours.get(period, 0)
+                for period in PERIODS
+            }
             
-        table_data["days"] = hours_by_day
-    
-    # sum_days_month
+        center_data[center.abbreviation] = balance_by_day
+
+    print(center_data)
     return center_data
 
 
