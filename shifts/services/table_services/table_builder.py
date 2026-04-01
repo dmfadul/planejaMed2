@@ -68,7 +68,7 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
 
     if template == "balance":
         # add headers
-        return build_balance_table(table_data, template, month=month)
+        return build_balance_table(table_data, month=month)
     
 
 def build_doctors_sumtable(table_data, template, month=None):
@@ -129,12 +129,11 @@ def build_doctors_sumtable(table_data, template, month=None):
                                       "abbr_name": doctor.abbr_name,
                                       "crm": doctor.crm,
                                       "shifts": shifts,})
-            
+
     return table_data
 
 
-
-def build_balance_table(table_data, template, month):
+def build_balance_table(table_data, month):
     PERIODS = ("morning", "afternoon", "night")
 
     def empty_periods():
@@ -189,8 +188,9 @@ def build_balance_table(table_data, template, month):
             
         center_data[center.abbreviation] = balance_by_day
 
-    print(center_data)
-    return center_data
+    table_data["balance"] = center_data
+    
+    return table_data
 
 
 def build_sumtable(center, table_data, template, month=None):

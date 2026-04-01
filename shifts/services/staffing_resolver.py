@@ -11,7 +11,7 @@ def get_day_type(weekday_int: int, holiday: bool) -> str:
     return "weekday"
 
 
-def get_staffing_hours(center: object, weekday_int: int, holiday: bool) -> int:
+def get_staffing_hours(center, weekday_int, holiday) -> dict[str, int]:
     staffing_hours = STAFFING_HOURS
     day_type = get_day_type(weekday_int, holiday)
 
