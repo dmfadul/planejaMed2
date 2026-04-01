@@ -16,6 +16,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from shifts.models import ShiftType, ShiftSnapshot, TemplateShift, Shift, Center, Month
+from shifts.services.staffing_resolver import staffing_filter
 from shifts.services.table_services import (
     process_table_payload,
     build_table_data,
@@ -27,7 +28,6 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def month_table(request, center_abbr, month_num, year):
-    print("Rendering month_table view")
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month = get_object_or_404(Month, number=month_num, year=year)
 
@@ -187,7 +187,6 @@ def unlock_month(request):
     from vacations.models import ComplianceHistory
 
     keepers_id = request.POST.getlist("keep_entitlements[]", [])
-    print("keepers_id:", keepers_id)
     
     next_month = Month.objects.next()
     if not next_month:
