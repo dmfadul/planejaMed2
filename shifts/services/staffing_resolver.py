@@ -37,4 +37,5 @@ def get_staffing_hours(center, weekday_int, holiday) -> dict[str, int]:
     return day_data
 
 def staffing_filter(balance, filter_type):
-    pass
+    print("Applying filter:", filter_type, "to balance")
+    return balance

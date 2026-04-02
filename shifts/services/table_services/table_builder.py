@@ -7,7 +7,7 @@ from ..staffing_resolver import get_staffing_hours, staffing_filter
 from collections import defaultdict
 
 
-def build_table_data(table_type, template, center=None, doctor=None, month=None):
+def build_table_data(table_type, template, center=None, doctor=None, month=None, filter_type=None):
     table_data = {
         "header1": None,
         "header2": None,
@@ -68,8 +68,8 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None)
 
     if template == "balance":
         # add headers
-        return build_balance_table(table_data, month=month)
-    
+        return build_balance_table(table_data, month=month, filter_type=filter_type)
+
 
 def build_doctors_sumtable(table_data, template, month=None):
     bonus_hours = BONUS_RULES["bonus_hours"]
@@ -186,9 +186,10 @@ def build_balance_table(table_data, month, filter_type=None):
                 for period in PERIODS
             }
         
+        # must filter before adding to table data, to get to each center's balance separately
         if filter_type:
             balance_by_day = staffing_filter(balance_by_day, filter_type)
-            
+
         center_data[center.abbreviation] = balance_by_day
 
     table_data["balance"] = center_data
