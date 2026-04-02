@@ -3,7 +3,7 @@ from .table_utils import translate_to_table, gen_headers
 from shifts.models import Center, Month, Shift, TemplateShift
 from shifts.models import TemplateShift as TS
 from core.models import User
-from ..staffing_resolver import get_staffing_hours
+from ..staffing_resolver import get_staffing_hours, staffing_filter
 from collections import defaultdict
 
 
@@ -133,7 +133,7 @@ def build_doctors_sumtable(table_data, template, month=None):
     return table_data
 
 
-def build_balance_table(table_data, month):
+def build_balance_table(table_data, month, filter_type=None):
     PERIODS = ("morning", "afternoon", "night")
 
     def empty_periods():
@@ -185,6 +185,9 @@ def build_balance_table(table_data, month):
                 period: worked_hours.get(period, 0) - staffing_hours.get(period, 0)
                 for period in PERIODS
             }
+        
+        if filter_type:
+            balance_by_day = staffing_filter(balance_by_day, filter_type)
             
         center_data[center.abbreviation] = balance_by_day
 

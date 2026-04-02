@@ -16,7 +16,6 @@ from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from shifts.models import ShiftType, ShiftSnapshot, TemplateShift, Shift, Center, Month
-from shifts.services.staffing_resolver import staffing_filter
 from shifts.services.table_services import (
     process_table_payload,
     build_table_data,
@@ -143,11 +142,12 @@ def understaffed_shifts(request, month_num, year):
     table_data = build_table_data(
         month=month,
         table_type="UNDERSTAFFED_SHIFTS",
-        template="balance"
+        template="balance",
+        filter_type="understaffed"
     )
-    
-    context = {"table_data": {}}
-    
+
+    context = {"table_data": table_data}
+
     return render(request, "shifts/table.html", context)
     
 
