@@ -1,4 +1,5 @@
 from core.shifts_dict import STAFFING_HOURS
+from django.utils import timezone
 
 
 def get_day_type(weekday_int: int, holiday: bool) -> str:
@@ -36,6 +37,35 @@ def get_staffing_hours(center, weekday_int, holiday) -> dict[str, int]:
 
     return day_data
 
+
+def remove_past_days(balance):
+    from core.constants import STR_DAY, END_DAY
+
+    today = timezone.localdate().day
+    if STR_DAY <= today <= 31:
+        cleaned_balance = {d: s for d, s in balance.items() if d >= today or 1 <= d <= END_DAY}
+    else:
+        cleaned_balance = {d: s for d, s in balance.items() if not(31 >= d >= STR_DAY)}
+        cleaned_balance = {d: s for d, s in cleaned_balance.items() if d >= today}
+
+    return cleaned_balance
+
+
 def staffing_filter(balance, filter_type):
-    print("Applying filter:", filter_type, "to balance")
-    return balance
+    if filter_type == "understaffed":
+        filtered = {
+            day: {k: v for k, v in shifts.items() if v < 0}
+            for day, shifts in balance.items()
+            if any(v < 0 for v in shifts.values())
+        }
+    elif filter_type == "overstaffed":
+        filtered = {
+            day: {k: v for k, v in shifts.items() if v > 0}
+            for day, shifts in balance.items()
+            if any(v > 0 for v in shifts.values())
+        }
+    else:
+        filtered = balance
+    
+    filtered = remove_past_days(filtered)
+    return filtered
