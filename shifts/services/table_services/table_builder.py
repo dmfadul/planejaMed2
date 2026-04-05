@@ -193,6 +193,8 @@ def build_balance_table(table_data, month, filter_type=None):
         center_data[center.abbreviation] = balance_by_day
 
     table_data["balance"] = center_data
+    table_data["header1"], table_data["header2"] = [], []
+    table_data["center"] = ""
     
     return table_data
 

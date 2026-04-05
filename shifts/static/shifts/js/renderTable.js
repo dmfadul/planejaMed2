@@ -1,4 +1,5 @@
 function renderTable(tableData){
+    console.log("Rendering table with data:");
     const table = document.getElementById('shift-table');
     table.innerHTML = ''; // Clear any previous content
 
@@ -12,6 +13,127 @@ function renderTable(tableData){
         renderBalanceTable(tableData, table);
     }
 }
+
+
+function renderBalanceTable(data, table) {
+    console.log("Rendering balance table with data");
+    const tbody = document.createElement('tbody');
+    const balance = data.balance || {};
+
+    const centers = Object.keys(balance);
+
+    if (!centers.length) {
+        renderEmptyBalanceMessage(table, "No balance data found.");
+        return;
+    }
+
+    let hasAnyNegative = false;
+
+    centers.forEach(centerName => {
+        const centerDays = balance[centerName] || {};
+
+        // Keep only days with at least one negative value
+        const filteredDays = Object.entries(centerDays).filter(([day, shifts]) => {
+            return Object.values(shifts).some(value => value < 0);
+        });
+
+        if (!filteredDays.length) return;
+
+        hasAnyNegative = true;
+
+        // Center title row
+        const centerRow = document.createElement('tr');
+        const centerCell = document.createElement('th');
+        centerCell.colSpan = 4;
+        centerCell.textContent = centerName;
+        centerCell.className = 'balance-center-title';
+        centerRow.appendChild(centerCell);
+        tbody.appendChild(centerRow);
+
+        // Header row for this center
+        const headerRow = document.createElement('tr');
+        const headers = ['Day', 'Morning', 'Afternoon', 'Night'];
+
+        headers.forEach((label, idx) => {
+            const th = document.createElement('th');
+            th.textContent = label;
+            th.className = idx === 0
+                ? 'first-col balance-subheader'
+                : 'balance-subheader';
+            headerRow.appendChild(th);
+        });
+
+        tbody.appendChild(headerRow);
+
+        // Sort days numerically
+        filteredDays
+            .sort((a, b) => Number(a[0]) - Number(b[0]))
+            .forEach(([day, shifts]) => {
+                const tr = document.createElement('tr');
+
+                const dayTd = document.createElement('td');
+                dayTd.textContent = day;
+                dayTd.className = 'first-col name-col';
+                tr.appendChild(dayTd);
+
+                ['morning', 'afternoon', 'night'].forEach(period => {
+                    const td = document.createElement('td');
+                    const value = shifts[period];
+
+                    td.textContent = value < 0 ? value : '—';
+                    td.className = 'normal-col cell-col';
+
+                    if (value < 0) {
+                        td.classList.add('understaffed');
+
+                        if (value <= -18) {
+                            td.classList.add('critical');
+                        } else if (value <= -12) {
+                            td.classList.add('moderate');
+                        } else {
+                            td.classList.add('mild');
+                        }
+                    } else {
+                        td.classList.add('neutral');
+                    }
+
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            });
+
+        // Spacer row between centers
+        const spacerRow = document.createElement('tr');
+        const spacerCell = document.createElement('td');
+        spacerCell.colSpan = 4;
+        spacerCell.className = 'balance-spacer';
+        spacerRow.appendChild(spacerCell);
+        tbody.appendChild(spacerRow);
+    });
+
+    if (!hasAnyNegative) {
+        renderEmptyBalanceMessage(table, "No understaffed shifts found.");
+        return;
+    }
+
+    table.appendChild(tbody);
+}
+
+function renderEmptyBalanceMessage(table, message) {
+    const tbody = document.createElement('tbody');
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+
+    td.colSpan = 4;
+    td.textContent = message;
+    td.className = 'text-center p-3';
+
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    table.appendChild(tbody);
+}
+
 
 function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
     const thead = document.createElement('thead');
