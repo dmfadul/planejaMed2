@@ -64,6 +64,12 @@ def staffing_filter(balance, filter_type):
             for day, shifts in balance.items()
             if any(v > 0 for v in shifts.values())
         }
+    elif filter_type == "removeZeroes":
+        filtered = {
+            day: {k: v for k, v in shifts.items() if v != 0}
+            for day, shifts in balance.items()
+            if any(v != 0 for v in shifts.values())
+        }
     else:
         filtered = balance
     

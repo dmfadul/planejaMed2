@@ -139,11 +139,18 @@ def sum_days_month(request, center_abbr, month_num, year):
 def understaffed_shifts(request, month_num, year):
     month = get_object_or_404(Month, number=month_num, year=year)
 
+    if request.user.is_superuser:
+        filter_type = "removeZeroes"
+        table_type = f"BALANÇO PLANTÕES"
+    else:
+        filter_type = "understaffed"
+        table_type = f"PLANTÕES ABERTOS"
+
     table_data = build_table_data(
         month=month,
-        table_type="UNDERSTAFFED_SHIFTS",
+        table_type=table_type,
         template="balance",
-        filter_type="understaffed"
+        filter_type=filter_type
     )
 
     context = {"table_data": table_data}

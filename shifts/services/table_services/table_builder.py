@@ -67,7 +67,10 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None,
         return build_doctors_sumtable(table_data, template=template, month=month)
 
     if template == "balance":
-        # add headers
+        table_data["header1"], table_data["header2"] = [], []
+        table_data["center"] = ""
+        table_data["month"] = month.name.upper()
+
         return build_balance_table(table_data, month=month, filter_type=filter_type)
 
 
@@ -191,11 +194,8 @@ def build_balance_table(table_data, month, filter_type=None):
             balance_by_day = staffing_filter(balance_by_day, filter_type)
 
         center_data[center.abbreviation] = balance_by_day
-
-    table_data["balance"] = center_data
-    table_data["header1"], table_data["header2"] = [], []
-    table_data["center"] = ""
     
+    table_data["balance"] = center_data
     return table_data
 
 
