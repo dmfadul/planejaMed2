@@ -136,9 +136,9 @@ def sum_days_month(request, center_abbr, month_num, year):
     return render(request, "shifts/table.html", context)
 
 @login_required
-def understaffed_shifts(request, month_num, year):
-    month = get_object_or_404(Month, number=month_num, year=year)
-
+def shifts_balance(request):
+    month = Month.objects.current()
+    
     if request.user.is_superuser:
         filter_type = "removeZeroes"
         table_type = f"BALANÇO PLANTÕES"

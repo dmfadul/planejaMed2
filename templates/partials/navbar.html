@@ -16,6 +16,11 @@
           </a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{% url 'requests:schedule' %}">Meus Horários</a></li>
+            {% if user.is_superuser %}
+              <li><a class="dropdown-item" href="{% url 'shifts:shifts_balance' %}">Balanço</a></li>
+            {% else %}
+              <li><a class="dropdown-item" href="{% url 'shifts:shifts_balance' %}">Em Aberto</a></li>
+            {% endif %}
             {% for center in centers %}
               <li><a class="dropdown-item" href="{% url 'requests:calendar' center_abbr=center %}">{{ center }}</a></li>
             {% endfor %}
