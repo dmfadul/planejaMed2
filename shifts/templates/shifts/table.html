@@ -8,6 +8,8 @@
         <link rel="stylesheet" href="{% static 'shifts/css/sum_days.css' %}">
     {% elif table_data.template == "sum_doctors_month" %}
         <link rel="stylesheet" href="{% static 'shifts/css/sum_doctors.css' %}">
+    {% elif table_data.template == "balance" %}
+        <link rel="stylesheet" href="{% static 'shifts/css/balance_table.css' %}">
     {% endif %}
 {% endblock %}
 

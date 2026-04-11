@@ -1,0 +1,31 @@
+.balance-negative {
+    font-weight: 600;
+}
+
+.balance-positive {
+    color: #198754;
+    font-weight: 600;
+}
+
+.balance-neutral {
+    color: #6c757d;
+}
+
+.balance-missing {
+    color: #adb5bd;
+}
+
+.balance-center-title {
+    font-weight: 700;
+}
+
+.balance-subheader {
+    text-align: center;
+    font-weight: 600;
+}
+
+.balance-spacer {
+    border: none !important;
+    height: 12px;
+    background: transparent !important;
+}

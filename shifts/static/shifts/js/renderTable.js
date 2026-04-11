@@ -17,85 +17,105 @@ function renderTable(tableData){
 function renderBalanceTable(data, table) {
     const tbody = document.createElement('tbody');
     const balance = data.balance || {};
-
     const centers = Object.keys(balance);
 
     if (!centers.length) {
-        renderEmptyBalanceMessage(table, "No data.");
+        renderEmptyBalanceMessage(table, "No balance data found.");
         return;
     }
 
     centers.forEach(centerName => {
         const centerDays = balance[centerName] || {};
+        const days = Object.keys(centerDays).sort((a, b) => Number(a) - Number(b));
 
-        // Center title
+        if (!days.length) return;
+
+        // Center title row
         const centerRow = document.createElement('tr');
         const centerCell = document.createElement('th');
         centerCell.colSpan = 4;
         centerCell.textContent = centerName;
-        centerCell.className = 'fw-bold text-start';
+        centerCell.className = 'balance-center-title';
         centerRow.appendChild(centerCell);
         tbody.appendChild(centerRow);
 
         // Header row
         const headerRow = document.createElement('tr');
-        ['Dia', 'Manhã', 'Tarde', 'Noite'].forEach(label => {
+        ['Dia', 'Manhã', 'Tarde', 'Noite'].forEach((label, idx) => {
             const th = document.createElement('th');
             th.textContent = label;
-            th.className = 'text-center';
+            th.className = idx === 0
+                ? 'first-col balance-subheader'
+                : 'balance-subheader';
             headerRow.appendChild(th);
         });
         tbody.appendChild(headerRow);
 
-        // Sort days
-        Object.entries(centerDays)
-            .sort((a, b) => Number(a[0]) - Number(b[0]))
-            .forEach(([day, shifts]) => {
+        // Data rows
+        days.forEach(day => {
+            const shifts = centerDays[day] || {};
+            const tr = document.createElement('tr');
 
-                const tr = document.createElement('tr');
+            const dayTd = document.createElement('td');
+            dayTd.textContent = day;
+            dayTd.className = 'first-col name-col';
+            tr.appendChild(dayTd);
 
-                // Day column
-                const dayTd = document.createElement('td');
-                dayTd.textContent = day;
-                dayTd.className = 'fw-semibold';
-                tr.appendChild(dayTd);
+            ['morning', 'afternoon', 'night'].forEach(period => {
+                const td = document.createElement('td');
+                const value = shifts[period];
 
-                // Shift columns
-                ['morning', 'afternoon', 'night'].forEach(period => {
-                    const td = document.createElement('td');
-                    const value = shifts[period];
+                td.textContent = value !== undefined ? value : '--';
+                td.className = 'normal-col cell-col text-center';
 
-                    td.textContent = value;
-                    td.className = 'text-center';
-
-                    // optional visual hint (no filtering)
+                if (value !== undefined) {
                     if (value < 0) {
-                        td.classList.add('text-danger', 'fw-semibold');
+                        td.classList.add('balance-negative');
                     } else if (value > 0) {
-                        td.classList.add('text-success');
+                        td.classList.add('balance-positive');
                     } else {
-                        td.classList.add('text-muted');
+                        td.classList.add('balance-neutral');
                     }
+                } else {
+                    td.classList.add('balance-missing');
+                }
 
-                    tr.appendChild(td);
-                });
-
-                tbody.appendChild(tr);
+                tr.appendChild(td);
             });
 
-        // spacer between centers
-        const spacer = document.createElement('tr');
-        const spacerTd = document.createElement('td');
-        spacerTd.colSpan = 4;
-        spacerTd.style.height = '10px';
-        spacerTd.style.border = 'none';
-        spacer.appendChild(spacerTd);
-        tbody.appendChild(spacer);
+            tbody.appendChild(tr);
+        });
+
+        // Spacer row
+        const spacerRow = document.createElement('tr');
+        const spacerCell = document.createElement('td');
+        spacerCell.colSpan = 4;
+        spacerCell.className = 'balance-spacer';
+        spacerRow.appendChild(spacerCell);
+        tbody.appendChild(spacerRow);
     });
+
+    if (!tbody.children.length) {
+        renderEmptyBalanceMessage(table, "No balance data found.");
+        return;
+    }
 
     table.appendChild(tbody);
 }
 
+function renderEmptyBalanceMessage(table, message) {
+    const tbody = document.createElement('tbody');
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+
+    td.colSpan = 4;
+    td.textContent = message;
+    td.className = 'text-center p-3';
+
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    table.appendChild(tbody);
+}
 
 function renderHeaders(data, table, twoHeaders=true, showTitle=false) {
     const thead = document.createElement('thead');
