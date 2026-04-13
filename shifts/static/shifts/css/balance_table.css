@@ -29,3 +29,9 @@
     height: 12px;
     background: transparent !important;
 }
+
+.balance-center-title {
+    font-weight: 700;
+    text-align: center;   /* ← centers the abbreviation */
+    vertical-align: middle;
+}
