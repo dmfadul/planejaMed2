@@ -70,6 +70,7 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None,
         table_data["header1"], table_data["header2"] = [], []
         table_data["center"] = ""
         table_data["month"] = month.name.upper()
+        table_data["year"] = month.year
 
         return build_balance_table(table_data, month=month, filter_type=filter_type)
 

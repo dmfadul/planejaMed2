@@ -6,43 +6,50 @@
     </div>
 
     <div class="flex-grow-1 text-center">
-        <strong>{{ table_data.center }}</strong> &nbsp; |
+        {% if table_data.template == "balance" %}
+            &nbsp; <strong>{{ table_data.month }} - {{ table_data.year }} &nbsp;</strong> |
+        {% else %}
+            <strong>{{ table_data.center }}</strong> &nbsp; |
+        {% endif %}
+
         {% if table_data.template == "month_table" %}
             &nbsp; <strong>{{ table_data.month }} - {{ table_data.year }} &nbsp; | &nbsp; {{ table_data.status }}</strong>
         {% else %}
             &nbsp; <strong>{{ table_data.table_type }}</strong>
         {% endif %}
+
         {% if table_data.template == "doctor_basetable" %}
-        &nbsp; | &nbsp; <strong>{{ table_data.doctor.name|upper }}</strong>
+            &nbsp; | &nbsp; <strong>{{ table_data.doctor.name|upper }}</strong>
         {% endif %}
     </div>
 
-    <div class="ms-3" id="default-buttons">
-        {% if request.user.is_superuser %}
-        <button id="sum-hours-button" type="button" class="btn btn-outline-light btn-sm me-2">Somar</button>
-        {% endif %}
-        {% if table_data.template != "basetable" or table_data.template != "monthtable" %}
-        <button type="button" class="btn btn-outline-light btn-sm me-2">Relatório</button>
-        {% endif %}
-        {% if table_data.template != "basetable" or table_data.template != "monthtable" %}
-        <button id="print-button" type="button" class="btn btn-outline-light btn-sm me-2">Imprimir</button>
-        {% endif %}
-    </div>
 
-    <div class="ms-3" id="edit-buttons" style="display: none;">
-        <button type="button" id="edit-add-button" class="btn btn-outline-light btn-sm me-2 editing-active">Incluir</button>
-        <button type="button" id="edit-rem-button" class="btn btn-outline-light btn-sm editing-active">Remover</button>
-    </div>
-
-    <div class="ms-3">
-        {% if request.user.is_superuser %}
-        <button type="button" id="edit-button" class="btn btn-outline-light btn-sm me-2"
-                style="width: 100px; text-align: center;"        
-                onclick="toggleEditing()">
-            Editar
-        </button>
-        {% endif %}
-    </div>
+        <div class="ms-3" id="default-buttons">
+            {% if request.user.is_superuser %}
+            <button id="sum-hours-button" type="button" class="btn btn-outline-light btn-sm me-2">Somar</button>
+            {% endif %}
+            {% if table_data.template != "basetable" or table_data.template != "monthtable" %}
+            <button type="button" class="btn btn-outline-light btn-sm me-2">Relatório</button>
+            {% endif %}
+            {% if table_data.template != "basetable" or table_data.template != "monthtable" %}
+            <button id="print-button" type="button" class="btn btn-outline-light btn-sm me-2">Imprimir</button>
+            {% endif %}
+        </div>
+    
+        <div class="ms-3" id="edit-buttons" style="display: none;">
+            <button type="button" id="edit-add-button" class="btn btn-outline-light btn-sm me-2 editing-active">Incluir</button>
+            <button type="button" id="edit-rem-button" class="btn btn-outline-light btn-sm editing-active">Remover</button>
+        </div>
+    
+        <div class="ms-3">
+            {% if request.user.is_superuser %}
+            <button type="button" id="edit-button" class="btn btn-outline-light btn-sm me-2"
+                    style="width: 100px; text-align: center;"        
+                    onclick="toggleEditing()">
+                Editar
+            </button>
+            {% endif %}
+        </div>
 
 
 </div>
