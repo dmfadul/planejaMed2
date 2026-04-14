@@ -20,6 +20,7 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None,
         "hour_range": [f"{x:02d}:00" for x in HOUR_RANGE],
         "hour_values": {f"{x:02d}:00": x for x in HOUR_RANGE},
         "show_back_button": 0,
+        "show_edit_button": 1,
         "holidays": [],
     }
 
@@ -71,6 +72,7 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None,
         table_data["center"] = ""
         table_data["month"] = month.name.upper()
         table_data["year"] = month.year
+        table_data["show_edit_button"] = 0
 
         return build_balance_table(table_data, month=month, filter_type=filter_type)
 
