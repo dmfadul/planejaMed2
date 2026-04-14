@@ -19,7 +19,7 @@
             {% if user.is_superuser %}
               <li><a class="dropdown-item" href="{% url 'shifts:shifts_balance' %}">Balanço</a></li>
             {% else %}
-              <li><a class="dropdown-item" href="{% url 'shifts:shifts_balance' %}">Em Aberto</a></li>
+              {% comment %} <li><a class="dropdown-item" href="{% url 'shifts:shifts_balance' %}">Em Aberto</a></li> {% endcomment %}
             {% endif %}
             {% for center in centers %}
               <li><a class="dropdown-item" href="{% url 'requests:calendar' center_abbr=center %}">{{ center }}</a></li>
