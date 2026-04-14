@@ -38,17 +38,16 @@ def get_staffing_hours(center, weekday_int, holiday) -> dict[str, int]:
     return day_data
 
 
-def remove_past_days(balance):
+def remove_past_days(date_list):
     from core.constants import STR_DAY, END_DAY
 
     today = timezone.localdate().day
     if STR_DAY <= today <= 31:
-        cleaned_balance = {d: s for d, s in balance.items() if int(d.split("/")[0]) >= today or 1 <= d <= END_DAY}
+        filtered_dates = [d for d in date_list if d.day >= today or 1 <= d.day <= END_DAY]
     else:
-        cleaned_balance = {d: s for d, s in balance.items() if not(31 >= int(d.split("/")[0]) >= STR_DAY)}
-        cleaned_balance = {d: s for d, s in cleaned_balance.items() if int(d.split("/")[0]) >= today}
+        filtered_dates = [d for d in date_list if not(STR_DAY <= d.day <= 31) and d.day >= today]
 
-    return cleaned_balance
+    return filtered_dates
 
 
 def staffing_filter(balance, filter_type):
@@ -73,5 +72,4 @@ def staffing_filter(balance, filter_type):
     else:
         filtered = balance
     
-    filtered = remove_past_days(filtered)
     return filtered

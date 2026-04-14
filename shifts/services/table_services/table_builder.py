@@ -3,7 +3,7 @@ from .table_utils import translate_to_table, gen_headers
 from shifts.models import Center, Month, Shift, TemplateShift
 from shifts.models import TemplateShift as TS
 from core.models import User
-from ..staffing_resolver import get_staffing_hours, staffing_filter
+from ..staffing_resolver import get_staffing_hours, staffing_filter, remove_past_days
 from collections import defaultdict
 
 
@@ -172,7 +172,8 @@ def build_balance_table(table_data, month, filter_type=None):
 
         # 2. Compare actual hours with required staffing hours
         balance_by_day = {}
-        for month_date in month.days:
+        filtered_month_days = remove_past_days(month.days)
+        for month_date in filtered_month_days:
             day = month_date.day
             weekday_int = month_date.weekday()
             dia_semana = DIAS_SEMANA[weekday_int]

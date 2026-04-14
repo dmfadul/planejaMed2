@@ -7,15 +7,17 @@ function addListeners() {
     const sumButton = document.getElementById('sum-hours-button');
     const backButton = document.getElementById('back-button');
 
+    const template = tableData.template;
+
     console.log("✅ addListeners running after table render. Found:", cells.length);
 
     document.getElementById("print-button").addEventListener("click", function() {
-        var center = tableData.center;
-        var month = tableData.month_number;
-        var year = tableData.year;
-
-        var printUrl = `/shifts/printable/${center}/`;
+        const center = tableData.center;
+        const month = tableData.month_number;
+        const year = tableData.year;
         
+        const printUrl = `/shifts/printable/${center}/`;
+
         if (month && year) {
             printUrl += `${month}/${year}/`;
         }
@@ -24,6 +26,7 @@ function addListeners() {
     });
 
     cells.forEach(cell => {
+        console.log("Cell clicked:", template); 
         cell.addEventListener('click', () => {
             clickCell(cell);
         });
@@ -31,7 +34,7 @@ function addListeners() {
 
     names.forEach(name => {
         name.addEventListener('click', () => {
-            clickName(name);
+            clickName(name, template);
         });
     });
     

@@ -101,8 +101,10 @@ function clickCell(cell) {
     saveState(); // Save state to localStorage
 }
 
-function clickName(name) {
+function clickName(name, template) {
     saveState(); // Save state before navigating
+
+    console.log("template in clickName:", template);
     window.location.href = `/shifts/basetable/${tableData.center}/${name.id}/`;
 }
 
