@@ -1,4 +1,4 @@
-from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA, BONUS_RULES, SHIFTS_MAP
+from core.constants import SHIFT_CODES, HOUR_RANGE, DIAS_SEMANA, BONUS_RULES, DIAS_SEMANA
 from .table_utils import translate_to_table, gen_headers
 from shifts.models import Center, Month, Shift, TemplateShift
 from shifts.models import TemplateShift as TS
@@ -175,6 +175,9 @@ def build_balance_table(table_data, month, filter_type=None):
         for month_date in month.days:
             day = month_date.day
             weekday_int = month_date.weekday()
+            dia_semana = DIAS_SEMANA[weekday_int]
+
+            day_key = f"{month_date.strftime('%d/%m/%Y')} ({dia_semana})"
             holiday = day in holiday_days
 
             staffing_hours = get_staffing_hours(
@@ -185,7 +188,7 @@ def build_balance_table(table_data, month, filter_type=None):
 
             worked_hours = hours_by_day.get(day, empty_periods())
 
-            balance_by_day[day] = {
+            balance_by_day[day_key] = {
                 period: worked_hours.get(period, 0) - staffing_hours.get(period, 0)
                 for period in PERIODS
             }

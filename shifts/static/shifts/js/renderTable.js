@@ -1,5 +1,4 @@
 function renderTable(tableData){
-    console.log("Rendering table with data:");
     const table = document.getElementById('shift-table');
     table.innerHTML = ''; // Clear any previous content
 

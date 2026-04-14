@@ -43,10 +43,10 @@ def remove_past_days(balance):
 
     today = timezone.localdate().day
     if STR_DAY <= today <= 31:
-        cleaned_balance = {d: s for d, s in balance.items() if d >= today or 1 <= d <= END_DAY}
+        cleaned_balance = {d: s for d, s in balance.items() if int(d.split("/")[0]) >= today or 1 <= d <= END_DAY}
     else:
-        cleaned_balance = {d: s for d, s in balance.items() if not(31 >= d >= STR_DAY)}
-        cleaned_balance = {d: s for d, s in cleaned_balance.items() if d >= today}
+        cleaned_balance = {d: s for d, s in balance.items() if not(31 >= int(d.split("/")[0]) >= STR_DAY)}
+        cleaned_balance = {d: s for d, s in cleaned_balance.items() if int(d.split("/")[0]) >= today}
 
     return cleaned_balance
 
