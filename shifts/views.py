@@ -40,7 +40,6 @@ def month_table(request, center_abbr, month_num, year):
     table_data["status"] = "ORIGINAL" if month.is_locked else "REALIZADO"
     table_data["holidays"] = [h.day for h in month.holidays.all()]
 
-    print(table_data)
     context = {"table_data": table_data}
     return render(request, "shifts/table.html", context)
 
@@ -56,7 +55,6 @@ def basetable(request, center_abbr):
     )
     
     context = {"table_data": table_data}
-
     return render(request, "shifts/table.html", context)
 
 
@@ -156,7 +154,6 @@ def shifts_balance(request, month_num=None, year=None):
         filter_type=filter_type
     )
 
-    print(table_data)
     context = {"table_data": table_data}
     return render(request, "shifts/table.html", context)
     

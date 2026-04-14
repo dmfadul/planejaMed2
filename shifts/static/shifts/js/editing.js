@@ -104,8 +104,10 @@ function clickCell(cell) {
 function clickName(name, template) {
     saveState(); // Save state before navigating
 
-    console.log("template in clickName:", template);
-    window.location.href = `/shifts/basetable/${tableData.center}/${name.id}/`;
+    // TODO: Add rules for different templates if needed
+    if(template === "basetable") {
+        window.location.href = `/shifts/basetable/${tableData.center}/${name.id}/`;
+    }
 }
 
 async function clickHeader(header) {
