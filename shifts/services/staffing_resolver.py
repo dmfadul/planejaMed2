@@ -1,15 +1,17 @@
 from core.shifts_dict import STAFFING_HOURS
 from django.utils import timezone
 
+WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 
 def get_day_type(weekday_int: int, holiday: bool) -> str:
+    
+    if weekday_int < 0 or weekday_int > 6:
+        raise ValueError(f"Invalid weekday integer: {weekday_int}. Must be between 0 (Monday) and 6 (Sunday).")
+
     if holiday:
         return "holiday"
-    if weekday_int == 5:
-        return "saturday"
-    if weekday_int == 6:
-        return "sunday"
-    return "weekday"
+    
+    return WEEKDAYS[weekday_int]
 
 
 def get_staffing_hours(center, weekday_int, holiday) -> dict[str, int]:
@@ -23,6 +25,9 @@ def get_staffing_hours(center, weekday_int, holiday) -> dict[str, int]:
     if "all" in center_data:
         return center_data["all"]
     
+    if "weekday" in center_data and day_type in WEEKDAYS[:5]:
+        return center_data["weekday"]
+
     if holiday and "holiday" in center_data:
         return center_data["holiday"]
     
