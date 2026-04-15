@@ -140,6 +140,7 @@ def build_doctors_sumtable(table_data, template, month=None):
 
 
 def build_balance_table(table_data, month, filter_type=None):
+    from core.constants import MINIMUM_HOURS_TO_SHOW_BALANCE as minimum_hours
     PERIODS = ("morning", "afternoon", "night")
 
     def empty_periods():
@@ -192,9 +193,17 @@ def build_balance_table(table_data, month, filter_type=None):
             worked_hours = hours_by_day.get(day, empty_periods())
 
             balance_by_day[day_key] = {
-                period: worked_hours.get(period, 0) - staffing_hours.get(period, 0)
+                period: (
+                    diff if (diff >= 0) or (diff <= minimum_hours) else 0
+                )
                 for period in PERIODS
+                for diff in [worked_hours.get(period, 0) - staffing_hours.get(period, 0)]
             }
+
+            # balance_by_day[day_key] = {
+            #     period: worked_hours.get(period, 0) - staffing_hours.get(period, 0)
+            #     for period in PERIODS
+            # }
         
         # must filter before adding to table data, to get to each center's balance separately
         if filter_type:

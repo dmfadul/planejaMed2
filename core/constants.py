@@ -54,3 +54,5 @@ BONUS_RULES = {
     'bonus_hours': 48,
     'bonus_perc': 0.3,
 }
+
+MINIMUM_HOURS_TO_SHOW_BALANCE = -6
