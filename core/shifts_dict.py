@@ -22,9 +22,29 @@ STAFFING_HOURS = {
         },
     },
     "CCQ": {
-        "weekday": {
+        "monday": {
             "morning": 18,
             "afternoon": 18,
+            "night": 0,
+        },
+        "thursday": {
+            "morning": 18,
+            "afternoon": 18,
+            "night": 0,
+        },
+        "tuesday": {
+            "morning": 18,
+            "afternoon": 12,
+            "night": 0,
+        },
+        "wednesday": {
+            "morning": 18,
+            "afternoon": 12,
+            "night": 0,
+        },
+        "friday": {
+            "morning": 18,
+            "afternoon": 12,
             "night": 0,
         },
     },
