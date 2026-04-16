@@ -74,7 +74,7 @@ def build_table_data(table_type, template, center=None, doctor=None, month=None,
         table_data["year"] = month.year
         table_data["show_edit_button"] = 0
 
-        return build_balance_table(table_data, month=month, filter_type=filter_type)
+        return build_balance_table(table_data, curr_month=month, filter_type=filter_type)
 
 
 def build_doctors_sumtable(table_data, template, month=None):
@@ -139,7 +139,21 @@ def build_doctors_sumtable(table_data, template, month=None):
     return table_data
 
 
-def build_balance_table(table_data, month, filter_type=None):
+def build_balance_table(table_data, curr_month, filter_type=None):
+    table_data["balance"] = {}
+
+    table_data = build_balance_table_month(table_data, curr_month, filter_type=filter_type)
+
+    next_month = Month.objects.next()
+    if next_month:
+        table_data = build_balance_table_month(table_data,
+                                               next_month,
+                                               filter_type=filter_type,
+                                               remove_past=False)
+    return table_data
+
+
+def build_balance_table_month(table_data, month, filter_type=None, remove_past=True):
     from core.constants import MINIMUM_HOURS_TO_SHOW_BALANCE as minimum_hours
     PERIODS = ("morning", "afternoon", "night")
 
@@ -150,8 +164,6 @@ def build_balance_table(table_data, month, filter_type=None):
             "night": 0,
         }
     
-    center_data = {}
-
     centers = Center.objects.filter(is_active=True).all()
     holiday_days = set(month.holidays.values_list("day", flat=True))
 
@@ -175,7 +187,11 @@ def build_balance_table(table_data, month, filter_type=None):
 
         # 2. Compare actual hours with required staffing hours
         balance_by_day = {}
-        filtered_month_days = remove_past_days(month.days)
+        if remove_past:
+            filtered_month_days = remove_past_days(month.days)
+        else:
+            filtered_month_days = month.days
+
         for month_date in filtered_month_days:
             day = month_date.day
             weekday_int = month_date.weekday()
@@ -199,19 +215,13 @@ def build_balance_table(table_data, month, filter_type=None):
                 for period in PERIODS
                 for diff in [worked_hours.get(period, 0) - staffing_hours.get(period, 0)]
             }
-
-            # balance_by_day[day_key] = {
-            #     period: worked_hours.get(period, 0) - staffing_hours.get(period, 0)
-            #     for period in PERIODS
-            # }
         
         # must filter before adding to table data, to get to each center's balance separately
         if filter_type:
             balance_by_day = staffing_filter(balance_by_day, filter_type)
 
-        center_data[center.abbreviation] = balance_by_day
+        table_data["balance"][f"{center.abbreviation}-{month.name}"] = balance_by_day
     
-    table_data["balance"] = center_data
     return table_data
 
 

@@ -134,11 +134,8 @@ def sum_days_month(request, center_abbr, month_num, year):
     return render(request, "shifts/table.html", context)
 
 @login_required
-def shifts_balance(request, month_num=None, year=None):
-    if month_num and year:
-        month = get_object_or_404(Month, number=month_num, year=year)
-    else:
-        month = Month.objects.current()
+def shifts_balance(request):
+    month = Month.objects.current()
     
     if request.user.is_superuser:
         filter_type = "removeZeroes"

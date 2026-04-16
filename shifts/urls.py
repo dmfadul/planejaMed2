@@ -19,7 +19,6 @@ urlpatterns = [
     path("sum-doctors/<int:month_num>/<int:year>/", sum_doctors_month, name="sum_doctors_month"),
 
     path("balance", shifts_balance, name="shifts_balance"),
-    path("balance/<int:month_num>/<int:year>/", shifts_balance, name="shifts_balance"),
 
     path("update", update, name="update"),
     path("update-holiday", update_holiday, name="update_holiday"),
