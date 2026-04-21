@@ -44,9 +44,7 @@ class UserRequest(models.Model):
     audience = models.CharField(
         max_length=20,
         choices=Audience.choices,
-        # default=Audience.INDIVIDUAL
-        null=True,
-        blank=True
+        default=Audience.INDIVIDUAL
     )
 
     responder = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_responded', null=True, blank=True)
