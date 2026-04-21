@@ -3,6 +3,7 @@ from core.models import User
 from django.db.models import Q
 from shifts.models import Shift
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from user_requests.models.notifications import Notification
 
 
@@ -25,9 +26,29 @@ class UserRequest(models.Model):
         EXCHANGE = 'exchange', 'Troca'
         INCLUDE = 'include', 'Incluir'
         EXCLUDE = 'exclude', 'Excluir'
+    
+    class Audience(models.TextChoices):
+        INDIVIDUAL = 'individual', 'Specific user'
+        ADMINS = 'admins', 'Any admin'
+        ALL_USERS = 'all_users', 'All users'
 
     requester = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_made')
-    requestee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_received', null=True, blank=True)
+    requestee = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='requests_received',
+        null=True,
+        blank=True
+    )
+
+    audience = models.CharField(
+        max_length=20,
+        choices=Audience.choices,
+        # default=Audience.INDIVIDUAL
+        null=True,
+        blank=True
+    )
+
     responder = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_responded', null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -108,11 +129,18 @@ class UserRequest(models.Model):
         return None
     
     def clean(self):
+        super().clean()
+
+        if self.audience == self.Audience.INDIVIDUAL and not self.requestee:
+            raise ValidationError({'requestee': 'requestee is required for individual requests.'})
+
+        if self.audience in [self.Audience.ADMINS, self.Audience.ALL_USERS] and self.requestee is not None:
+            raise ValidationError({'requestee': 'requestee must be null for admin/all users requests.'})
+
         # Minimal per-type rules; adjust to your business logic
         if self.request_type == self.RequestType.DONATION:
             missing = [f for f in ('donor', 'donee', 'shift') if getattr(self, f) is None]
             if missing:
-                from django.core.exceptions import ValidationError
                 raise ValidationError({m: "This field is required for a donation." for m in missing})
 
     def save(self, *args, **kwargs):
