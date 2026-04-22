@@ -146,9 +146,18 @@ class UserRequest(models.Model):
         self.full_clean(exclude=None)
         super().save(*args, **kwargs)
 
+    def can_be_accepted_by(self, user):
+        if self.audience == self.Audience.INDIVIDUAL:
+            return (user == self.requestee) or user.is_superuser
+        if self.audience == self.Audience.ADMINS:
+            return user.is_superuser
+        if self.audience == self.Audience.ALL_USERS:
+            return True
+        return False
+    
     def accept(self, responder):
-        if not (responder == self.requestee) and not responder.is_superuser:
-            raise PermissionError("Only the requestee or admins(superusers) can accept a donation request.")
+        if not self.can_be_accepted_by(responder):
+            raise PermissionError("Você não tem autorização para responder esta requisição.")
         
         conflict = Shift.check_conflict(self.donee,
                                         self.month,
