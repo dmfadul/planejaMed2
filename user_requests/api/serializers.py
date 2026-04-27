@@ -177,11 +177,12 @@ class IncomingUserRequestSerializer(serializers.Serializer):
                 raise serializers.ValidationError({"center": _("Centro é obrigatório para inclusão.")})
             center = get_object_or_404(Center, abbreviation=center_abbr)
 
-        # resolve users (requester/requestee/donor/donee) by action
+        # resolve users (requester/requestee/donor/donee/audience) by action
         requester = request.user
         requestee = None
         donor = None
         donee = None 
+        audience = 'individual'
          
         crm = attrs.get('cardCRM')
         if not crm and action in ("ask_for_donation", "offer_donation"):
@@ -194,6 +195,7 @@ class IncomingUserRequestSerializer(serializers.Serializer):
             requestee = other_user
         elif action in ("include", "exclude"):
             requestee = None # requestee are Admin in these cases
+            audience = 'admins'
 
         if action == "ask_for_donation":
             donor, donee = requestee, requester
@@ -261,6 +263,7 @@ class IncomingUserRequestSerializer(serializers.Serializer):
             "requestee": requestee,
             "donor": donor,
             "donee": donee,
+            "audience": audience,
             "shift": shift,
             "start_hour": start_hr,
             "end_hour": end_hr,
