@@ -16,7 +16,7 @@ function addListeners() {
         const month = tableData.month_number;
         const year = tableData.year;
         
-        const printUrl = `/shifts/printable/${center}/`;
+        let printUrl = `/shifts/printable/${center}/`;
 
         if (month && year) {
             printUrl += `${month}/${year}/`;
