@@ -257,7 +257,7 @@ class IncomingUserRequestSerializer(serializers.Serializer):
             }
 
         # For include, validate the extra payload now so the service can trust it
-        return {
+        req_data = {
             "request_type": request_type,
             "requester": requester,
             "requestee": requestee,
@@ -270,6 +270,22 @@ class IncomingUserRequestSerializer(serializers.Serializer):
             "include_payload": include_payload,
             "action": action,
         }
+
+        # Test for duplicate open requests of the same type and time for the requester
+        if UserRequest.objects.filter(
+            requester=requester,
+            request_type=request_type,
+            shift=shift,
+            start_hour=start_hr,
+            end_hour=end_hr,
+            is_open=True
+        ).exists():
+            raise serializers.ValidationError(
+                {"non_field_errors": _("""Você já tem um pedido aberto para este horário.
+                                        Por favor, aguarde a resposta ou cancele o pedido existente antes de criar um novo.""")}
+            )
+
+        return req_data
     
 class OutUserRequestSerializer(serializers.ModelSerializer):
     class Meta:

@@ -100,6 +100,7 @@ export async function post(body, { timeout = 10000, signal } = {}) {
       err.data = errors;
       throw err;
     }
+    showToast("Pedido enviado com sucesso!", "success");
     return data;
   } finally {
     clearTimeout(timer);
