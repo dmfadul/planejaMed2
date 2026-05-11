@@ -3,14 +3,25 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from .forms import UploadedDocumentForm
 from .models import UploadedDocument
-from shifts.models import Month 
+from shifts.models import Month
+
+from django.contrib.auth.decorators import login_required
 
 
-def finance_dashboard_view(request):
+@login_required
+def finance_dashboard(request):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "You do not have permission to upload documents.")
+        return redirect("finance:dashboard")
     docs = UploadedDocument.objects.select_related("month").order_by("-uploaded_at")
     return render(request, "finance/dashboard.html", {"docs": docs})
 
+
+@login_required
 def upload_document_view(request):
+    if not (request.user.is_superuser or request.user.is_staff):
+        messages.error(request, "You do not have permission to upload documents.")
+        return redirect("finance:dashboard")
     if request.method != "POST":
         return redirect("finance:dashboard")
 

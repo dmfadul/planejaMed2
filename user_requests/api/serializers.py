@@ -274,6 +274,7 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         # Test for duplicate open requests of the same type and time for the requester
         if UserRequest.objects.filter(
             requester=requester,
+            requestee=requestee,
             request_type=request_type,
             shift=shift,
             start_hour=start_hr,

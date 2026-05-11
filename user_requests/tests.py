@@ -1,3 +1,39 @@
+from django.test import TestCase
+from unittest.mock import patch
+from model_bakery import baker
+
+from user_requests.models import UserRequest
+
+
+class UserRequestNotifyTests(TestCase):
+    def setUp(self):
+        self.requester = baker.make("core.User")
+        self.requestee = baker.make("core.User")
+        self.donor = baker.make("core.User")
+        self.donee = baker.make("core.User")
+        self.month = baker.make("shifts.Month", number=1, year=2026)
+        self.shift = baker.make("shifts.Shift", month=self.month, day=10)
+
+        self.ur = baker.make(
+            UserRequest,
+            requester=self.requester,
+            requestee=self.requestee,
+            request_type=UserRequest.RequestType.DONATION,
+            shift=self.shift,
+            donor=self.donor,
+            donee=self.donee,
+            start_hour=7,
+            end_hour=19,
+        )
+
+    @patch("user_requests.models.notifications.Notification.from_template")
+    def test_notify_request_creates_two_notifications(self, mock_from_template):
+        self.ur.notify_request()
+
+        self.assertEqual(mock_from_template.call_count, 2)
+
+
+
 # from django.test import TestCase
 # from unittest.mock import patch, call
 
