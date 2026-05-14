@@ -5,6 +5,7 @@ from shifts.models import TemplateShift as TS
 from core.models import User
 from ..staffing_resolver import get_staffing_hours, staffing_filter, remove_past_days
 from collections import defaultdict
+from django.db.models.functions import Lower
 
 
 def build_table_data(table_type, template, center=None, doctor=None, month=None, filter_type=None):
@@ -81,7 +82,7 @@ def build_doctors_sumtable(table_data, template, month=None):
     bonus_hours = BONUS_RULES["bonus_hours"]
     bonus_perc = BONUS_RULES["bonus_perc"]
 
-    doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
+    doctors = User.objects.filter(is_active=True, is_invisible=False).order_by(Lower("name"))
     table_data["doctors"] = []
     for doctor in doctors:
         shifts = {}
@@ -272,9 +273,9 @@ def build_sumtable(center, table_data, template, month=None):
 
 def build_basetable(center, table_data, template=None, month=None):
     if template == "basetable":
-        doctors = User.objects.filter(is_active=True, is_invisible=False).order_by("name")
+        doctors = User.objects.filter(is_active=True, is_invisible=False).order_by(Lower("name"))
     elif template == "month_table":
-        doctors = month.users.order_by("name").all()
+        doctors = month.users.order_by(Lower("name")).all()
 
     table_data["doctors"] = []
     for doctor in doctors:
