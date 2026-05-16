@@ -60,6 +60,9 @@
             Financeiro
           </a>
           <ul class="dropdown-menu">
+            {% if user.is_superuser %}
+              <li><a class="dropdown-item" href="{% url 'finance:dashboard' %}">Dashboard</a></li>
+            {% endif %}
             <li><a class="dropdown-item" href="#">Incluir</a></li>
             <li>
             <a class="dropdown-item" href="#"
@@ -154,9 +157,6 @@
             <li><a class="dropdown-item" href="{% url 'requests:notifications' %}">Abrir notificações</a></li>
           </ul>
         </li>
-
-
-        
         <li class="nav-item">
           <a class="nav-link" href="{% url 'core:logout' %}">Logout</a>
         </li>

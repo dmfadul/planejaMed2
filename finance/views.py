@@ -11,8 +11,8 @@ from django.contrib.auth.decorators import login_required
 
 
 @login_required
-def finance_dashboard(request, month_id):
-    month = get_object_or_404(Month, id=month_id)
+def finance_dashboard(request, month_id=None):
+    month = Month.get_current()
 
     users = User.objects.filter(is_active=True).order_by("name")
 

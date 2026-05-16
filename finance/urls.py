@@ -5,5 +5,5 @@ app_name = "finance"
 
 urlpatterns = [
     path("upload/", upload_document_view, name="upload"),
-    path("dashboard/<int:month_id>/", finance_dashboard, name="dashboard"),
+    path("dashboard/", finance_dashboard, name="dashboard"),
 ]
