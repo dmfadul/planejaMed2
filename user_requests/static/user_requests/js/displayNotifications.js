@@ -54,7 +54,7 @@
     const data = await res.json();
 
     if (!Array.isArray(data) || data.length === 0) {
-      listEl.innerHTML = `<div class="text-muted">You’re all caught up.</div>`;
+      listEl.innerHTML = `<div class="text-muted">Nenhuma notificação.</div>`;
       return;
     }
 

@@ -1,6 +1,4 @@
 (function () {
-  console.log("notifications.js loaded");
-  
   // API endpoints
   const API_LIST = "/api/notifications/"; // GET list visible to current user
   const API_MARK_SEEN = "/api/mark-seen/"; // POST body: {ids: [..]}
@@ -32,14 +30,14 @@
       // Summary line
       const count = data.length;
       notifSummary.textContent = count === 0
-        ? "No notifications."
+        ? "Sem notificações."
         : unseen.length > 0
-          ? `${unseen.length} new • ${count} total`
-          : `${count} notifications`;
+          ? `${unseen.length} novas • ${count} total`
+          : `${count} notificações`;
       // Save ids to mark-seen on open
       notifMenuLink.dataset.latestIds = JSON.stringify(data.map(n => n.id).slice(0, 10)); // cap to avoid huge payloads
     } catch (e) {
-      notifSummary.textContent = "Couldn’t load notifications.";
+      notifSummary.textContent = "Não foi possível carregar notificações.";
     }
   }
 
