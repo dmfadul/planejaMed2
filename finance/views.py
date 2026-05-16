@@ -11,8 +11,14 @@ from django.contrib.auth.decorators import login_required
 
 
 @login_required
-def finance_dashboard(request, month_id=None):
-    month = Month.get_current()
+def finance_dashboard(request):
+    selected_month_id = request.GET.get("month")
+    months = Month.objects.all().order_by("-year", "-number")
+
+    if selected_month_id:
+        month = get_object_or_404(Month, id=selected_month_id)
+    else:
+        month = Month.get_current()
 
     users = User.objects.filter(is_active=True).order_by("name")
 
@@ -28,6 +34,7 @@ def finance_dashboard(request, month_id=None):
 
     context = {
         "month": month,
+        "months": months,
         "rows": rows,
     }
 
