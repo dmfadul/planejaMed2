@@ -13,8 +13,6 @@ def process_table_payload(request):
     state = json.loads(request.body)
     action = state.get("action")   
     table_type = state.get("tableType")
-
-    print("Processing table payload:", action, table_type)
     center = get_object_or_404(Center, abbreviation=state.get("center"))
     
     if action == "add":
@@ -86,6 +84,7 @@ def add_shift(state, table_type, center):
         else:
             start_time, end_time = TS.convert_to_hours(shift_code)
 
+        print("table_type", table_type)
         if table_type == "BASE":
             TS.add(doctor=doctor,
                    center=center,

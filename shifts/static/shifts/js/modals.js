@@ -1,4 +1,8 @@
+let modalAddCells = [];
+
 function openModalAdd(cells) {
+    modalAddCells = cells.map(cell => ({ ...cell })); // Create a copy of the cells array
+
     const dynamicInputs = document.getElementById('dynamicInputs');
     dynamicInputs.innerHTML = ''; // clear
     
@@ -52,7 +56,8 @@ function submitModalAdd() {
     const formData = new FormData(form);
 
     const newValues = {};
-    state.selectedCells.forEach(cell => {
+
+    modalAddCells.forEach(cell => {
         newValues[cell.cellID] = {
             shiftCode: formData.get(`${cell.cellID}_shift`),
             startTime: formData.get(`${cell.cellID}_start`),
@@ -61,6 +66,7 @@ function submitModalAdd() {
     });
 
     state['newValues'] = newValues;
+    
     saveState();
     bootstrap.Modal.getInstance(document.getElementById('modal_add')).hide();
 

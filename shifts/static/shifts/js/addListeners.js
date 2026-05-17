@@ -70,7 +70,6 @@ function addListeners() {
 
     if (sumButton) {
         sumButton.addEventListener('click', () => {
-            console.log(tableData);
             if (tableData.template == "basetable") {
                 window.location.href = `/shifts/sum-days/${tableData.center}/`;
             }else if (tableData.template == "month_table") {
