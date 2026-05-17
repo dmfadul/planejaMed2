@@ -6,7 +6,7 @@ from .models import UploadedDocument
 from shifts.models import Month
 from core.models import User
 
-from .services import get_user_finance_summary
+from .services import get_user_finance_summary, SHEET_COLUMNS
 from django.contrib.auth.decorators import login_required
 
 
@@ -36,6 +36,7 @@ def finance_dashboard(request):
         "month": month,
         "months": months,
         "rows": rows,
+        "sheet_columns": SHEET_COLUMNS,
     }
 
     return render(request, "finance/dashboard.html", context)

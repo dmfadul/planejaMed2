@@ -3,28 +3,66 @@ from django.db.models import Sum
 from .models import FinanceEntry
 
 
+SHEET_COLUMNS = [
+    ("creditos_individuais", "Créditos individuais"),
+    ("debitos_individuais", "Débitos individuais"),
+    ("aih", "AIH"),
+    ("copan", "Copan"),
+    ("unimed", "Unimed"),
+    ("producao_dividida", "Produção dividida"),
+    ("hospital_ccg", "CCG"),
+    ("hospital_cco", "CCO"),
+    ("hospital_ccq", "CCQ"),
+    ("hospital_sadt", "SADT"),
+    ("hospital_eco", "ECO"),
+    ("cooperhec", "Cooperhec"),
+]
+
+
+def sum_entries(entries, *, entry_type=None, category_code=None):
+    qs = entries
+
+    if entry_type:
+        qs = qs.filter(entry_type=entry_type)
+
+    if category_code:
+        qs = qs.filter(category__code=category_code)
+
+    return qs.aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+
+
 def get_user_finance_summary(month, user):
     entries = FinanceEntry.objects.filter(month=month, user=user)
 
-    gross = entries.filter(entry_type=FinanceEntry.EntryType.CREDIT).aggregate(
-        total=Sum("amount")
-    )["total"] or Decimal("0.00")
+    category_totals = {}
 
-    direct_received = entries.filter(entry_type=FinanceEntry.EntryType.DIRECT_RECEIPT).aggregate(
-        total=Sum("amount")
-    )["total"] or Decimal("0.00")
+    for code, label in SHEET_COLUMNS:
+        category_totals[code] = sum_entries(
+            entries,
+            category_code=code,
+        )
 
-    deductions = entries.filter(entry_type=FinanceEntry.EntryType.DEDUCTION).aggregate(
-        total=Sum("amount")
-    )["total"] or Decimal("0.00")
+    gross = sum_entries(entries, entry_type=FinanceEntry.EntryType.CREDIT)
 
-    adjustments = entries.filter(entry_type=FinanceEntry.EntryType.ADJUSTMENT).aggregate(
-        total=Sum("amount")
-    )["total"] or Decimal("0.00")
+    direct_received = sum_entries(
+        entries,
+        entry_type=FinanceEntry.EntryType.DIRECT_RECEIPT,
+    )
+
+    deductions = sum_entries(
+        entries,
+        entry_type=FinanceEntry.EntryType.DEDUCTION,
+    )
+
+    adjustments = sum_entries(
+        entries,
+        entry_type=FinanceEntry.EntryType.ADJUSTMENT,
+    )
 
     final_due = gross - direct_received - deductions + adjustments
 
     return {
+        "category_totals": category_totals,
         "gross": gross,
         "direct_received": direct_received,
         "deductions": deductions,
