@@ -5,6 +5,7 @@ from .forms import UploadedDocumentForm
 from .models import UploadedDocument
 from shifts.models import Month
 from core.models import User
+from django.db.models.functions import Lower
 
 from .services import get_user_finance_summary, SHEET_COLUMNS
 from django.contrib.auth.decorators import login_required
@@ -20,7 +21,7 @@ def finance_dashboard(request):
     else:
         month = Month.get_current()
 
-    users = User.objects.filter(is_active=True).order_by("name")
+    users = User.objects.filter(is_active=True, is_invisible=False).order_by(Lower("name"))
 
     rows = []
 
