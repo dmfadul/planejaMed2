@@ -4,12 +4,12 @@ from .models import FinanceEntry
 
 
 SHEET_COLUMNS = [
-    ("creditos_individuais", "Créditos individuais"),
-    ("debitos_individuais", "Débitos individuais"),
+    ("creditos_individuais", "Créditos ind"),
+    ("debitos_individuais", "Débitos ind"),
     ("aih", "AIH"),
     ("copan", "Copan"),
     ("unimed", "Unimed"),
-    ("producao_dividida", "Produção dividida"),
+    ("producao_dividida", "Prod div"),
     ("hospital_ccg", "CCG"),
     ("hospital_cco", "CCO"),
     ("hospital_ccq", "CCQ"),

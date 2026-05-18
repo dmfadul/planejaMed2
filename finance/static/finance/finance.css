@@ -1,0 +1,37 @@
+.finance-table-wrapper {
+    overflow-x: auto;
+}
+
+.finance-table {
+    min-width: 1800px;
+    font-size: 0.9rem;
+}
+
+.finance-table th,
+.finance-table td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+.finance-col {
+    min-width: 140px;
+}
+
+.total-col {
+    min-width: 160px;
+    background-color: #f8f9fa;
+}
+
+.sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    min-width: 220px;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+}
+
+.finance-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
