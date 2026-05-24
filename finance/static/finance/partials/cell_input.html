@@ -1,0 +1,14 @@
+{# finance/partials/cell_input.html #}
+
+<td class="finance-cell editing-cell">
+  <input
+    class="form-control form-control-sm"
+    name="value"
+    value="{{ value }}"
+    autofocus
+    hx-post="{% url 'finance:update_cell' month.id user.id column.key %}"
+    hx-trigger="blur, keyup[key=='Enter']"
+    hx-target="closest td"
+    hx-swap="outerHTML"
+  >
+</td>

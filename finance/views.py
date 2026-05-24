@@ -7,8 +7,16 @@ from shifts.models import Month
 from core.models import User
 from django.db.models.functions import Lower
 
-from .services import get_user_finance_summary, SHEET_COLUMNS
+from .services import build_finance_grid, get_user_finance_summary, SHEET_COLUMNS
 from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def finance_spreadsheet(request):
+    month = Month.get_current()
+    grid = build_finance_grid(month)
+
+    return render(request, "finance/spreadsheet.html", {"month": month, "grid": grid})
 
 
 @login_required

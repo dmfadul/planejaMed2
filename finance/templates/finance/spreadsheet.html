@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+
+  <h3>Financeiro - {{ month }}</h3>
+
+  <div class="finance-sheet-wrapper">
+    <table class="table table-sm table-bordered finance-sheet">
+      <thead>
+        <tr>
+          {% for column in grid.columns %}
+            <th>
+              {% if column.group %}
+                <small>{{ column.group }}</small><br>
+              {% endif %}
+              {{ column.label }}
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for row in grid.rows %}
+          <tr>
+            {% for cell in row.cells %}
+              {% include "finance/partials/cell_display.html" with month=month user=row.user column=cell.column value=cell.value editable=cell.editable %}
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}

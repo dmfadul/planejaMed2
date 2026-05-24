@@ -1,6 +1,8 @@
 from decimal import Decimal
 from django.db.models import Sum
 from .models import FinanceEntry
+from core.models import User
+from django.db.models.functions import Lower
 
 
 SHEET_COLUMNS = [
@@ -18,6 +20,10 @@ SHEET_COLUMNS = [
     ("cooperhec", "Cooperhec"),
 ]
 
+
+def build_finance_grid(month):
+    users = User.objects.filter(is_active=True, is_invisible=False).order_by(Lower("name"))
+    print(users)
 
 def sum_entries(entries, *, entry_type=None, category_code=None):
     qs = entries
