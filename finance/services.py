@@ -3,6 +3,7 @@ from django.db.models import Sum
 from .models import FinanceEntry
 from core.models import User
 from django.db.models.functions import Lower
+from finance.grid import FINANCE_GRID_COLUMNS
 
 
 SHEET_COLUMNS = [
@@ -21,9 +22,83 @@ SHEET_COLUMNS = [
 ]
 
 
+
+
 def build_finance_grid(month):
     users = User.objects.filter(is_active=True, is_invisible=False).order_by(Lower("name"))
-    print(users)
+    
+    entries = FinanceEntry.objects.filter(month=month).select_related(
+        "user",
+        "category",
+        "source",
+    )
+
+    entry_map = {}
+    for entry in entries:
+        if entry.category:
+            entry_map[(entry.user_id, entry.category.code)] = entry.ammount
+
+    rows = []
+    for user in users:
+        row = {
+            "user": user,
+            "cells": [],
+        }
+
+        for column in FINANCE_GRID_COLUMNS:
+            value = get_cell_value(
+                user=user,
+                month=month,
+                column=column,
+                entry_map=entry_map,
+            )
+
+            row["cells"].append({
+                "column": column,
+                "value": value,
+                "editable": column.get("editable", False),
+                "protected": not column.get("editable", False)
+            })
+
+        rows.append(row)
+    
+    return {
+        "columns": FINANCE_GRID_COLUMNS,
+        "rows": rows,
+    }
+
+        
+
+
+def get_cell_value(user, month, column, entry_map):
+    key = column["key"]
+
+    if key == "user_name":
+        return user.name
+    
+    if key == "crm":
+        return getattr(user, "crm", "")
+    
+    # Protected/calculated HUEM cells
+    if key.startswith("huem_"):
+        return calculate_huem_hours(user, month, key)
+
+    # Editable financial cells
+    category_code = column.get("category_code")
+    if category_code:
+        return entry_map.get((user.id, category_code), Decimal("0.00"))
+
+    return ""
+
+
+def calculate_huem_hours(user, month, key):
+    """
+    Later this should read from shifts/appointments.
+    For now, return 0 or imported value.
+    """
+    return Decimal("0.00")
+
+
 
 def sum_entries(entries, *, entry_type=None, category_code=None):
     qs = entries
