@@ -1,6 +1,8 @@
-# views.py
-from django.contrib import messages
+
 from django.shortcuts import redirect, render, get_object_or_404
+from django.views.decorators.http import require_POST
+
+from django.contrib import messages
 from .forms import UploadedDocumentForm
 from .models import UploadedDocument
 from shifts.models import Month
@@ -18,6 +20,15 @@ def finance_spreadsheet(request):
 
     return render(request, "finance/spreadsheet.html", {"month": month, "grid": grid})
 
+
+@login_required
+def edit_cell(request):
+    return redirect("finance:spreadsheet")
+
+@login_required
+@require_POST
+def update_cell(request):
+    return redirect("finance:spreadsheet")
 
 @login_required
 def finance_dashboard(request):
