@@ -22,8 +22,6 @@ SHEET_COLUMNS = [
 ]
 
 
-
-
 def build_finance_grid(month):
     users = User.objects.filter(is_active=True, is_invisible=False).order_by(Lower("name"))
     
@@ -66,9 +64,7 @@ def build_finance_grid(month):
         "columns": FINANCE_GRID_COLUMNS,
         "rows": rows,
     }
-
         
-
 
 def get_cell_value(user, month, column, entry_map):
     key = column["key"]

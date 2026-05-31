@@ -1,16 +1,22 @@
+from decimal import Decimal, InvalidOperation
 
-from django.shortcuts import redirect, render, get_object_or_404
+from django.http import HttpResponseForbidden, HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-
-from django.contrib import messages
-from .forms import UploadedDocumentForm
-from .models import UploadedDocument
-from shifts.models import Month
-from core.models import User
 from django.db.models.functions import Lower
+from django.contrib import messages
+
+from core.models import User
+from shifts.models import Month
+from finance.grid import FINANCE_GRID_COLUMNS
+from finance.models import FinanceEntry, FinanceCategory, FinanceSource
 
 from .services import build_finance_grid, get_user_finance_summary, SHEET_COLUMNS
-from django.contrib.auth.decorators import login_required
+from .forms import UploadedDocumentForm
+from .models import UploadedDocument
+
+
 
 
 @login_required
@@ -22,13 +28,45 @@ def finance_spreadsheet(request):
 
 
 @login_required
-def edit_cell(request):
-    return redirect("finance:spreadsheet")
+def edit_cell(request, month_id, user_id, column_key):
+    month = get_object_or_404(Month, id=month_id)
+    user = get_object_or_404(User, id=user_id)
+    column = get_column_or_404(column_key)
+
+    if not column.get("editable", False):
+        return HttpResponseForbidden("Protected cell")
+    
+    category = FinanceCategory.objects.get(code=column["category_code"])
+
+    entry = FinanceEntry.objects.filter(
+        month=month,
+        user=user,
+        category=category,
+    ).first()
+
+    value = entry.ammount if entry else Decimal("0.00")
+
+    return render(request, "finance/partials/edit_cell.html", {
+        "month": month,
+        "user": user,
+        "column": column,
+        "value": value,
+    })
 
 @login_required
 @require_POST
 def update_cell(request):
     return redirect("finance:spreadsheet")
+
+
+def get_column_or_404(column_key):
+    for column in FINANCE_GRID_COLUMNS:
+        if column["key"] == column_key:
+            return column
+
+    from django.http import Http404
+    raise Http404("Column not found")
+
 
 @login_required
 def finance_dashboard(request):
