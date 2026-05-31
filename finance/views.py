@@ -36,7 +36,7 @@ def edit_cell(request, month_id, user_id, column_key):
     if not column.get("editable", False):
         return HttpResponseForbidden("Protected cell")
     
-    category = FinanceCategory.objects.get(code=column["category_code"])
+    category = FinanceCategory.objects.filter(code=column["category_code"]).first()
 
     entry = FinanceEntry.objects.filter(
         month=month,
@@ -46,7 +46,7 @@ def edit_cell(request, month_id, user_id, column_key):
 
     value = entry.ammount if entry else Decimal("0.00")
 
-    return render(request, "finance/partials/edit_cell.html", {
+    return render(request, "finance/partials/cell_input.html", {
         "month": month,
         "user": user,
         "column": column,
@@ -55,8 +55,48 @@ def edit_cell(request, month_id, user_id, column_key):
 
 @login_required
 @require_POST
-def update_cell(request):
-    return redirect("finance:spreadsheet")
+def update_cell(request, month_id, user_id, column_key):
+    month = get_object_or_404(Month, id=month_id)
+    user = get_object_or_404(User, id=user_id)
+    column = get_column_or_404(column_key)
+
+    if not column.get("editable"):
+        return HttpResponseForbidden("Protected cell")
+
+    raw_value = request.POST.get("value", "0").replace(",", ".")
+
+    try:
+        amount = Decimal(raw_value)
+    except InvalidOperation:
+        return HttpResponseBadRequest("Invalid number")
+
+    category = FinanceCategory.objects.get(code=column["category_code"])
+
+    # You may create a generic/manual source
+    source, _ = FinanceSource.objects.get_or_create(
+        name="Manual input",
+        defaults={"pays_directly_to_user": False},
+    )
+
+    FinanceEntry.objects.update_or_create(
+        month=month,
+        user=user,
+        category=category,
+        defaults={
+            "source": source,
+            "entry_type": column["entry_type"],
+            "description": column["label"],
+            "amount": amount,
+        },
+    )
+
+    return render(request, "finance/partials/cell_display.html", {
+        "month": month,
+        "user": user,
+        "column": column,
+        "value": amount,
+        "editable": True,
+    })
 
 
 def get_column_or_404(column_key):

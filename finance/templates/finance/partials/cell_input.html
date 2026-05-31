@@ -10,5 +10,6 @@
     hx-trigger="blur, keyup[key=='Enter']"
     hx-target="closest td"
     hx-swap="outerHTML"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
   >
 </td>
