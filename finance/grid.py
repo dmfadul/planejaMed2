@@ -1,24 +1,95 @@
 FINANCE_GRID_COLUMNS = [
-        {
+    {
         "key": "user_name",
         "label": "ANESTESIOLOGISTA",
         "group": "",
         "editable": False,
         "kind": "text",
-        },
-        {
+    },
+    {
         "key": "crm",
         "label": "CRM",
         "group": "",
         "editable": False,
         "kind": "text",
-        },
-        {
+    },
+    {
         "key": "adm_hours",
-        "label": "ADM / Horas adicionais",
-        "editable": True,
         "group": "ADM",
+        "subgroup": "Horas",
+        "label": "adicionais",
+        "editable": True,
         "entry_type": "credit",
         "category_code": "adm_hours",
-        },
-    ]
+    },
+    {
+        "key": "vacation_rot_hours",
+        "group": "FÉRIAS",
+        "subgroup": "Horas",
+        "label": "Rot",
+        "editable": True,
+        "entry_type": "credit",
+        "category_code": "vacation_rot_hours",
+    },
+    {
+        "key": "vacation_urg_hours",
+        "group": "FÉRIAS",
+        "subgroup": "Horas",
+        "label": "Urg",
+        "editable": True,
+        "entry_type": "credit",
+        "category_code": "vacation_urg_hours",
+    },
+
+    # Protected HUEM hour columns
+    {
+        "key": "huem_ccg_rot",
+        "label": "CCG ROT",
+        "group": "EM HORAS HUEM",
+        "editable": False,
+        "kind": "hours",
+    },
+    {
+        "key": "huem_ccg_urg",
+        "label": "CCG URG",
+        "group": "EM HORAS HUEM",
+        "editable": False,
+        "kind": "hours",
+    },
+    {
+        "key": "huem_cco_rot",
+        "label": "CCO ROT",
+        "group": "EM HORAS HUEM",
+        "editable": False,
+        "kind": "hours",
+    },
+    {
+        "key": "huem_cco_urg",
+        "label": "CCO URG",
+        "group": "EM HORAS HUEM",
+        "editable": False,
+        "kind": "hours",
+    },
+
+    {
+        "key": "credits_debits",
+        "label": "(+) Créditos / (-) Débitos",
+        "editable": True,
+        "entry_type": "adjustment",
+        "category_code": "credits_debits",
+    },
+    {
+        "key": "vacation_aid_money",
+        "label": "Férias & auxílios",
+        "editable": True,
+        "entry_type": "credit",
+        "category_code": "vacation_aid_money",
+    },
+    {
+        "key": "adm_money",
+        "label": "ADM adicionais",
+        "editable": True,
+        "entry_type": "credit",
+        "category_code": "adm_money",
+    },
+]

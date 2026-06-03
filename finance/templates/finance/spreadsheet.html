@@ -20,6 +20,9 @@
               {% if column.group %}
                 <small>{{ column.group }}</small><br>
               {% endif %}
+              {% if column.subgroup %}
+                <small>{{ column.subgroup }}</small><br>
+              {% endif %}
               {{ column.label }}
             </th>
           {% endfor %}
