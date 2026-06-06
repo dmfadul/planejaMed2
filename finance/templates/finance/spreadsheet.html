@@ -17,11 +17,11 @@
         <tr>
           {% for column in grid.columns %}
             <th>
-              {% if column.group %}
-                <small>{{ column.group }}</small><br>
+              {% if column.category %}
+                <small>{{ column.category }}</small><br>
               {% endif %}
-              {% if column.subgroup %}
-                <small>{{ column.subgroup }}</small><br>
+              {% if column.subcategory %}
+                <small>{{ column.subcategory }}</small><br>
               {% endif %}
               {{ column.label }}
             </th>

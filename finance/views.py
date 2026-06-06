@@ -73,15 +73,9 @@ def update_cell(request, month_id, user_id, column_key):
 
     category = FinanceCategory.objects.filter(code=column["category_code"]).first()
     if category is None:
-        # add the category
-        category_name = column.get('group', '')
-        category_code = column.get('key', '').split("_")[1]
-
-        if category_name is None or category_code is None:
-            return HttpResponseBadRequest("Invalid column configuration")
-        
+        # add the category       
         category = FinanceCategory.objects.create(
-            name=column["label"],
+            name=column["category"],
             code=column["category_code"],
         )
 
