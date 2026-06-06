@@ -34,7 +34,7 @@ def build_finance_grid(month):
     entry_map = {}
     for entry in entries:
         if entry.category:
-            entry_map[(entry.user_id, entry.category.code)] = entry.amount
+            entry_map[(entry.user_id, entry.category.code, entry.description)] = entry.amount
 
     rows = []
     for user in users:
@@ -76,18 +76,20 @@ def get_cell_value(user, month, column, entry_map):
         return getattr(user, "crm", "")
     
     # Protected/calculated HUEM cells
-    if key.startswith("huem_"):
-        return calculate_huem_hours(user, month, key)
+    # if key.startswith("huem_"):
+    if not column.get("editable", False):
+        return calculate_hours_from_db(user, month, key)
 
     # Editable financial cells
     category_code = column.get("category_code")
+    description = f"{column.get('subcategory', '')}_{column['label']}"
     if category_code:
-        return entry_map.get((user.id, category_code), Decimal("0.00"))
+        return entry_map.get((user.id, category_code, description), Decimal("0.00"))
 
     return ""
 
 
-def calculate_huem_hours(user, month, key):
+def calculate_hours_from_db(user, month, key):
     """
     Later this should read from shifts/appointments.
     For now, return 0 or imported value.

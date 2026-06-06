@@ -29,7 +29,6 @@ def finance_spreadsheet(request):
 
 @login_required
 def edit_cell(request, month_id, user_id, column_key):
-    print("edit_cell called with:", month_id, user_id, column_key)
     month = get_object_or_404(Month, id=month_id)
     user = get_object_or_404(User, id=user_id)
     column = get_column_or_404(column_key)
@@ -84,10 +83,10 @@ def update_cell(request, month_id, user_id, column_key):
         month=month,
         user=user,
         category=category,
+        description=f"{column['subcategory']}_{column['label']}",
+        entry_type=column["entry_type"],
+        source=source,
         defaults={
-            "source": source,
-            "entry_type": column["entry_type"],
-            "description": f"{column['subcategory']}_{column['label']}",
             "amount": amount,
         },
     )
@@ -96,7 +95,7 @@ def update_cell(request, month_id, user_id, column_key):
         "month": month,
         "user": user,
         "column": column,
-        "value": amount,
+        "value": f"{amount:<,.2f}",
         "editable": True,
     })
 
