@@ -20,8 +20,9 @@ FINANCE_GRID_COLUMNS = [
         "subcategory": "Horas",
         "label": "adicionais",
         "editable": True,
-        "entry_type": "credit",
+        "entry_type": "debit",
         "category_code": "adm",
+        "source": "personnel",
     },
 
     {
@@ -30,8 +31,9 @@ FINANCE_GRID_COLUMNS = [
         "subcategory": "Horas",
         "label": "Rot",
         "editable": True,
-        "entry_type": "credit",
+        "entry_type": "debit",
         "category_code": "vacation",
+        "source": "personnel",
     },
     {
         "key": "vacation_hours_urgent",
@@ -39,8 +41,9 @@ FINANCE_GRID_COLUMNS = [
         "subcategory": "Horas",
         "label": "Urg",
         "editable": True,
-        "entry_type": "credit",
+        "entry_type": "debit",
         "category_code": "vacation",
+        "source": "personnel",
     },
 
     {
@@ -51,6 +54,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "individual",
+        "source": "client",
     },
     {
         "key": "individual_sus_ambulatoryconsult",
@@ -60,6 +64,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "individual",
+        "source": "client",
     },
 
     {
@@ -70,6 +75,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "realized_in_eco",
+        "source": "eco",
     },
     {
         "key": "eco_unimed_coops",
@@ -79,6 +85,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "realized_in_eco",
+        "source": "eco",
     },
     {
         "key": "eco_copan_coops",
@@ -88,6 +95,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "realized_in_eco",
+        "source": "eco",
     },
 
     {
@@ -98,6 +106,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "realized_in_huem",
+        "source": "huem",
     },
     {
         "key": "huem_unimed_coops",
@@ -107,6 +116,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "realized_in_huem",
+        "source": "huem",
     },
     {
         "key": "huem_coopan_coops",
@@ -116,6 +126,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "realized_in_huem",
+        "source": "huem",
     },
 
     {
@@ -126,6 +137,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "passedover_by_huem",
+        "source": "huem",
     },
     {
         "key": "rp_huem_convenios_proc",
@@ -135,6 +147,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "passedover_by_huem",
+        "source": "huem",
     },
     {
         "key": "rp_huem_Ambulatory_proc",
@@ -144,6 +157,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "passedover_by_huem",
+        "source": "huem",
     },
     {
         "key": "rp_huem_aih_proc",
@@ -153,6 +167,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "passedover_by_huem",
+        "source": "huem",
     },
     {
         "key": "rp_huem_sum_huemreport",
@@ -161,6 +176,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Relat Huem",
         "editable": False,
         "kind": "hours",
+        "source": "huem",
     },
 
     # Protected Hours columns (calculated from shifts/appointments, not editable)
@@ -255,6 +271,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "credits",
+        "source": "internal",
     },
     {
         "key": "credits_vacation_aid",
@@ -262,8 +279,9 @@ FINANCE_GRID_COLUMNS = [
         "subcategory": "FÉRIAS &",
         "label": "AUXÍLIOS",
         "editable": True,
-        "entry_type": "credit",
+        "entry_type": "debit",
         "category_code": "credits",
+        "source": "internal",
     },
     {
         "key": "credits_adm_additional",
@@ -271,8 +289,9 @@ FINANCE_GRID_COLUMNS = [
         "subcategory": "ADM",
         "label": "ADICIONAIS",
         "editable": True,
-        "entry_type": "credit",
+        "entry_type": "debit",
         "category_code": "credits",
+        "source": "internal",
     },
     {
         "key": "credits_cash_eco",
@@ -282,6 +301,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "credits",
+        "source": "internal",
     },
 
     {
@@ -292,6 +312,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "adjustments",
+        "source": "internal",
     },
     {
         "key": "adjustments_routine_urgency_cco",
@@ -301,6 +322,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "adjustments",
+        "source": "internal",
     },
     {
         "key": "adjustments_routine_urgency_ccq",
@@ -310,6 +332,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "adjustments",
+        "source": "internal",
     },
     {
         "key": "adjustments_routine_urgency_sadt",
@@ -319,6 +342,7 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "adjustments",
+        "source": "internal",
     },
     {
         "key": "adjustments_routine_urgency_eco",
@@ -328,5 +352,6 @@ FINANCE_GRID_COLUMNS = [
         "editable": True,
         "entry_type": "credit",
         "category_code": "adjustments",
+        "source": "internal",
     },
 ]

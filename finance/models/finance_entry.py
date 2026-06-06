@@ -1,7 +1,9 @@
 from django.db import models
 
 
-# How the info was added to the system
+# Even though this is called "source", it can represent
+# both sources of credit and a "source" (destination) of debit,
+# For example, "Unimed" can be a source of credit, while "Personnel" is a source of debit.
 class FinanceSource(models.Model):
     name = models.CharField(max_length=100)
     pays_directly_to_user = models.BooleanField(default=False)
