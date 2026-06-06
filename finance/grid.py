@@ -21,7 +21,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "adicionais",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "adm_hours_additional",
+        "category_code": "adm",
     },
 
     {
@@ -31,7 +31,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Rot",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "vacation_hours_rotine",
+        "category_code": "vacation",
     },
     {
         "key": "vacation_hours_urgent",
@@ -40,7 +40,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Urg",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "vacation_hours_urgent",
+        "category_code": "vacation",
     },
 
     {
@@ -50,7 +50,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Cons",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "individual_particular_consult",
+        "category_code": "individual",
     },
     {
         "key": "individual_sus_ambulatoryconsult",
@@ -59,7 +59,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Cons Amb",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "individual_sus_ambulatoryconsult",
+        "category_code": "individual",
     },
 
     {
@@ -69,7 +69,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Direto",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "eco_particular_direct",
+        "category_code": "realized_in_eco",
     },
     {
         "key": "eco_unimed_coops",
@@ -78,7 +78,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Cooperados",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "eco_unimed_coops",
+        "category_code": "realized_in_eco",
     },
     {
         "key": "eco_copan_coops",
@@ -87,7 +87,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Cooperados",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "eco_copan_coops",
+        "category_code": "realized_in_eco",
     },
 
     {
@@ -97,7 +97,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Direto",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "huem_particular_direct",
+        "category_code": "realized_in_huem",
     },
     {
         "key": "huem_unimed_coops",
@@ -106,7 +106,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Cooperados",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "huem_unimed_coops",
+        "category_code": "realized_in_huem",
     },
     {
         "key": "huem_coopan_coops",
@@ -115,7 +115,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Cooperados",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "huem_coopan_coops",
+        "category_code": "realized_in_huem",
     },
 
     {
@@ -125,7 +125,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Proc",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "rp_huem_particular_proc",
+        "category_code": "passedover_by_huem",
     },
     {
         "key": "rp_huem_convenios_proc",
@@ -134,7 +134,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Proc",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "rp_huem_convenios_proc",
+        "category_code": "passedover_by_huem",
     },
     {
         "key": "rp_huem_Ambulatory_proc",
@@ -143,7 +143,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Proc",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "rp_huem_Ambulatory_proc",
+        "category_code": "passedover_by_huem",
     },
     {
         "key": "rp_huem_aih_proc",
@@ -152,7 +152,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "Proc",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "rp_huem_aih_proc",
+        "category_code": "passedover_by_huem",
     },
     {
         "key": "rp_huem_sum_huemreport",
@@ -254,7 +254,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "(-)DÉBITOS",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "credits_credits_debits",
+        "category_code": "credits",
     },
     {
         "key": "credits_vacation_aid",
@@ -263,7 +263,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "AUXÍLIOS",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "credits_vacation_aid",
+        "category_code": "credits",
     },
     {
         "key": "credits_adm_additional",
@@ -272,7 +272,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "ADICIONAIS",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "credits_adm_additional",
+        "category_code": "credits",
     },
     {
         "key": "credits_cash_eco",
@@ -281,7 +281,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "ECO",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "credits_cash_eco",
+        "category_code": "credits",
     },
 
     {
@@ -291,7 +291,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "CCG",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "adjustments_routine_urgency_ccg",
+        "category_code": "adjustments",
     },
     {
         "key": "adjustments_routine_urgency_cco",
@@ -300,7 +300,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "CCO",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "adjustments_routine_urgency_cco",
+        "category_code": "adjustments",
     },
     {
         "key": "adjustments_routine_urgency_ccq",
@@ -309,7 +309,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "CCQ",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "adjustments_routine_urgency_ccq",
+        "category_code": "adjustments",
     },
     {
         "key": "adjustments_routine_urgency_sadt",
@@ -318,7 +318,7 @@ FINANCE_GRID_COLUMNS = [
         "label": "SADT",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "adjustments_routine_urgency_sadt",
+        "category_code": "adjustments",
     },
     {
         "key": "adjustments_routine_urgency_eco",
@@ -327,6 +327,6 @@ FINANCE_GRID_COLUMNS = [
         "label": "ECO",
         "editable": True,
         "entry_type": "credit",
-        "category_code": "adjustments_routine_urgency_eco",
+        "category_code": "adjustments",
     },
 ]

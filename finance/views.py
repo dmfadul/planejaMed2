@@ -71,13 +71,19 @@ def update_cell(request, month_id, user_id, column_key):
     except InvalidOperation:
         return HttpResponseBadRequest("Invalid number")
 
-    print("column:", column)
     category = FinanceCategory.objects.filter(code=column["category_code"]).first()
-    # print("category:", category)
-    # print("column category:", column["category_code"])
-    # if category is None:
-    #     print("column:", column)
-    # add the category
+    if category is None:
+        # add the category
+        category_name = column.get('group', '')
+        category_code = column.get('key', '').split("_")[1]
+
+        if category_name is None or category_code is None:
+            return HttpResponseBadRequest("Invalid column configuration")
+        
+        category = FinanceCategory.objects.create(
+            name=column["label"],
+            code=column["category_code"],
+        )
 
     # You may create a generic/manual source
     source, _ = FinanceSource.objects.get_or_create(
