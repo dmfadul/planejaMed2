@@ -71,19 +71,14 @@ def update_cell(request, month_id, user_id, column_key):
     except InvalidOperation:
         return HttpResponseBadRequest("Invalid number")
 
-    category = FinanceCategory.objects.filter(code=column["category_code"]).first()
-    if category is None:
-        # add the category       
-        category = FinanceCategory.objects.create(
-            name=column["category"],
-            code=column["category_code"],
-        )
-
-    # You may create a generic/manual source
-    source, _ = FinanceSource.objects.get_or_create(
-        name="Manual input",
-        defaults={"pays_directly_to_user": False},
+    category, _ = FinanceCategory.objects.get_or_create(
+        name=column["category"],
+        code=column["category_code"],
     )
+
+    source = FinanceSource.objects.get(name=column["source"])
+    if source is None:
+        return HttpResponseBadRequest("Invalid source")
 
     FinanceEntry.objects.update_or_create(
         month=month,
