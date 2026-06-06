@@ -34,7 +34,7 @@ def build_finance_grid(month):
     entry_map = {}
     for entry in entries:
         if entry.category:
-            entry_map[(entry.user_id, entry.category.code)] = entry.ammount
+            entry_map[(entry.user_id, entry.category.code)] = entry.amount
 
     rows = []
     for user in users:
