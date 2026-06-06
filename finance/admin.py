@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FinanceSource, FinanceEntry
+from .models import FinanceSource, FinanceEntry, FinanceCategory
 
 
 @admin.register(FinanceSource)
@@ -7,6 +7,12 @@ class FinanceSourceAdmin(admin.ModelAdmin):
     list_display = ("name", "pays_directly_to_user", "is_active")
     list_filter = ("pays_directly_to_user", "is_active")
     search_fields = ("name",)
+
+
+@admin.register(FinanceCategory)
+class FinanceCategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "code")
+    search_fields = ("name", "code")
 
 
 @admin.register(FinanceEntry)

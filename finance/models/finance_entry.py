@@ -1,6 +1,7 @@
 from django.db import models
 
 
+# How the info was added to the system
 class FinanceSource(models.Model):
     name = models.CharField(max_length=100)
     pays_directly_to_user = models.BooleanField(default=False)
@@ -10,6 +11,7 @@ class FinanceSource(models.Model):
         return self.name
 
 
+# First level of classification for entries
 class FinanceCategory(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=50, unique=True)

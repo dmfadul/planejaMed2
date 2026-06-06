@@ -29,6 +29,7 @@ def finance_spreadsheet(request):
 
 @login_required
 def edit_cell(request, month_id, user_id, column_key):
+    print("edit_cell called with:", month_id, user_id, column_key)
     month = get_object_or_404(Month, id=month_id)
     user = get_object_or_404(User, id=user_id)
     column = get_column_or_404(column_key)
@@ -44,7 +45,7 @@ def edit_cell(request, month_id, user_id, column_key):
         category=category,
     ).first()
 
-    value = entry.ammount if entry else Decimal("0.00")
+    value = entry.amount if entry else Decimal("0.00")
 
     return render(request, "finance/partials/cell_input.html", {
         "month": month,
@@ -70,10 +71,12 @@ def update_cell(request, month_id, user_id, column_key):
     except InvalidOperation:
         return HttpResponseBadRequest("Invalid number")
 
+    print("column:", column)
     category = FinanceCategory.objects.filter(code=column["category_code"]).first()
-    print("category:", category)
-    print("column category:", column["category_code"])
+    # print("category:", category)
+    # print("column category:", column["category_code"])
     # if category is None:
+    #     print("column:", column)
     # add the category
 
     # You may create a generic/manual source
