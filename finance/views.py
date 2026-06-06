@@ -87,7 +87,7 @@ def update_cell(request, month_id, user_id, column_key):
         defaults={
             "source": source,
             "entry_type": column["entry_type"],
-            "description": column["label"],
+            "description": f"{column['subcategory']}_{column['label']}",
             "amount": amount,
         },
     )

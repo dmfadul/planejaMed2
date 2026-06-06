@@ -266,8 +266,8 @@ FINANCE_GRID_COLUMNS = [
     {
         "key": "credits_credits_debits",
         "category": "CRÉDITOS",
-        "subcategory": "(+)CRÉDITOS",
-        "label": "(-)DÉBITOS",
+        "subcategory": "CRÉDITOS",
+        "label": "DÉBITOS",
         "editable": True,
         "entry_type": "credit",
         "category_code": "credits",
@@ -276,7 +276,7 @@ FINANCE_GRID_COLUMNS = [
     {
         "key": "credits_vacation_aid",
         "category": "CRÉDITOS",
-        "subcategory": "FÉRIAS &",
+        "subcategory": "FÉRIAS",
         "label": "AUXÍLIOS",
         "editable": True,
         "entry_type": "debit",
@@ -307,7 +307,7 @@ FINANCE_GRID_COLUMNS = [
     {
         "key": "adjustments_routine_urgency_ccg",
         "category": "AJUSTES",
-        "subcategory": "ROT + URG",
+        "subcategory": "ROT+URG",
         "label": "CCG",
         "editable": True,
         "entry_type": "credit",
@@ -317,7 +317,7 @@ FINANCE_GRID_COLUMNS = [
     {
         "key": "adjustments_routine_urgency_cco",
         "category": "AJUSTES",
-        "subcategory": "ROT + URG",
+        "subcategory": "ROT+URG",
         "label": "CCO",
         "editable": True,
         "entry_type": "credit",
@@ -327,7 +327,7 @@ FINANCE_GRID_COLUMNS = [
     {
         "key": "adjustments_routine_urgency_ccq",
         "category": "AJUSTES",
-        "subcategory": "ROT + URG",
+        "subcategory": "ROT+URG",
         "label": "CCQ",
         "editable": True,
         "entry_type": "credit",
@@ -337,7 +337,7 @@ FINANCE_GRID_COLUMNS = [
     {
         "key": "adjustments_routine_urgency_sadt",
         "category": "AJUSTES",
-        "subcategory": "ROT + URG",
+        "subcategory": "ROT+URG",
         "label": "SADT",
         "editable": True,
         "entry_type": "credit",
@@ -347,7 +347,7 @@ FINANCE_GRID_COLUMNS = [
     {
         "key": "adjustments_routine_urgency_eco",
         "category": "AJUSTES",
-        "subcategory": "ROT + URG",
+        "subcategory": "ROT+URG",
         "label": "ECO",
         "editable": True,
         "entry_type": "credit",
