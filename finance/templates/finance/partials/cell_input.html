@@ -7,7 +7,7 @@
     value="{{ value }}"
     autofocus
     onfocus="this.select()"
-    hx-post="{% url 'finance:update_cell' month.id user.id column.key %}"
+    hx-post="{% url 'finance:update_cell' selected_grid_key month.id user.id column.key %}"
     hx-trigger="blur, keyup[key=='Enter']"
     hx-target="closest td"
     hx-swap="outerHTML"
