@@ -2,11 +2,11 @@ from decimal import Decimal
 from django.db.models import Sum
 from .models import FinanceEntry
 from core.models import User
-from django.db.models.functions import Lower
-
+from django.db.models.functions import Collate
+from core.db.sqlite_collations import COLLATION_NAME
 
 def build_finance_grid(month, columns):
-    users = User.objects.filter(is_active=True, is_invisible=False).order_by(Lower("name"))
+    users = User.objects.filter(is_active=True, is_invisible=False).order_by(Collate("name", COLLATION_NAME), "id")
     
     entries = FinanceEntry.objects.filter(month=month).select_related(
         "user",

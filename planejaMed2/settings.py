@@ -76,7 +76,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'core',
+    'core.apps.CoreConfig',
     'shifts',
     'user_requests.apps.UserRequestsConfig',
     'vacations',
