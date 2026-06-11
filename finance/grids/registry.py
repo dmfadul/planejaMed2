@@ -5,11 +5,11 @@ from finance.grids.summary_grid import SUMMARY_GRID_COLUMNS
 
 FINANCE_GRIDS = {
     "input": {
-        "label": "Lançamentos",
+        "label": "Dados",
         "columns": INPUT_GRID_COLUMNS,
     },
     "summary": {
-        "label": "Resumo",
+        "label": "Cálculos",
         "columns": SUMMARY_GRID_COLUMNS,
     },
 }
