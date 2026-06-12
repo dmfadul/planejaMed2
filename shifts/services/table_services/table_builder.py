@@ -276,7 +276,7 @@ def build_basetable(center, table_data, template=None, month=None):
     if template == "basetable":
         doctors = User.objects.filter(is_active=True, is_invisible=False).order_by(Collate("name", COLLATION_NAME), "id")
     elif template == "month_table":
-        doctors = month.users.oorder_by(Collate("name", COLLATION_NAME), "id").all()
+        doctors = month.users.order_by(Collate("name", COLLATION_NAME), "id").all()
 
     table_data["doctors"] = []
     for doctor in doctors:
