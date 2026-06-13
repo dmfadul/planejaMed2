@@ -1,34 +1,43 @@
 function addListeners() {
     const cells = document.querySelectorAll('.cell-col');
+    const balanceCells = document.querySelectorAll('.balance-cell');
     const names = document.querySelectorAll('.name-col');
     const h_days = document.querySelectorAll('.header');
     const addButton = document.getElementById('edit-add-button');
     const remButton = document.getElementById('edit-rem-button');
     const sumButton = document.getElementById('sum-hours-button');
     const backButton = document.getElementById('back-button');
+    const printButton = document.getElementById('print-button');
 
     const template = tableData.template;
 
-    console.log("✅ addListeners running after table render. Found:", cells.length);
+    console.log("✅ addListeners running after table render.");
 
-    document.getElementById("print-button").addEventListener("click", function() {
-        const center = tableData.center;
-        const month = tableData.month_number;
-        const year = tableData.year;
+    if (printButton) {
+        printButton.addEventListener("click", function() {
+            const center = tableData.center;
+            const month = tableData.month_number;
+            const year = tableData.year;
+
+            let printUrl = `/shifts/printable/${center}/`;
+
+            if (month && year) {
+                printUrl += `${month}/${year}/`;
+            }
         
-        let printUrl = `/shifts/printable/${center}/`;
-
-        if (month && year) {
-            printUrl += `${month}/${year}/`;
-        }
-    
-        window.open(printUrl, '_blank');
-    });
+            window.open(printUrl, '_blank');
+        });
+    }
 
     cells.forEach(cell => {
-        console.log("Cell clicked:", template); 
         cell.addEventListener('click', () => {
             clickCell(cell);
+        });
+    });
+
+    balanceCells.forEach(cell => {
+        cell.addEventListener('click', () => {
+            clickBalanceCell(cell);
         });
     });
 

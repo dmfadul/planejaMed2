@@ -61,26 +61,48 @@ function restoreUI() {
     const defaultButtons = document.getElementById('default-buttons');
     const editButtons = document.getElementById('edit-buttons');
 
-    if (state.editing) {
-        editButton.textContent = "Editar";
-        editButton.classList.add("editing-active");
-        defaultButtons.style.display = "none";
-        editButtons.style.display = "flex";
-    } else {
-        editButton.textContent = "Editar";
-        editButton.classList.remove("editing-active");
-        defaultButtons.style.display = "flex";
-        editButtons.style.display = "none";
+    if (editButton && defaultButtons && editButtons) {
+        if (state.editing) {
+            editButton.textContent = "Editar";
+            editButton.classList.add("editing-active");
+            defaultButtons.style.display = "none";
+            editButtons.style.display = "flex";
+        } else {
+            editButton.textContent = "Editar";
+            editButton.classList.remove("editing-active");
+            defaultButtons.style.display = "flex";
+            editButtons.style.display = "none";
+        }
+
+        // Restore selected cells' visual state
+        state.selectedCells.forEach(cellData => {
+            const cell = document.getElementById(cellData.cellID);
+            if (cell) {
+                cell.classList.add("selected");
+                cell.style.backgroundColor = "gray";
+            }
+        });
+    }
+}
+
+function clickBalanceCell(cell) {
+    const center = cell.dataset.center;
+    const day = cell.dataset.day;
+    const period = cell.dataset.period;
+    const value = parseInt(cell.dataset.value, 10);
+
+    if (isNaN(value) || value >= 0) {
+        return; // Ignore clicks on cells without a value or with non-negative balance
     }
 
-    // Restore selected cells' visual state
-    state.selectedCells.forEach(cellData => {
-        const cell = document.getElementById(cellData.cellID);
-        if (cell) {
-            cell.classList.add("selected");
-            cell.style.backgroundColor = "gray";
-        }
+    console.log({
+        center,
+        day,
+        period,
+        value,
     });
+
+    // open modal here
 }
 
 function clickCell(cell) {

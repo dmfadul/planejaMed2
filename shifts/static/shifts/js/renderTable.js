@@ -65,7 +65,12 @@ function renderBalanceTable(data, table) {
                 const value = shifts[period];
 
                 td.textContent = value !== undefined ? value : '--';
-                td.className = 'normal-col cell-col text-center';
+                td.className = 'normal-col balance-cell text-center';
+
+                td.dataset.center = centerName;
+                td.dataset.day = day;
+                td.dataset.period = period;
+                td.dataset.value = value !== undefined ? value : '';
 
                 if (value !== undefined) {
                     if (value < 0) {
