@@ -239,8 +239,13 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         
         # conflict check for actions that place someone on a schedule
         if action in ("include", "ask_for_donation", "offer_donation"):
-            # add check for month different from current here
-            month_obj = Month.get_current()
+            month = attrs.get('month')
+            current_month = Month.get_current()
+            if month is None:
+                month_obj = current_month
+            else:
+                month_obj = get_object_or_404(Month, number=month, year=current_month.year)
+
             conflict = Shift.check_conflict(
                 doctor=donee,
                 month=month_obj,
