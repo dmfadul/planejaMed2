@@ -2,6 +2,22 @@ function getCSRFToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]')?.value;
 }
 
+function formatApiErrors(data) {
+    if (data.detail) {
+        return data.detail;
+    }
+
+    return Object.entries(data)
+        .map(([field, messages]) => {
+            if (Array.isArray(messages)) {
+                return `${messages.join(", ")}`;
+            }
+
+            return `${messages}`;
+        })
+        .join("<br>");
+}
+
 document.getElementById('balance-confirm-button').addEventListener('click', async () => {
     if (!selectedBalanceCell) return;
 
@@ -28,8 +44,11 @@ document.getElementById('balance-confirm-button').addEventListener('click', asyn
     const data = await response.json();
 
     if (!response.ok) {
-        console.error(data);
-        alert(data.detail || "Erro ao confirmar.");
+        const errorBox = document.getElementById('balance-modal-errors');
+        
+        errorBox.innerHTML = formatApiErrors(data);
+        errorBox.classList.remove('d-none');
+        
         return;
     }
     

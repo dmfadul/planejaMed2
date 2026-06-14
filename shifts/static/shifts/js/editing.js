@@ -107,6 +107,11 @@ function clickBalanceCell(cell) {
 
 
     const modal = new bootstrap.Modal(document.getElementById('balanceConfirmModal'));
+    
+    const errorBox = document.getElementById('balance-modal-errors');
+    errorBox.innerHTML = "";
+    errorBox.classList.add('d-none');
+
     modal.show();
 }
 
