@@ -164,6 +164,13 @@ class IncomingUserRequestSerializer(serializers.Serializer):
     startHour = serializers.IntegerField(min_value=0, max_value=23, required=False, allow_null=True)
     endHour = serializers.IntegerField(min_value=0, max_value=23, required=False, allow_null=True)    
     
+    month = serializers.IntegerField(
+        min_value=1,
+        max_value=12,
+        required=False,
+        allow_null=True,
+    )
+
     def validate(self, attrs):
         request = self.context['request']
         action = attrs['action']

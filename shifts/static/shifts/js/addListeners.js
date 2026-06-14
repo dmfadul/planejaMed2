@@ -32,11 +32,13 @@ document.getElementById('balance-confirm-button').addEventListener('click', asyn
         alert(data.detail || "Erro ao confirmar.");
         return;
     }
+    
+    const modalElement = document.getElementById('balanceConfirmModal');
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    modal.hide();
 
-    console.log("Confirmed:", data);
-
-    // optional visual feedback
     selectedBalanceCell.classList.add("balance-confirmed");
+    selectedBalanceCell = null;
 });
 
 
