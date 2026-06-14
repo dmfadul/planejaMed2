@@ -85,24 +85,22 @@ function restoreUI() {
     }
 }
 
+let selectedBalanceCell = null;
 function clickBalanceCell(cell) {
-    const center = cell.dataset.center;
-    const day = cell.dataset.day;
-    const period = cell.dataset.period;
-    const value = parseInt(cell.dataset.value, 10);
+    selectedBalanceCell = cell;
 
+    const value = parseInt(cell.dataset.value, 10);
     if (isNaN(value) || value >= 0) {
         return; // Ignore clicks on cells without a value or with non-negative balance
     }
 
-    console.log({
-        center,
-        day,
-        period,
-        value,
-    });
+    document.getElementById('balance-modal-center').textContent = cell.dataset.center;
+    document.getElementById('balance-modal-day').textContent = cell.dataset.day;
+    document.getElementById('balance-modal-period').textContent = cell.dataset.period;
+    document.getElementById('balance-modal-value').textContent = cell.dataset.value;
 
-    // open modal here
+    const modal = new bootstrap.Modal(document.getElementById('balanceConfirmModal'));
+    modal.show();
 }
 
 function clickCell(cell) {
