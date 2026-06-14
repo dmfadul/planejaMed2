@@ -13,6 +13,21 @@ function addListeners() {
 
     console.log("✅ addListeners running after table render.");
 
+    document.getElementById('balance-confirm-button').addEventListener('click', () => {
+        if (!selectedBalanceCell) return;
+        
+        const payload = {
+            center: selectedBalanceCell.dataset.center,
+            day: selectedBalanceCell.dataset.day,
+            period: selectedBalanceCell.dataset.period,
+            value: selectedBalanceCell.dataset.value,
+        };
+    
+        console.log("Confirmed balance action:", payload);
+    
+        // call backend here
+    });
+
     if (printButton) {
         printButton.addEventListener("click", function() {
             const center = tableData.center;
