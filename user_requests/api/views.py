@@ -19,6 +19,7 @@ class UserRequestAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
+        print("Received data:", request.data)  # Debugging line
         ser = IncomingUserRequestSerializer(
             data=request.data,
             context={"request": request}

@@ -1,18 +1,3 @@
-function addListeners() {
-    const cells = document.querySelectorAll('.cell-col');
-    const balanceCells = document.querySelectorAll('.balance-cell');
-    const names = document.querySelectorAll('.name-col');
-    const h_days = document.querySelectorAll('.header');
-    const addButton = document.getElementById('edit-add-button');
-    const remButton = document.getElementById('edit-rem-button');
-    const sumButton = document.getElementById('sum-hours-button');
-    const backButton = document.getElementById('back-button');
-    const printButton = document.getElementById('print-button');
-
-    const template = tableData.template;
-
-    console.log("✅ addListeners running after table render.");
-
 function getCSRFToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]')?.value;
 }
@@ -21,10 +6,14 @@ document.getElementById('balance-confirm-button').addEventListener('click', asyn
     if (!selectedBalanceCell) return;
 
     const payload = {
+        action: selectedBalanceCell.dataset.action,
+        cardCRM: selectedBalanceCell.dataset.cardcrm,
+        shift: selectedBalanceCell.dataset.shift,
         center: selectedBalanceCell.dataset.center,
         day: selectedBalanceCell.dataset.day,
-        period: selectedBalanceCell.dataset.period,
-        value: selectedBalanceCell.dataset.value,
+        month: selectedBalanceCell.dataset.monthNumber,
+        startHour: selectedBalanceCell.dataset.startHour,
+        endHour: selectedBalanceCell.dataset.endHour,
     };
 
     const response = await fetch('/api/user-requests/', {
@@ -49,6 +38,23 @@ document.getElementById('balance-confirm-button').addEventListener('click', asyn
     // optional visual feedback
     selectedBalanceCell.classList.add("balance-confirmed");
 });
+
+
+function addListeners() {
+    const cells = document.querySelectorAll('.cell-col');
+    const balanceCells = document.querySelectorAll('.balance-cell');
+    const names = document.querySelectorAll('.name-col');
+    const h_days = document.querySelectorAll('.header');
+    const addButton = document.getElementById('edit-add-button');
+    const remButton = document.getElementById('edit-rem-button');
+    const sumButton = document.getElementById('sum-hours-button');
+    const backButton = document.getElementById('back-button');
+    const printButton = document.getElementById('print-button');
+
+    const template = tableData.template;
+
+    console.log("✅ addListeners running after table render.");
+
 
     if (printButton) {
         printButton.addEventListener("click", function() {

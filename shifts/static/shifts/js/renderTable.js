@@ -1,3 +1,36 @@
+const MESES = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+];
+
+function genStartHour(period, value){
+    if (value % 6 !== 0) {return 0;} // Invalid value, return placeholder
+    if (period === "morning") {return 7;}
+    if (period === "afternoon") {return 13;}
+    if (period === "night") {return 19;}
+    return 0; // Default placeholder for unknown period
+}
+
+
+function genEndHour(period, value){
+    if (value % 6 !== 0) {return 0;} // Invalid value, return placeholder
+    if (period === "morning") {return 13;}
+    if (period === "afternoon") {return 19;}
+    if (period === "night") {return 1;}
+    return 0; // Default placeholder for unknown period
+}
+
+
 function renderTable(tableData){
     const table = document.getElementById('shift-table');
     table.innerHTML = ''; // Clear any previous content
@@ -64,12 +97,21 @@ function renderBalanceTable(data, table) {
                 const td = document.createElement('td');
                 const value = shifts[period];
 
+                const centerAbbr = centerName.split('-')[0].toUpperCase();
+                const monthName = centerName.split('-')[1];
+
                 td.textContent = value !== undefined ? value : '--';
                 td.className = 'normal-col balance-cell text-center';
-
-                td.dataset.center = centerName;
-                td.dataset.day = day;
-                td.dataset.period = period;
+                
+                td.dataset.action = 'include';
+                td.dataset.cardCRM = null;
+                td.dataset.shift = '-';
+                td.dataset.center = centerAbbr;
+                td.dataset.day = day.split('/')[0]; // Extract day number
+                td.dataset.month = monthName;
+                td.dataset.monthNumber = MESES.indexOf(monthName) + 1; // Convert month name to number
+                td.dataset.startHour = genStartHour(period, value);
+                td.dataset.endHour = genEndHour(period, value);
                 td.dataset.value = value !== undefined ? value : '';
 
                 if (value !== undefined) {

@@ -94,10 +94,17 @@ function clickBalanceCell(cell) {
         return; // Ignore clicks on cells without a value or with non-negative balance
     }
 
+    if (value % 6 !== 0) {
+        alert("Valor de saldo inválido. O valor deve ser um múltiplo de 6.");
+        return;
+    }
+
     document.getElementById('balance-modal-center').textContent = cell.dataset.center;
     document.getElementById('balance-modal-day').textContent = cell.dataset.day;
-    document.getElementById('balance-modal-period').textContent = cell.dataset.period;
-    document.getElementById('balance-modal-value').textContent = cell.dataset.value;
+    document.getElementById('balance-modal-month').textContent = cell.dataset.month;
+    document.getElementById('balance-modal-start-hour').textContent = cell.dataset.startHour;
+    document.getElementById('balance-modal-end-hour').textContent = cell.dataset.endHour;
+
 
     const modal = new bootstrap.Modal(document.getElementById('balanceConfirmModal'));
     modal.show();
