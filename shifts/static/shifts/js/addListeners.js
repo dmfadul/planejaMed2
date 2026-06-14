@@ -13,20 +13,42 @@ function addListeners() {
 
     console.log("✅ addListeners running after table render.");
 
-    document.getElementById('balance-confirm-button').addEventListener('click', () => {
-        if (!selectedBalanceCell) return;
-        
-        const payload = {
-            center: selectedBalanceCell.dataset.center,
-            day: selectedBalanceCell.dataset.day,
-            period: selectedBalanceCell.dataset.period,
-            value: selectedBalanceCell.dataset.value,
-        };
-    
-        console.log("Confirmed balance action:", payload);
-    
-        // call backend here
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+}
+
+document.getElementById('balance-confirm-button').addEventListener('click', async () => {
+    if (!selectedBalanceCell) return;
+
+    const payload = {
+        center: selectedBalanceCell.dataset.center,
+        day: selectedBalanceCell.dataset.day,
+        period: selectedBalanceCell.dataset.period,
+        value: selectedBalanceCell.dataset.value,
+    };
+
+    const response = await fetch('/api/user-requests/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify(payload),
     });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        console.error(data);
+        alert(data.detail || "Erro ao confirmar.");
+        return;
+    }
+
+    console.log("Confirmed:", data);
+
+    // optional visual feedback
+    selectedBalanceCell.classList.add("balance-confirmed");
+});
 
     if (printButton) {
         printButton.addEventListener("click", function() {

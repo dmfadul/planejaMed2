@@ -226,11 +226,13 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         elif not shift_raw == '-':
             start_hr, end_hr = Shift.convert_to_hours(shift_raw)        
 
+        # TODO: Free up the API to allow non-current month shift exchanges
         if shift and not shift.month == Month.get_current():
             raise serializers.ValidationError({"shift": _("Turno não pertence ao mês atual.")})
         
         # conflict check for actions that place someone on a schedule
         if action in ("include", "ask_for_donation", "offer_donation"):
+            # add check for month different from current here
             month_obj = Month.get_current()
             conflict = Shift.check_conflict(
                 doctor=donee,
