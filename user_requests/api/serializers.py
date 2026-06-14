@@ -222,6 +222,12 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         if requester == requestee:
             raise serializers.ValidationError({"non_field_errors": _("Você não pode fazer um pedido para si mesmo.")})
 
+        if donor and (donor.is_invisible or not donor.is_active):
+            raise serializers.ValidationError({"non_field_errors": _("Doador indisponível.")})
+        
+        if donee and (donee.is_invisible or not donee.is_active):
+            raise serializers.ValidationError({"non_field_errors": _("Beneficiário indisponível.")})
+
         # resolve shift/start_hour/end_hour normalization
         if not shift_raw:
             raise serializers.ValidationError({"shift": _("Turno é obrigatório para inclusão.")})
