@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import FinanceSource, FinanceEntry, FinanceCategory
+from .models import FinanceConstant, FinanceSource, FinanceEntry, FinanceCategory
+
+
+@admin.register(FinanceConstant)
+class FinanceConstantAdmin(admin.ModelAdmin):
+    list_display = ("month", "code", "label", "value", "order")
+    list_filter = ("month",)
+    search_fields = ("code", "label")
 
 
 @admin.register(FinanceSource)
