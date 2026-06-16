@@ -11,7 +11,7 @@ from django.contrib import messages
 from core.models import User
 from shifts.models import Month
 from finance.grids import FINANCE_GRIDS
-from finance.models import FinanceEntry, FinanceCategory, FinanceSource
+from finance.models import FinanceConstant, FinanceEntry, FinanceCategory, FinanceSource
 
 from .services import build_finance_grid
 from .forms import UploadedDocumentForm
@@ -19,6 +19,13 @@ from .models import UploadedDocument
 
 
 from finance.grids.registry import FINANCE_GRIDS
+
+
+@login_required
+def finance_constants(request):
+    constants = FinanceConstant.objects.all()
+    return render(request, "finance/spreadsheet.html", {"constants": constants})
+
 
 @login_required
 def finance_spreadsheet(request):

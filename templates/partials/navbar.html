@@ -62,6 +62,7 @@
           <ul class="dropdown-menu">
             {% if user.is_staff %}
               <li><a class="dropdown-item" href="{% url 'finance:spreadsheet' %}">Dashboard</a></li>
+              <li><a class="dropdown-item" href="{% url 'finance:constants' %}">Parâmetros</a></li>
             {% endif %}
             <li><a class="dropdown-item" href="#">Incluir</a></li>
             <li>
