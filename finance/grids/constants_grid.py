@@ -105,7 +105,7 @@ CONSTANTS_GRID_COLUMNS = [
         "kind": "text",
     },
 
-        {
+    {
         "key": "adm_hours_additional",
         "category": "ADM",
         "subcategory": "Horas",
