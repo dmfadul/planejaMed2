@@ -1,6 +1,6 @@
-CONSTANTS_GRID_COLUMNS = [
+CONSTANTS_GRID_ROWS = [
     {
-        "key": "user_name",
+        "key": "period",
         "label": "ANESTESIOLOGISTA",
         "category": "",
         "editable": False,

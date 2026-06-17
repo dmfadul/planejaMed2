@@ -24,15 +24,10 @@ def finance_constants(request):
 
     selected_grid_key = "constants"
     selected_grid = CONSTANTS_GRIDS.get(selected_grid_key)
-    
-    grid = build_finance_grid(
-        month=month,
-        columns=selected_grid["columns"],
-    )
 
     grid = build_constant_grid(
         month=month,
-        columns=selected_grid["columns"],
+        rows=selected_grid["rows"],
     )
 
     return render(request, "finance/spreadsheet.html", {

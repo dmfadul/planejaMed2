@@ -1,13 +1,13 @@
 from decimal import Decimal
 from django.db.models import Sum
-from .models import FinanceEntry
+from .models import FinanceConstant, FinanceEntry
 from core.models import User
 from django.db.models.functions import Collate
 from core.db.sqlite_collations import COLLATION_NAME
 
 
-def build_constant_grid(month, columns):
-    print(month, columns)
+def build_constant_grid(month, rows):
+    print(month, rows)
     return ["test"]
 
 

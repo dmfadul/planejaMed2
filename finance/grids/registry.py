@@ -2,7 +2,7 @@
 
 from finance.grids.input_grid import INPUT_GRID_COLUMNS
 from finance.grids.summary_grid import SUMMARY_GRID_COLUMNS
-from finance.grids.constants_grid import CONSTANTS_GRID_COLUMNS
+from finance.grids.constants_grid import CONSTANTS_GRID_ROWS
 
 FINANCE_GRIDS = {
     "input": {
@@ -18,6 +18,6 @@ FINANCE_GRIDS = {
 CONSTANTS_GRIDS = {
     "constants": {
         "label": "Parâmetros",
-        "columns": CONSTANTS_GRID_COLUMNS,
+        "rows": CONSTANTS_GRID_ROWS,
     }
 }
