@@ -15,7 +15,9 @@ FINANCE_GRIDS = {
     },
 }
 
-CONSTANTS_GRID = {
-    "label": "Parâmetros",
-    "columns": CONSTANTS_GRID_COLUMNS,
+CONSTANTS_GRIDS = {
+    "constants": {
+        "label": "Parâmetros",
+        "columns": CONSTANTS_GRID_COLUMNS,
+    }
 }

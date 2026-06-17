@@ -10,25 +10,40 @@ from django.contrib import messages
 
 from core.models import User
 from shifts.models import Month
-from finance.grids import FINANCE_GRIDS
-from finance.models import FinanceConstant, FinanceEntry, FinanceCategory, FinanceSource
+from finance.grids import FINANCE_GRIDS, CONSTANTS_GRIDS
+from finance.models import FinanceEntry, FinanceCategory, FinanceSource
 
-from .services import build_finance_grid
+from .services import build_finance_grid, build_constant_grid
 from .forms import UploadedDocumentForm
 from .models import UploadedDocument
 
 
-from finance.grids.registry import FINANCE_GRIDS
-
-
 @login_required
 def finance_constants(request):
-    constants = FinanceConstant.objects.all()
-    return render(request, "finance/spreadsheet.html", {"constants": constants})
+    month = Month.get_current()
+
+    selected_grid_key = "constants"
+    selected_grid = CONSTANTS_GRIDS.get(selected_grid_key)
+    
+    grid = build_finance_grid(
+        month=month,
+        columns=selected_grid["columns"],
+    )
+
+    grid = build_constant_grid(
+        month=month,
+        columns=selected_grid["columns"],
+    )
+
+    return render(request, "finance/spreadsheet.html", {
+        "months": [],
+        "grid": grid,
+        "grids": [],
+    })
 
 
 @login_required
-def finance_spreadsheet(request):
+def finance_spreadsheet(request):  
     current_month = Month.get_current()
 
     month_year = request.GET.get("month_year")
@@ -37,8 +52,6 @@ def finance_spreadsheet(request):
     else:
         selected_month_number = current_month.number
         selected_year = current_month.year
-    
-    selected_grid_key = request.GET.get("grid", "input")
 
     month = get_object_or_404(
         Month,
@@ -46,6 +59,7 @@ def finance_spreadsheet(request):
         year=selected_year,
     )
 
+    selected_grid_key = request.GET.get("grid", "input")
     selected_grid = FINANCE_GRIDS.get(selected_grid_key)
 
     if selected_grid is None:

@@ -5,6 +5,11 @@ from core.models import User
 from django.db.models.functions import Collate
 from core.db.sqlite_collations import COLLATION_NAME
 
+
+def build_constant_grid(month, columns):
+    return ["test"]
+
+
 def build_finance_grid(month, columns):
     users = User.objects.filter(is_active=True, is_invisible=False).order_by(Collate("name", COLLATION_NAME), "id")
     
