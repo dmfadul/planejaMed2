@@ -7,6 +7,7 @@ from core.db.sqlite_collations import COLLATION_NAME
 
 
 def build_constant_grid(month, columns):
+    print(month, columns)
     return ["test"]
 
 
