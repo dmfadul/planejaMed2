@@ -28,14 +28,16 @@ def finance_constants(request):
     grid = build_constant_grid(
         month=month,
         rows=selected_grid["rows"],
+        user=request.user,
     )
 
     return render(request, "finance/spreadsheet.html", {
+        "month": month,
         "months": [],
         "grid": grid,
         "grids": [],
+        "selected_grid_key": selected_grid_key,
     })
-
 
 @login_required
 def finance_spreadsheet(request):  
@@ -103,6 +105,12 @@ def edit_cell(request, grid_key, month_id, user_id, column_key):
         "value": value,
         "selected_grid_key": grid_key,
     })
+
+
+@login_required
+@require_POST
+def update_constant_cell(request, grid_key, month_id, user_id, column_key):
+    pass
 
 @login_required
 @require_POST

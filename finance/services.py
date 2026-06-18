@@ -6,9 +6,47 @@ from django.db.models.functions import Collate
 from core.db.sqlite_collations import COLLATION_NAME
 
 
-def build_constant_grid(month, rows):
-    print(month, rows)
-    return ["test"]
+def build_constant_grid(month, rows, user):
+    out_rows = []
+    for row in rows:        
+        r = {
+            "user": user,
+            "cells": []
+        }
+
+        r["cells"].append({
+            "column": row,
+            "value": row.get("label", ""),
+            "editable": row.get("editable", False),
+            "protected": not row.get("editable", False)
+        })
+
+        r["cells"].append({
+            "column": row,
+            "value": 0,
+            "editable": row.get("editable", False),
+            "protected": not row.get("editable", False)
+        })
+
+        r["cells"].append({
+            "column": row,
+            "value": "",
+            "editable": False,
+            "protected": True
+        })
+        
+        r["cells"].append({
+            "column": row,
+            "value": "",
+            "editable": False,
+            "protected": True
+        })
+
+        out_rows.append(r)
+
+    return {
+        "rows": out_rows,
+    }
 
 
 def build_finance_grid(month, columns):
