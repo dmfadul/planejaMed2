@@ -1,6 +1,6 @@
 from decimal import Decimal, InvalidOperation
 
-from django.http import HttpResponseForbidden, HttpResponseBadRequest, Http404
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -156,8 +156,15 @@ def update_cell(request, grid_key, month_id, user_id, column_key):
 
 @login_required
 def edit_constant_cell(request, month_id, user_id, column_key):
-    pass
+    from django.http import HttpResponse
+    month = get_object_or_404(Month, id=month_id)
+    user = get_object_or_404(User, id=user_id)
+    rows = CONSTANTS_GRIDS["constants"]["rows"]
 
+    print("col key", column_key)
+
+
+    return HttpResponse(repr(column_key))
 
 @login_required
 @require_POST

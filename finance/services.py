@@ -17,8 +17,8 @@ def build_constant_grid(month, rows, user):
         r["cells"].append({
             "column": row,
             "value": row.get("label", ""),
-            "editable": row.get("editable", False),
-            "protected": not row.get("editable", False)
+            "editable": False,
+            "protected": True
         })
 
         r["cells"].append({
