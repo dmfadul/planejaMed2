@@ -109,11 +109,6 @@ def edit_cell(request, grid_key, month_id, user_id, column_key):
 
 @login_required
 @require_POST
-def update_constant_cell(request, grid_key, month_id, user_id, column_key):
-    pass
-
-@login_required
-@require_POST
 def update_cell(request, grid_key, month_id, user_id, column_key):
     month = get_object_or_404(Month, id=month_id)
     user = get_object_or_404(User, id=user_id)
@@ -159,6 +154,15 @@ def update_cell(request, grid_key, month_id, user_id, column_key):
         "selected_grid_key": grid_key,
     })
 
+@login_required
+def edit_constant_cell(request, month_id, user_id, column_key):
+    pass
+
+
+@login_required
+@require_POST
+def update_constant_cell(request, grid_key, month_id, user_id, column_key):
+    pass
 
 def get_column_or_404(grid_key, column_key):
     grid_config = FINANCE_GRIDS.get(grid_key)

@@ -5,6 +5,7 @@ from .views import (
     finance_spreadsheet,
     edit_cell,
     update_cell,
+    edit_constant_cell,
     update_constant_cell,
 )
 
@@ -15,7 +16,12 @@ urlpatterns = [
     path("spreadsheet/", finance_spreadsheet, name="spreadsheet"),
     path("constants/", finance_constants, name="constants"),
     path(
-        "spreadsheet/constants/<str:grid_key>/<int:month_id>/<int:user_id>/<str:column_key>/update/",
+        "spreadsheet/constants/<int:month_id>/<int:user_id>/<str:column_key>/edit/",
+        edit_constant_cell,
+        name="edit_constant_cell",
+    ),
+    path(
+        "spreadsheet/constants/<int:month_id>/<int:user_id>/<str:column_key>/update/",
         update_constant_cell,
         name="update_constant_cell",
     ),
