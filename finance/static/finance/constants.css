@@ -1,12 +1,20 @@
+table.finance-sheet {
+    width: fit-content !important;
+    display: table !important;
+}
+
+
 .finance-sheet-wrapper {
+    display: flex;
+    justify-content: center;
     overflow: auto;
-    max-height: 80vh;
 }
 
 .finance-sheet {
     font-size: 0.85rem;
-    width: 100%;
     border-collapse: collapse;
+    width: auto;
+    display: inline-table;
 }
 
 /* cells */
@@ -15,17 +23,17 @@
     vertical-align: middle;
 }
 
-/* column 1: label */
+/* Column 1 (label) */
 .finance-sheet td:first-child {
+    text-align: left;
     font-weight: 600;
     background: #f8f9fa;
-    text-align: left;
     width: 60%;
 }
 
-/* column 2: value */
+/* Column 2 (value) */
 .finance-sheet td:last-child {
-    text-align: right;
+    text-align: center;   /* <-- THIS is the fix */
     width: 40%;
 }
 
