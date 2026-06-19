@@ -19,26 +19,6 @@ from .models import UploadedDocument
 
 
 @login_required
-def finance_constants(request):
-    month = Month.get_current()
-
-    selected_grid_key = "constants"
-    selected_grid = CONSTANTS_GRIDS.get(selected_grid_key)
-
-    grid = build_constant_grid(
-        rows=selected_grid["rows"],
-    )
-    print(grid)
-
-    return render(request, "finance/constants.html", {
-        "month": month,
-        "months": [],
-        "grid": grid,
-        "grids": [],
-        "selected_grid_key": selected_grid_key,
-    })
-
-@login_required
 def finance_spreadsheet(request):  
     current_month = Month.get_current()
 
@@ -153,13 +133,31 @@ def update_cell(request, grid_key, month_id, user_id, column_key):
         "selected_grid_key": grid_key,
     })
 
-@login_required
-def edit_constant_cell(request, month_id, user_id, column_key):
-    row_key = column_key
 
+@login_required
+def finance_constants(request):
+    month = Month.get_current()
+
+    selected_grid_key = "constants"
+    selected_grid = CONSTANTS_GRIDS.get(selected_grid_key)
+
+    grid = build_constant_grid(
+        rows=selected_grid["rows"],
+    )
+
+    return render(request, "finance/constants.html", {
+        "month": month,
+        "months": [],
+        "grid": grid,
+        "grids": [],
+        "selected_grid_key": selected_grid_key,
+    })
+
+
+@login_required
+def edit_constant_cell(request, month_id, row_key):
     month = get_object_or_404(Month, id=month_id)
     row = get_row_or_404("constants", row_key)
-    user = get_object_or_404(User, id=user_id)
 
     constant = FinanceConstant.objects.filter(
         month=month,
@@ -168,17 +166,27 @@ def edit_constant_cell(request, month_id, user_id, column_key):
 
     value = constant.value if constant else Decimal("0.00")
 
-    return render(request, "finance/partials/cell_input.html", {
+    return render(request, "finance/partials/constant_cell_input.html", {
         "month": month,
         "user": request.user,
-        "column": row,
+        "row": row,
         "value": value,
     })
 
+
 @login_required
 @require_POST
-def update_constant_cell(request, grid_key, month_id, user_id, column_key):
-    pass
+def update_constant_cell(request, month_id, row_key):
+    month = get_object_or_404(Month, id=month_id)
+    row = get_row_or_404("constants", row_key)
+
+    return render(request, "finance/partials/constant_cell_display.html", {
+        "month": month,
+        "row": row,
+        "value": 0,
+        "editable": True,
+    })
+
 
 def get_column_or_404(grid_key, column_key):
     grid_config = FINANCE_GRIDS.get(grid_key)

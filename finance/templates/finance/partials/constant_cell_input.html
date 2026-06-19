@@ -1,0 +1,16 @@
+{# finance/partials/constant_cell_input.html #}
+
+<td class="finance-cell editing-cell">
+  <input
+    class="form-control form-control-sm"
+    name="value"
+    value="{{ value }}"
+    autofocus
+    onfocus="this.select()"
+    hx-post="{% url 'finance:update_constant_cell' month.id row.key %}"
+    hx-trigger="blur, keyup[key=='Enter']"
+    hx-target="closest td"
+    hx-swap="outerHTML"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+  >
+</td>
