@@ -180,10 +180,27 @@ def update_constant_cell(request, month_id, row_key):
     month = get_object_or_404(Month, id=month_id)
     row = get_row_or_404("constants", row_key)
 
+    if not row.get("editable"):
+        return HttpResponseForbidden("Protected cell")
+
+    raw_value = request.POST.get("value", "0").replace(",", ".")
+    try:
+        value = Decimal(raw_value)
+    except InvalidOperation:
+        return HttpResponseBadRequest("Invalid number")
+    
+    FinanceConstant.objects.update_or_create(
+        month=month,
+        code=row["code"],
+        defaults={
+            "value": value,
+        },
+    )
+
     return render(request, "finance/partials/constant_cell_display.html", {
         "month": month,
         "row": row,
-        "value": 0,
+        "value": f"{value:<,.2f}",
         "editable": True,
     })
 
