@@ -11,7 +11,7 @@ from django.contrib import messages
 from core.models import User
 from shifts.models import Month
 from finance.grids import FINANCE_GRIDS, CONSTANTS_GRIDS
-from finance.models import FinanceEntry, FinanceCategory, FinanceSource
+from finance.models import FinanceConstant, FinanceEntry, FinanceCategory, FinanceSource
 
 from .services import build_finance_grid, build_constant_grid
 from .forms import UploadedDocumentForm
@@ -26,12 +26,10 @@ def finance_constants(request):
     selected_grid = CONSTANTS_GRIDS.get(selected_grid_key)
 
     grid = build_constant_grid(
-        month=month,
         rows=selected_grid["rows"],
-        user=request.user,
     )
 
-    return render(request, "finance/spreadsheet.html", {
+    return render(request, "finance/constants.html", {
         "month": month,
         "months": [],
         "grid": grid,
@@ -156,15 +154,25 @@ def update_cell(request, grid_key, month_id, user_id, column_key):
 
 @login_required
 def edit_constant_cell(request, month_id, user_id, column_key):
-    from django.http import HttpResponse
+    row_key = column_key
+
     month = get_object_or_404(Month, id=month_id)
+    row = get_row_or_404("constants", row_key)
     user = get_object_or_404(User, id=user_id)
-    rows = CONSTANTS_GRIDS["constants"]["rows"]
 
-    print("col key", column_key)
+    constant = FinanceConstant.objects.filter(
+        month=month,
+        code=row["code"],
+    ).first()
 
+    value = constant.value if constant else Decimal("0.00")
 
-    return HttpResponse(repr(column_key))
+    return render(request, "finance/partials/cell_input.html", {
+        "month": month,
+        "user": request.user,
+        "column": row,
+        "value": value,
+    })
 
 @login_required
 @require_POST
@@ -182,6 +190,19 @@ def get_column_or_404(grid_key, column_key):
             return column
 
     raise Http404("Column not found")
+
+
+def get_row_or_404(grid_key, row_key):
+    grid_config = CONSTANTS_GRIDS.get(grid_key)
+    
+    if grid_config is None:
+        raise Http404("Grid not found")
+
+    for row in grid_config["rows"]:
+        if row["key"] == row_key:
+            return row
+
+    raise Http404("Row not found")
 
 
 @login_required

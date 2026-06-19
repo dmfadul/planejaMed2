@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'finance/constants.css' %}">
+{% endblock %}
+
+
+{% block content %}
+<div class="container-fluid mt-4">
+
+  <form method="get" class="row g-2 mb-3">
+
+    <div class="col-auto">
+      <label class="form-label">Competência</label>
+      <select name="month_year" class="form-select" onchange="this.form.submit()">
+        {% for m in months %}
+          <option
+            value="{{ m.number }}-{{ m.year }}"
+            {% if m.id == month.id %}selected{% endif %}
+          >
+            {{ m.number }}/{{ m.year }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-auto">
+      <label class="form-label">Tabela</label>
+      <select name="grid" class="form-select" onchange="this.form.submit()">
+        {% for key, grid_config in grids.items %}
+          <option
+            value="{{ key }}"
+            {% if key == selected_grid_key %}selected{% endif %}
+          >
+            {{ grid_config.label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+  </form>
+
+ <div class="finance-sheet-wrapper">
+  <table class="table table-sm table-bordered finance-sheet">
+
+    <tbody>
+      {% for row in grid.rows %}
+        <tr>
+
+          {% for cell in row.cells %}
+            <td class="
+              {% if cell.editable %}editable-cell{% endif %}
+              {% if cell.protected %}protected-cell{% endif %}
+              finance-cell
+            ">
+              {% include "finance/partials/constant_cell_display.html" with
+                month=month
+                row=row
+                value=cell.value
+                editable=cell.editable
+              %}
+            </td>
+          {% endfor %}
+
+        </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+</div>
+
+</div>
+{% endblock %}

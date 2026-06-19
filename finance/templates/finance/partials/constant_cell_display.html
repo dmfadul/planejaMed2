@@ -1,0 +1,17 @@
+{# finance/partials/constant_cell_display.html #}
+
+{% if editable %}
+<td
+  class="finance-cell editable-cell"
+  hx-get="{% url 'finance:edit_constant_cell' month.id row.key %}"
+  hx-trigger="click"
+  hx-target="this"
+  hx-swap="outerHTML"
+>
+  {{ value }}
+</td>
+{% else %}
+<td class="finance-cell protected-cell">
+  {{ value }}
+</td>
+{% endif %}
