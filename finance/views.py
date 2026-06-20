@@ -143,6 +143,7 @@ def finance_constants(request):
 
     grid = build_constant_grid(
         rows=selected_grid["rows"],
+        month=month,
     )
 
     return render(request, "finance/constants.html", {

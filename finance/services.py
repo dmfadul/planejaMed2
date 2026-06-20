@@ -6,11 +6,13 @@ from django.db.models.functions import Collate
 from core.db.sqlite_collations import COLLATION_NAME
 
 
-def build_constant_grid(rows):
+def build_constant_grid(rows, month):
     out_rows = []
 
     for row in rows:
         r = {"cells": []}
+
+        value = get_constant_value(row, month)
 
         # Column 1: label (not editable)
         r["cells"].append({
@@ -24,7 +26,7 @@ def build_constant_grid(rows):
         # Column 2: value (editable or not)
         r["cells"].append({
             "key": row.get("key"),
-            "value": row.get("value", 0),
+            "value": value,
             "editable": row.get("editable", False),
             "protected": not row.get("editable", False),
         })
@@ -78,7 +80,12 @@ def build_finance_grid(month, columns):
         "columns": columns,
         "rows": rows,
     }
-        
+
+
+def get_constant_value(row):
+    print("row in get_constant_value: ", row)
+
+    return 0
 
 def get_cell_value(user, month, column, entry_map):
     key = column["key"]
