@@ -82,10 +82,46 @@ def build_finance_grid(month, columns):
     }
 
 
-def get_constant_value(row, month):
-    print("row in get_constant_value: ", row)
+def get_constant_value(row, month):    
+    code = row["code"]
 
-    return 0
+    if row.get("editable", False):
+        # Editable constants should read from FinanceConstant entries
+        constant = FinanceConstant.objects.filter(month=month, code=code).first()
+        return f"{constant.value:<,.2f}" if constant else Decimal("0.00")
+
+    if code == "period":
+        return month.period
+    if code == "competence":
+        return month.competence
+    if code == "aih":
+        return month.aih
+    if code == "total_production":
+        return month.total_production
+    if code == "routine_production":
+        return month.routine_production
+    if code == "urgency_production":
+        return month.urgency_production
+    if code == "hour_value":
+        return month.hour_value
+    if code == "twelve_hours":
+        return month.twelve_hours
+    if code == "routine_production_percentage":
+        return month.routine_production_percentage
+    if code == "urgency_production_percentage":
+        return month.urgency_production_percentage
+    if code == "routine_hour_value":
+        return month.routine_hour_value
+    if code == "urgency_hour_value":
+        return month.urgency_hour_value
+    if code == "twelve_hours_routine":
+        return month.twelve_hours_routine
+    if code == "twelve_hours_urgency":
+        return month.twelve_hours_urgency
+    if code == "billing":
+        return month.billing
+    
+    raise ValueError(f"Unknown constant code: {code}")
 
 def get_cell_value(user, month, column, entry_map):
     key = column["key"]
