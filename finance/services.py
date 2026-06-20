@@ -82,7 +82,7 @@ def build_finance_grid(month, columns):
     }
 
 
-def get_constant_value(row):
+def get_constant_value(row, month):
     print("row in get_constant_value: ", row)
 
     return 0
