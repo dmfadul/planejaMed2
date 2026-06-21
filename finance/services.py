@@ -4,6 +4,7 @@ from .models import FinanceConstant, FinanceEntry
 from core.models import User
 from django.db.models.functions import Collate
 from core.db.sqlite_collations import COLLATION_NAME
+from core.constants import STR_DAY, END_DAY
 
 
 def build_constant_grid(rows, month):
@@ -91,35 +92,36 @@ def get_constant_value(row, month):
         return f"{constant.value:<,.2f}" if constant else Decimal("0.00")
 
     if code == "period":
-        return month.period
+        previous_month = month.get_previous()
+        return f"{STR_DAY} de {previous_month.name.upper()} a {END_DAY} de {month.name.upper()}"
     if code == "competence":
-        return month.competence
+        return month.name.upper()
     if code == "aih":
-        return month.aih
+        return 0
     if code == "total_production":
-        return month.total_production
+        return 0
     if code == "routine_production":
-        return month.routine_production
+        return 0
     if code == "urgency_production":
-        return month.urgency_production
+        return 0
     if code == "hour_value":
-        return month.hour_value
+        return 0
     if code == "twelve_hours":
-        return month.twelve_hours
+        return 0
     if code == "routine_production_percentage":
-        return month.routine_production_percentage
+        return 0
     if code == "urgency_production_percentage":
-        return month.urgency_production_percentage
+        return 0
     if code == "routine_hour_value":
-        return month.routine_hour_value
+        return 0
     if code == "urgency_hour_value":
-        return month.urgency_hour_value
+        return 0
     if code == "twelve_hours_routine":
-        return month.twelve_hours_routine
+        return 0
     if code == "twelve_hours_urgency":
-        return month.twelve_hours_urgency
+        return 0
     if code == "billing":
-        return month.billing
+        return 0
     
     raise ValueError(f"Unknown constant code: {code}")
 
