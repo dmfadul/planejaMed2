@@ -97,12 +97,29 @@ def get_constant_value(row, month):
     if code == "competence":
         return month.name.upper()
     if code == "aih":
+        # soma rp_huem_aih_proc do mês
         return 0
     if code == "total_production":
+        # + aih
+        # + eco_particular_direct
+        # + huem_particular_direct
+        # + rp_huem_convenios_proc
+        # + rp_huem_Ambulatory_proc
+        # +(huem_coopan_coops+eco_copan_coops)*redutor
+        # +(huem_unimed_coops+eco_unimed_coops)*redutor
+
+        # -adjustments_cash_production
+        # -(vacation_hours_rotine+vacation_hours_urgent)*horaHuem
+        # -(adm_hours_additional*horaHuem)
         return 0
     if code == "routine_production":
+        # =$C$4*$CÁLCULOS.$L$3
+        # /($CÁLCULOS.$L$3+$CÁLCULOS.$M$3)
+        # PROD_TOTAL * (Nº DE HORAS ROTINA / Nº DE HORAS ROTINA + Nº DE HORAS URGÊNCIA)
         return 0
     if code == "urgency_production":
+        # PROD_TOTAL * (Nº DE HORAS URGÊNCIA / Nº DE HORAS ROTINA + Nº DE HORAS URGÊNCIA)
+        # NEXT STEP: ADD A TOTAL_HOURS CALCULATION TO THE FINANCE_ENTRY MODEL AND USE IT HERE
         return 0
     if code == "hour_value":
         return 0

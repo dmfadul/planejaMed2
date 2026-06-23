@@ -305,6 +305,17 @@ INPUT_GRID_COLUMNS = [
     },
 
     {
+        "key": "adjustments_cash_production",
+        "category": "AJUSTES",
+        "subcategory": "EM MOEDA",
+        "label": "PRODUÇÃO",
+        "editable": True,
+        "entry_type": "credit",
+        "category_code": "credits",
+        "source": "internal",
+    },
+
+    {
         "key": "adjustments_routine_urgency_ccg",
         "category": "AJUSTES",
         "subcategory": "ROT+URG",
