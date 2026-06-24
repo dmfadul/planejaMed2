@@ -4,7 +4,7 @@ STAFFING_HOURS = {
             "morning": 54,
             "afternoon": 54,
             "cinderella": 18,
-            "vampire": 24,
+            "vampire": 12,
   
         },
         "saturday": {

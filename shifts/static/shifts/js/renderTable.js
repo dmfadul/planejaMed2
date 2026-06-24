@@ -17,7 +17,8 @@ function genStartHour(period, value){
     if (value % 6 !== 0) {return 0;} // Invalid value, return placeholder
     if (period === "morning") {return 7;}
     if (period === "afternoon") {return 13;}
-    if (period === "night") {return 19;}
+    if (period === "cinderella") {return 19;}
+    if (period === "vampire") {return 1;}
     return 0; // Default placeholder for unknown period
 }
 
@@ -26,7 +27,8 @@ function genEndHour(period, value){
     if (value % 6 !== 0) {return 0;} // Invalid value, return placeholder
     if (period === "morning") {return 13;}
     if (period === "afternoon") {return 19;}
-    if (period === "night") {return 1;}
+    if (period === "cinderella") {return 1;}
+    if (period === "vampire") {return 7;}
     return 0; // Default placeholder for unknown period
 }
 
@@ -100,7 +102,7 @@ function renderBalanceTable(data, table) {
                 const centerAbbr = centerName.split('-')[0].toUpperCase();
                 const monthName = centerName.split('-')[1];
 
-                td.textContent = value !== undefined ? value : '--';
+                td.textContent = value !== undefined ? value + " horas" : '--';
                 td.className = 'normal-col balance-cell text-center';
                 
                 td.dataset.action = 'include';
