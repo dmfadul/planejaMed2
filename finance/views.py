@@ -17,6 +17,16 @@ from .services import build_finance_grid, build_constant_grid
 from .forms import UploadedDocumentForm
 from .models import UploadedDocument
 
+from django.http import JsonResponse
+
+
+@login_required
+def user_finance_monthly_data(request, month_id=None):
+    month = get_object_or_404(Month, id=month_id) if month_id else Month.get_current()
+    user = request.user
+
+    data = {}
+    return JsonResponse(data)
 
 @login_required
 def finance_spreadsheet(request):  

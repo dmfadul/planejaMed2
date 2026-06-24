@@ -3,7 +3,7 @@ STAFFING_HOURS = {
         "weekday": {
             "morning": 54,
             "afternoon": 54,
-            "night": 36,
+            "night": 30,
         },
         "saturday": {
             "morning": 42,
