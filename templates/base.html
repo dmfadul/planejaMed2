@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap-grid.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
     {% block css %}{% endblock %}
 </head>
 <body class="planejamed">
@@ -39,6 +40,7 @@
     {% include "partials/modals/vacation_modal.html" %}
     {% include "partials/modals/vacation_pay_modal.html" %}
     {% include "partials/modals/upload_modal.html" %}
+    {% include "partials/modals/monthly_finance_modal.html" %}
     {% block modal %}{% endblock %}
 
     <!-- ✅ Toast container -->
@@ -69,6 +71,7 @@
     <script src="{% static '/js/notifications.js' %}"></script>
     <script src="{% static '/js/showToast.js' %}"></script>
     <script src="{% static '/js/monthsModal.js' %}"></script>
+    <script src="{% static 'finance/js/monthly_finance_modal.js' %}"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     {% block script %}{% endblock %}
 </body>

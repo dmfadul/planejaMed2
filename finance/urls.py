@@ -2,6 +2,7 @@ from django.urls import path
 from .views import (
     finance_constants,
     upload_document_view,
+    user_finance_monthly_data,
     finance_spreadsheet,
     edit_cell,
     update_cell,
@@ -14,6 +15,7 @@ app_name = "finance"
 urlpatterns = [
     path("upload/", upload_document_view, name="upload"),
     path("spreadsheet/", finance_spreadsheet, name="spreadsheet"),
+    path("monthly/data/", user_finance_monthly_data, name="monthly_finance_data"),
     path("constants/", finance_constants, name="constants"),
     path(
         "spreadsheet/constants/<int:month_id>/<str:row_key>/edit/",

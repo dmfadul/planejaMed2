@@ -25,7 +25,48 @@ def user_finance_monthly_data(request, month_id=None):
     month = get_object_or_404(Month, id=month_id) if month_id else Month.get_current()
     user = request.user
 
-    data = {}
+    data = {
+        "doctor": user.name,
+        "month": "June/2026",
+
+        "total_payment": 0,
+        "bonuses": 0,
+        "extras": 0,
+
+        "centers": [
+            {
+                "name": "ECO",
+                "routine_hours": 0,
+                "urgency_hours": 0,
+                "total_payment": 0,
+            },
+            {
+                "name": "HUAM",
+                "routine_hours": 0,
+                "urgency_hours": 0,
+                "total_payment": 0,
+            },
+        ],
+
+        "eco": {
+            "direct_private": 0,
+            "unimed": 0,
+            "copan": 0,
+        },
+
+        "huam": {
+            "direct_private": 0,
+            "unimed": 0,
+            "copan": 0,
+        },
+
+        "procedures": {
+            "private": 0,
+            "insurance": 0,
+            "er": 0,
+            "treated_aih": 0,
+        },
+    }
     return JsonResponse(data)
 
 @login_required

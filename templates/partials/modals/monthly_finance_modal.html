@@ -1,0 +1,107 @@
+<div class="modal fade" id="monthlyFinanceModal" tabindex="-1" aria-labelledby="monthlyFinanceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title" id="monthlyFinanceModalLabel">
+            Monthly finances
+          </h5>
+          <small class="text-muted" id="financeModalSubtitle"></small>
+        </div>
+
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div id="financeModalLoading" class="text-center py-4 d-none">
+          Loading...
+        </div>
+
+        <div id="financeModalError" class="alert alert-danger d-none"></div>
+
+        <div id="financeModalContent" class="d-none">
+
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-md-4">
+              <div class="finance-summary-card">
+                <span class="finance-label">Total payment</span>
+                <strong id="financeTotalPayment">R$ 0,00</strong>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-4">
+              <div class="finance-summary-card">
+                <span class="finance-label">Bonuses</span>
+                <strong id="financeBonuses">R$ 0,00</strong>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-4">
+              <div class="finance-summary-card">
+                <span class="finance-label">Extras</span>
+                <strong id="financeExtras">R$ 0,00</strong>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="finance-section-title">Centers</h6>
+          <div id="financeCentersList" class="row g-3 mb-4"></div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-lg-6">
+              <div class="finance-card">
+                <h6>ECO payments</h6>
+                <div class="finance-line"><span>Direct private</span><strong id="ecoDirect">R$ 0,00</strong></div>
+                <div class="finance-line"><span>Unimed</span><strong id="ecoUnimed">R$ 0,00</strong></div>
+                <div class="finance-line"><span>Copan</span><strong id="ecoCopan">R$ 0,00</strong></div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+              <div class="finance-card">
+                <h6>HUAM payments</h6>
+                <div class="finance-line"><span>Direct private</span><strong id="huamDirect">R$ 0,00</strong></div>
+                <div class="finance-line"><span>Unimed</span><strong id="huamUnimed">R$ 0,00</strong></div>
+                <div class="finance-line"><span>Copan</span><strong id="huamCopan">R$ 0,00</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="finance-section-title">Procedures</h6>
+          <div class="finance-card">
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <span class="finance-label">Private</span>
+                <strong id="privateProcedures">0</strong>
+              </div>
+
+              <div class="col-6 col-md-3">
+                <span class="finance-label">Insurance</span>
+                <strong id="insuranceProcedures">0</strong>
+              </div>
+
+              <div class="col-6 col-md-3">
+                <span class="finance-label">ER</span>
+                <strong id="erProcedures">0</strong>
+              </div>
+
+              <div class="col-6 col-md-3">
+                <span class="finance-label">Treated AIH</span>
+                <strong id="treatedAih">0</strong>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
