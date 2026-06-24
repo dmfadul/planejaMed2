@@ -65,7 +65,7 @@ function renderBalanceTable(data, table) {
         // Center title row
         const centerRow = document.createElement('tr');
         const centerCell = document.createElement('th');
-        centerCell.colSpan = 4;
+        centerCell.colSpan = 5;
         centerCell.textContent = centerName;
         centerCell.className = 'balance-center-title';
         centerRow.appendChild(centerCell);
@@ -73,7 +73,7 @@ function renderBalanceTable(data, table) {
 
         // Header row
         const headerRow = document.createElement('tr');
-        ['Dia', 'Manhã', 'Tarde', 'Noite'].forEach((label, idx) => {
+        ['Dia', 'Manhã', 'Tarde', 'Cinderela', 'Madrugada'].forEach((label, idx) => {
             const th = document.createElement('th');
             th.textContent = label;
             th.className = idx === 0
@@ -93,7 +93,7 @@ function renderBalanceTable(data, table) {
             dayTd.className = 'first-col name-col';
             tr.appendChild(dayTd);
 
-            ['morning', 'afternoon', 'night'].forEach(period => {
+            ['morning', 'afternoon', 'cinderella', 'vampire'].forEach(period => {
                 const td = document.createElement('td');
                 const value = shifts[period];
 

@@ -157,13 +157,14 @@ def build_balance_table(table_data, curr_month, filter_type=None):
 
 def build_balance_table_month(table_data, month, filter_type=None, remove_past=True):
     from core.constants import MINIMUM_HOURS_TO_SHOW_BALANCE as minimum_hours
-    PERIODS = ("morning", "afternoon", "night")
+    PERIODS = ("morning", "afternoon", "cinderella", "vampire")
 
     def empty_periods():
         return {
             "morning": 0,
             "afternoon": 0,
-            "night": 0,
+            "cinderella": 0,
+            "vampire": 0,
         }
     
     centers = Center.objects.filter(is_active=True).all()
@@ -217,7 +218,8 @@ def build_balance_table_month(table_data, month, filter_type=None, remove_past=T
                 for period in PERIODS
                 for diff in [worked_hours.get(period, 0) - staffing_hours.get(period, 0)]
             }
-        
+
+            print("balance_by_day", balance_by_day)  # Debugging line
         # must filter before adding to table data, to get to each center's balance separately
         if filter_type:
             balance_by_day = staffing_filter(balance_by_day, filter_type)
