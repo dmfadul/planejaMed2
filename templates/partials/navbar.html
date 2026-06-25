@@ -17,7 +17,7 @@
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{% url 'requests:schedule' %}">Meus Horários</a></li>
             {% if user.is_superuser %}
-              <li><a class="dropdown-item" href="{% url 'shifts:shifts_balance' %}">Balanço</a></li>
+              <li><a class="dropdown-item" href="{% url 'shifts:shifts_balance' %}">Horas Disponíveis</a></li>
             {% else %}
               {% comment %} <li><a class="dropdown-item" href="{% url 'shifts:shifts_balance' %}">Em Aberto</a></li> {% endcomment %}
             {% endif %}

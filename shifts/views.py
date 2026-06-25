@@ -142,7 +142,7 @@ def shifts_balance(request):
         table_type = f"BALANÇO PLANTÕES"
     else:
         filter_type = "understaffed"
-        table_type = f"PLANTÕES ABERTOS"
+        table_type = f"HORAS DISPONÍVEIS"
 
     table_data = build_table_data(
         month=month,
