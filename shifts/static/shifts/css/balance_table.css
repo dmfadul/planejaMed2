@@ -40,14 +40,12 @@
     cursor: pointer;
 }
 
-.balance-cell:hover {
-    filter: brightness(0.55);
-}
-
 td[data-action="include"] {
     cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.05s ease;
 }
 
+/* light shade on hover */
 td[data-action="include"]:hover {
-    filter: brightness(1.05);
+    background-color: rgba(0, 0, 0, 0.06);
 }
