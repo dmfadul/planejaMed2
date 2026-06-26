@@ -2,6 +2,20 @@ function getCSRFToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]')?.value;
 }
 
+function showToast(message, type = "success") {
+    const toast = document.getElementById("successToast");
+    toast.textContent = message;
+
+    toast.style.background = type === "success" ? "#2ecc71" : "#e74c3c";
+
+    toast.classList.add("show");
+
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 5000);
+}
+
 function formatApiErrors(data) {
     if (data.detail) {
         return data.detail;
@@ -55,6 +69,8 @@ document.getElementById('balance-confirm-button').addEventListener('click', asyn
     const modalElement = document.getElementById('balanceConfirmModal');
     const modal = bootstrap.Modal.getInstance(modalElement);
     modal.hide();
+    console.log("✅ Balance request sent successfully:", data);
+    showToast("Pedido de inclusão enviado com sucesso!", "success");
 
     selectedBalanceCell.classList.add("balance-confirmed");
     selectedBalanceCell = null;

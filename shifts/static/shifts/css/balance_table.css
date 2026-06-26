@@ -35,3 +35,19 @@
     text-align: center;   /* ← centers the abbreviation */
     vertical-align: middle;
 }
+
+.balance-cell {
+    cursor: pointer;
+}
+
+.balance-cell:hover {
+    filter: brightness(0.55);
+}
+
+td[data-action="include"] {
+    cursor: pointer;
+}
+
+td[data-action="include"]:hover {
+    filter: brightness(1.05);
+}
