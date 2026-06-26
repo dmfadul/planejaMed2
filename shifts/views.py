@@ -216,6 +216,13 @@ def unlock_month(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
+def report(request):
+    print("Generating report...")
+    # Implement report generation logic here
+    return JsonResponse({"status": "success"})
+
+
+@user_passes_test(lambda u: u.is_superuser)
 def print_table(request, center_abbr, month_num, year):
     center = get_object_or_404(Center, abbreviation=center_abbr)
     month_obj = get_object_or_404(Month, number=month_num, year=year)
