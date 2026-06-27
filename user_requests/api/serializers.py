@@ -176,6 +176,7 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         action = attrs['action']
         center_abbr = attrs.get('center')
         shift_raw = attrs.get('shift')
+        day = attrs.get('day')
         
         # Resolve center if provided/required
         center = None
@@ -292,19 +293,33 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         }
 
         # Test for duplicate open requests of the same type and time for the requester
-        if UserRequest.objects.filter(
-            requester=requester,
-            requestee=requestee,
-            request_type=request_type,
-            shift=shift,
-            start_hour=start_hr,
-            end_hour=end_hr,
-            is_open=True
-        ).exists():
-            raise serializers.ValidationError(
-                {"non_field_errors": _("""Você já tem um pedido aberto para este horário.
-                                        Por favor, aguarde a resposta ou cancele o pedido existente antes de criar um novo.""")}
-            )
+        if request_type == UserRequest.RequestType.INCLUDE:
+            if UserRequest.objects.filter(
+                requester=requester,
+                request_type=UserRequest.RequestType.INCLUDE,
+                is_open=True,
+                include_data__center=center,
+                include_data__month=month_obj,
+                include_data__day=day,
+            ).exists():
+                raise serializers.ValidationError(
+                    {"non_field_errors": _("""Você já tem um pedido de inclusão aberto para este centro e dia.
+                                            Por favor, aguarde a resposta ou cancele o pedido existente antes de criar um novo.""")}
+                )
+        else:    
+            if UserRequest.objects.filter(
+                requester=requester,
+                requestee=requestee,
+                request_type=request_type,
+                shift=shift,
+                start_hour=start_hr,
+                end_hour=end_hr,
+                is_open=True
+            ).exists():
+                raise serializers.ValidationError(
+                    {"non_field_errors": _("""Você já tem um pedido aberto para este horário.
+                                            Por favor, aguarde a resposta ou cancele o pedido existente antes de criar um novo.""")}
+                )
 
         return req_data
     

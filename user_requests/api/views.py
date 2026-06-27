@@ -28,7 +28,6 @@ class UserRequestAPIView(APIView):
 
         # normalized, typed, DB-ready params:
         params = ser.validated_data
-        print("Validated params:", params)
         req_obj = create_user_request(**params)
 
         out = OutUserRequestSerializer(req_obj)
