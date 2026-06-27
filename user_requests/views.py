@@ -14,7 +14,8 @@ def schedule(request):
         logger.error("No current month found.")
         return render(request, "user_requests/error.html", {"message": "No current month available."})
 
-    shifts = Shift.objects.filter(user=user, month=month).order_by('center__abbreviation', 'day', 'start_time')
+    shifts = [s for s in Shift.objects.filter(user=user, month=month)]
+    shifts.sort(key=lambda s: (s.center.abbreviation, s.date, s.start_time))  # Sort shifts by date and start time
 
     schedule_data = []
     for s in shifts:
@@ -24,7 +25,7 @@ def schedule(request):
         sch_line = f"{s.center.abbreviation} -- {shift_date} -- {str_hr} - {end_hr}"
 
         schedule_data.append({"shift_id": s.id, "line": sch_line})
-
+    
     return render(request, "user_requests/schedule.html", context={"schedule_data": schedule_data})
 
 @login_required
