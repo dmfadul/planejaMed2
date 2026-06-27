@@ -85,9 +85,27 @@ STAFFING_HOURS = {
         },
     },
     "SADT": {
-        "all": {
+        "weekday": {
             "morning": 6,
             "afternoon": 6,
+            "cinderella": 0,
+            "vampire": 0,
+        },
+        "saturday": {
+            "morning": 0,
+            "afternoon": 0,
+            "cinderella": 0,
+            "vampire": 0,
+        },
+        "sunday": {
+            "morning": 0,
+            "afternoon": 0,
+            "cinderella": 0,
+            "vampire": 0,
+        },
+        "holiday": {
+            "morning": 0,
+            "afternoon": 0,
             "cinderella": 0,
             "vampire": 0,
         },
