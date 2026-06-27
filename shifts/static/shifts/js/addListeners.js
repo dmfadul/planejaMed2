@@ -70,7 +70,7 @@ document.getElementById('balance-confirm-button').addEventListener('click', asyn
     const modal = bootstrap.Modal.getInstance(modalElement);
     modal.hide();
     console.log("✅ Balance request sent successfully:", data);
-    showToast("Pedido de inclusão enviado com sucesso!", "success");
+    showPageMessage("Pedido de inclusão enviado com sucesso!", "success");
 
     selectedBalanceCell.classList.add("balance-confirmed");
     selectedBalanceCell = null;

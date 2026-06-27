@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap-grid.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/message.css' %}">
     
     {% block css %}{% endblock %}
 </head>
@@ -19,6 +20,8 @@
     {% block navbar %}
         {% include "partials/navbar.html" %}
     {% endblock %}
+
+    <div id="page-message-container" class="page-message-container"></div>
 
     <!-- ✅ Messages block inserted here -->
     <div class="container mt-3">
@@ -70,6 +73,7 @@
     <script src="{% static '/js/vacationPayModal.js' %}"></script>
     <script src="{% static '/js/notifications.js' %}"></script>
     <script src="{% static '/js/showToast.js' %}"></script>
+    <script src="{% static '/js/showPageMessage.js' %}"></script>
     <script src="{% static '/js/monthsModal.js' %}"></script>
     <script src="{% static 'finance/js/monthly_finance_modal.js' %}"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
