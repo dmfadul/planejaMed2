@@ -90,6 +90,8 @@ function addListeners() {
 
             if (month && year) {
                 reportUrl += `${month}/${year}/`;
+            } else {
+                reportUrl += "0/0/";
             }
         
             window.open(reportUrl, '_blank');
@@ -106,6 +108,8 @@ function addListeners() {
 
             if (month && year) {
                 printUrl += `${month}/${year}/`;
+            } else {
+                printUrl += "0/0/";
             }
         
             window.open(printUrl, '_blank');
