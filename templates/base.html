@@ -44,27 +44,7 @@
     {% include "partials/modals/vacation_pay_modal.html" %}
     {% include "partials/modals/upload_modal.html" %}
     {% include "partials/modals/monthly_finance_modal.html" %}
-    {% block modal %}{% endblock %}
-
-    <!-- ✅ Toast container -->
-    <div class="toast-container position-fixed top-50 end-0 translate-middle-y p-4, me-5">
-      <div id="successToast"
-           class="toast align-items-center text-bg-success border-0 shadow-lg fs-5"
-           role="alert"
-           aria-live="assertive"
-           aria-atomic="true"
-           style="min-width: 320px;">
-
-        <div class="d-flex">
-          <div class="toast-body fw-semibold">
-          </div>
-          <button type="button"
-                  class="btn-close btn-close-white me-3 m-auto"
-                  data-bs-dismiss="toast">
-          </button>
-        </div>
-      </div>
-    </div>
+    {% block modal %}{% endblock %}   
 
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
@@ -72,7 +52,6 @@
     <script src="{% static '/js/vacationModal.js' %}"></script>
     <script src="{% static '/js/vacationPayModal.js' %}"></script>
     <script src="{% static '/js/notifications.js' %}"></script>
-    <script src="{% static '/js/showToast.js' %}"></script>
     <script src="{% static '/js/showPageMessage.js' %}"></script>
     <script src="{% static '/js/monthsModal.js' %}"></script>
     <script src="{% static 'finance/js/monthly_finance_modal.js' %}"></script>
