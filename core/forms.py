@@ -61,6 +61,14 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["name", "rqe", "email", "phone"]  # pick what you want editable
+
+        labels = {
+            "name": "Nome",
+            "rqe": "RQE",
+            "email": "E-mail",
+            "phone": "Telefone",
+        }
+
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "rqe": forms.TextInput(attrs={"class": "form-control"}),
