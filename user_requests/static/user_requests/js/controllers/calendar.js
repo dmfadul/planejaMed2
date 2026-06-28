@@ -69,7 +69,6 @@ async function onCalendarClick(e, dictContainerId) {
     });
   } catch (err) {
     console.error('Fetch error (day schedule):', err);
-    // You can show a toast/error box here if desired.
   }
 }
 
