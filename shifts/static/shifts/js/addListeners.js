@@ -73,18 +73,35 @@ function addListeners() {
     const sumButton = document.getElementById('sum-hours-button');
     const backButton = document.getElementById('back-button');
     const printButton = document.getElementById('print-button');
+    const reportButton = document.getElementById('report-button');
 
     const template = tableData.template;
 
     console.log("✅ addListeners running after table render.");
 
+    if (reportButton) {
+        console.log("✅ Report button found, adding click listener.");
+        reportButton.addEventListener("click", function() {
+            const center = tableData.center;
+            const month = tableData.month_number;
+            const year = tableData.year;
+
+            let reportUrl = `/shifts/report/${center}/`;
+
+            if (month && year) {
+                reportUrl += `${month}/${year}/`;
+            }
+        
+            window.open(reportUrl, '_blank');
+        });
+    }
 
     if (printButton) {
         printButton.addEventListener("click", function() {
             const center = tableData.center;
             const month = tableData.month_number;
             const year = tableData.year;
-
+            console.log("Print button clicked. Center:", center, "Month:", month, "Year:", year);
             let printUrl = `/shifts/printable/${center}/`;
 
             if (month && year) {

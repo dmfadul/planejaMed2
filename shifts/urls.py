@@ -25,5 +25,5 @@ urlpatterns = [
     path("unlock_month/", unlock_month, name="unlock_month"),
 
     path("printable/<str:center_abbr>/<int:month_num>/<int:year>/", print_table, name="print_table"),
-    path("report/", report, name="report"),
+    path("report/<str:center_abbr>/<int:month_num>/<int:year>/", report, name="report"),
     ]

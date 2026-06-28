@@ -216,7 +216,7 @@ def unlock_month(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def report(request):
+def report(request, center_abbr, month_num, year):
     # TODO: get type (month/base), center and month from request parameters
     days = [
         {

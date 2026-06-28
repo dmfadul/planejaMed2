@@ -23,19 +23,12 @@ print("User:", user.compliant_since)
 
 
 # FINAL TASKS:
-# TODO: add alert (have to keep following the vacation compliance rules) to vacation authorization message.
+
 # TODO: add tests
-
-
-# NEXT MONTH'S TASKS:
+# TODO: add alert (have to keep following the vacation compliance rules) to vacation authorization message.
 # TODO: fix bug when creating/unlocking month from users hours view.
 # TODO: there are incorrect hours (ex: d: 07:00 - 13:00) in hours selection menu.
 # TODO: Remove urgency hours from vacation payment calculation. (only routine hours should be considered)
-# TODO: FINANCIAL MODULE
-
-# LONG TERM TASKS:
-# TODO: change letters by numbers (with ª, º) in summation tables. Or use two letters for better clarity.
-# TODO: add counting to HORAS-MÉDICO table.
 
 # POSSIBLE FUTURE TASKS:
 # add an automatic email notification to users when their compliance status changes.
