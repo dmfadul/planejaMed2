@@ -19,6 +19,7 @@ from shifts.models import ShiftType, ShiftSnapshot, TemplateShift, Shift, Center
 from shifts.services.table_services import (
     process_table_payload,
     build_table_data,
+    build_alt_table_data,
     gen_month_table_printable
 )
 
@@ -217,103 +218,8 @@ def unlock_month(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def report(request, center_abbr, month_num, year):
-    # TODO: get type (month/base), center and month from request parameters
-    days = [
-        {
-            "label": "SÁBADO",
-            "number": 1,
-            "is_weekend": True,
-        },
-        {
-            "label": "DOMINGO",
-            "number": 2,
-            "is_weekend": True,
-        },
-        {
-            "label": "SEGUNDA",
-            "number": 3,
-            "is_weekend": False,
-        },
-        {
-            "label": "TERÇA",
-            "number": 4,
-            "is_weekend": False,
-        },
-        {
-            "label": "QUARTA",
-            "number": 5,
-            "is_weekend": False,
-        },
-        {
-            "label": "QUINTA",
-            "number": 6,
-            "is_weekend": False,
-        },
-        {
-            "label": "SEXTA",
-            "number": 7,
-            "is_weekend": False,
-        },
-    ]
 
-    schedule_rows = [
-        {
-            "index": 1,
-            "days": [
-                {"code": "CCG", "name": "Vinicius"},
-                {"code": "CCG", "name": "Nikolas"},
-                {"code": "CCG", "name": "Fabiola"},
-                {"code": "CCG", "name": "Camila"},
-                {"code": "CCG", "name": "Bruna"},
-                {"code": "CCG", "name": "Alberto"},
-                {"code": "CCG", "name": "Felipe Bredow"},
-            ],
-        },
-        {
-            "index": 2,
-            "days": [
-                {"code": "CCG", "name": "Augustus"},
-                {"code": "CCG", "name": "Rafaella"},
-                {"code": "CCG", "name": "Luiza"},
-                {"code": "CCG", "name": "Carolina"},
-                {"code": "CCG", "name": "Carolina"},
-                {"code": "CCG", "name": "Augustus"},
-                {"code": "CCG", "name": "Gabriela"},
-            ],
-        },
-        {
-            "index": 3,
-            "days": [
-                {"code": "CCG", "name": "Carolina"},
-                {"code": "CCG", "name": "Luiza Silva"},
-                {"code": "CCG", "name": "William"},
-                {"code": "CCG", "name": "Fabio"},
-                {"code": "CCG", "name": "Fabiola"},
-                {"code": "CCG", "name": "Carolina"},
-                {"code": "CCG", "name": "Heloisa"},
-            ],
-        },
-        {
-            "index": 4,
-            "days": [
-                {"code": "CCG", "name": "William"},
-                {"code": "CCG", "name": ""},
-                {"code": "CCG", "name": ""},
-                {"code": "CCG", "name": "Felype"},
-                {"code": "CCG", "name": "Jaaziel"},
-                {"code": "CCG", "name": "Fabiola"},
-                {"code": "CCG", "name": "João"},
-            ],
-        },
-    ]
-
-    context = {
-        "hospital_name": "HOSPITAL UNIVERSITÁRIO EVANGÉLICO MACKENZIE",
-        "group_name": "GRUPO DE ANESTESIA MACKENZIE - CCG",
-        "days": days,
-        "schedule_rows": schedule_rows,
-    }
-
+    context = build_alt_table_data()    
     return render(request, "shifts/alt_table.html", context)
 
 
