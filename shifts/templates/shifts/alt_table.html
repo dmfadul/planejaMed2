@@ -1,0 +1,84 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Escala Semanal</title>
+
+  <link rel="stylesheet" href="{% static 'shifts/css/alt_table.css' %}">
+</head>
+
+<body>
+  <main class="page-container">
+    <div class="sheet-wrapper">
+      <table class="schedule-sheet">
+        <thead>
+          <tr>
+            <th class="blank"></th>
+            <th class="title" colspan="14">
+              {{ hospital_name }}
+            </th>
+          </tr>
+
+          <tr>
+            <th class="blank"></th>
+            <th class="subtitle" colspan="14">
+              {{ group_name }}
+            </th>
+          </tr>
+
+          <tr class="days-row">
+            <th class="row-label"></th>
+
+            {% for day in days %}
+              <th colspan="2">
+                {{ day.label }}
+              </th>
+            {% endfor %}
+          </tr>
+
+          <tr>
+            <th class="row-label"></th>
+
+            {% for day in days %}
+              <th 
+                colspan="2"
+                class="day-number {% if day.is_weekend %}weekend{% else %}weekday{% endif %}"
+              >
+                {{ day.number }}
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for row in schedule_rows %}
+            <tr>
+              <td class="row-label">
+                {{ row.index }}
+              </td>
+
+              {% for day in row.days %}
+                <td class="code">
+                  {{ day.code }}
+                </td>
+
+                <td class="name {% if not day.name %}empty{% endif %}">
+                  {{ day.name }}
+                </td>
+              {% endfor %}
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="15" class="no-data">
+                Nenhuma escala encontrada.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>
