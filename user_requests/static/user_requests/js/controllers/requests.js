@@ -22,8 +22,6 @@ if (typeof window !== 'undefined') {
   window.fetchNamesList = window.fetchNamesList || fetchNamesList;
   window.fetchCenterList = window.fetchCenterList || fetchCenterList;
   window.submitUserRequest = window.submitUserRequest || submitUserRequest;
-  // showToast is usually already global. If yours is a module, attach it here too.
-  // window.showToast = window.showToast || yourShowToastImport;
 }
 
 /**

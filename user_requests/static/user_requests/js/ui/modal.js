@@ -455,7 +455,6 @@ export async function handleAction(action, ctx) {
 
     const cancelled = await runWizardOnce({ title, steps, onSubmit: onSubmitFunction });
     if (cancelled === null) return; // user closed
-    if (typeof showToast === 'function') showToast('Pedido enviado com sucesso!', 'success');
 
   } catch (e) {
     showWizardError(e?.message || 'Um erro ocorreu ao enviar o pedido.');
