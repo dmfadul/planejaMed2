@@ -75,7 +75,7 @@ function renderBalanceTable(data, table) {
 
         // Header row
         const headerRow = document.createElement('tr');
-        ['Dia', 'Manhã', 'Tarde', 'Cinderela', 'Madrugada'].forEach((label, idx) => {
+        ['Dia', 'Manhã', 'Tarde', 'Cinderela', 'Madrug'].forEach((label, idx) => {
             const th = document.createElement('th');
             th.textContent = label;
             th.className = idx === 0
@@ -102,7 +102,7 @@ function renderBalanceTable(data, table) {
                 const centerAbbr = centerName.split('-')[0].toUpperCase();
                 const monthName = centerName.split('-')[1];
 
-                td.textContent = value !== undefined ? value + " horas" : '--';
+                td.textContent = value !== undefined ? value + " h" : '--';
                 td.className = 'normal-col balance-cell text-center';
                 
                 td.dataset.action = 'include';

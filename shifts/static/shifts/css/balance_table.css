@@ -1,5 +1,10 @@
+/* =========================
+   BASE BALANCE STYLES
+   ========================= */
+
 .balance-negative {
     font-weight: 600;
+    color: #dc3545;
 }
 
 .balance-positive {
@@ -17,6 +22,8 @@
 
 .balance-center-title {
     font-weight: 700;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .balance-subheader {
@@ -24,18 +31,14 @@
     font-weight: 600;
 }
 
+/* spacing rows */
 .balance-spacer {
     border: none !important;
     height: 12px;
     background: transparent !important;
 }
 
-.balance-center-title {
-    font-weight: 700;
-    text-align: center;   /* ← centers the abbreviation */
-    vertical-align: middle;
-}
-
+/* clickable cells */
 .balance-cell {
     cursor: pointer;
 }
@@ -45,7 +48,81 @@ td[data-action="include"] {
     transition: background-color 0.15s ease, transform 0.05s ease;
 }
 
-/* light shade on hover */
 td[data-action="include"]:hover {
     background-color: rgba(0, 0, 0, 0.06);
+}
+
+/* =========================
+   TABLE CONTAINER
+   ========================= */
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* allow table content to break instead of overflowing */
+th,
+td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    vertical-align: middle;
+}
+
+/* =========================
+   RESPONSIVE ADJUSTMENTS
+   ========================= */
+
+@media (max-width: 768px) {
+
+    table {
+        font-size: 12px;
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    th,
+    td {
+        padding: 6px 6px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .balance-center-title {
+        font-size: 13px;
+    }
+
+    .balance-subheader {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    table {
+        font-size: 11px;
+    }
+
+    th,
+    td {
+        padding: 5px 4px;
+    }
+
+    .balance-center-title {
+        font-size: 12px;
+    }
+
+    .balance-subheader {
+        font-size: 11px;
+    }
 }

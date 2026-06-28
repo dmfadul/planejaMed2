@@ -19,9 +19,11 @@
     {% include "shifts/partials/control-panel.html" %}
 
     <div class="table-wrapper">
-        <!-- Table shell: kept for styling and JS targeting -->
-        <table id="shift-table" class="table table-bordered table-striped"></table>
+        <div class="table-responsive">
+            <table id="shift-table" class="table table-bordered table-striped"></table>
+        </div>
     </div>
+    
 </div>
 
 {% endblock %}

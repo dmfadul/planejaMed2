@@ -200,7 +200,7 @@ def build_balance_table_month(table_data, month, filter_type=None, remove_past=T
             weekday_int = month_date.weekday()
             dia_semana = DIAS_SEMANA[weekday_int]
 
-            day_key = f"{month_date.strftime('%d/%m/%Y')} ({dia_semana})"
+            day_key = f"{month_date.strftime('%d/%m/%y')} ({dia_semana[:3]})"
             holiday = day in holiday_days
 
             staffing_hours = get_staffing_hours(
