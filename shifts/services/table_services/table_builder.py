@@ -10,6 +10,7 @@ from core.db.sqlite_collations import COLLATION_NAME
 
 
 def build_alt_table_data():
+    # split in subfunctions
     days = [
         {
             "label": "SÁBADO",
@@ -310,15 +311,18 @@ def build_balance_table_month(table_data, month, filter_type=None, remove_past=T
 
             worked_hours = hours_by_day.get(day, empty_periods())
 
-            balance_by_day[day_key] = {
-                period: (
-                    diff if (diff >= 0) or (diff <= minimum_hours) else 0
-                )
-                for period in PERIODS
-                for diff in [worked_hours.get(period, 0) - staffing_hours.get(period, 0)]
-            }
 
-            print("balance_by_day", balance_by_day)  # Debugging line
+            balance_by_day[day_key] = {}
+            for period in PERIODS:
+                diff = worked_hours.get(period, 0) - staffing_hours.get(period, 0)
+                # make diff the closest smaller (to the abs value of the) value divisible by minimum_hours
+                if diff % minimum_hours != 0:
+                    print(diff, diff // minimum_hours, minimum_hours)
+                    diff = (diff // minimum_hours) * minimum_hours
+
+                balance_by_day[day_key][period] = diff
+
+
         # must filter before adding to table data, to get to each center's balance separately
         if filter_type:
             balance_by_day = staffing_filter(balance_by_day, filter_type)
