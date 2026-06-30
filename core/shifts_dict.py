@@ -8,14 +8,14 @@ STAFFING_HOURS = {
   
         },
         "saturday": {
-            "morning": 42,
-            "afternoon": 36,
+            "morning": 24,
+            "afternoon": 18,
             "cinderella": 12,
             "vampire": 12,
         },
         "sunday": {
-            "morning": 36,
-            "afternoon": 36,
+            "morning": 18,
+            "afternoon": 18,
             "cinderella": 12,
             "vampire": 12,
         },

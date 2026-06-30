@@ -42,7 +42,7 @@ print("User:", user.compliant_since)
 
 # SHIFTS:
 # TODO: fix names links (the redirects are not working properly in all kinds of tables)
-# TODO: fix bug when creating/unlocking month from users hours view.
+# TODO: fix bug when creating/unlocking month from users hours view (?)
 # TODO: there are incorrect hours (ex: d: 07:00 - 13:00) in hours selection menu.
 # TODO: fix bug when edit button is clicked when opening a table
 # TODO: remove the edit button from sumDoctor table
