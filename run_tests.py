@@ -29,6 +29,7 @@ print("User:", user.compliant_since)
 
 # VACATIONS:
 # TODO: Fix (?) vacations
+# TODO: translate vacation messages (from english to portuguese)
 # TODO: Remove urgency hours from vacation payment calculation. (only routine hours should be considered)
 # TODO: add alert (have to keep following the vacation compliance rules) to vacation authorization message.
 
