@@ -14,6 +14,14 @@ from .serializers import (
     OutUserRequestSerializer
 )
 
+class OpenUserRequestAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        print("TESTE")
+        return Response([], status=status.HTTP_201_CREATED)
+
+
 
 class UserRequestAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
