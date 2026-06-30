@@ -59,6 +59,7 @@ print("User:", user.compliant_since)
 # TODO: finance reports
 
 # POSSIBLE FUTURE TASKS:
+# create a way for users to check their hours from previous months (maybe a new table view)
 # normalize modal themes (make them all the same)
 # reorganize the admin functions (make them more intuitive)
 # add an automatic email notification to users when their compliance status changes.
