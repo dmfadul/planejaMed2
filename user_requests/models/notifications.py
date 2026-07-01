@@ -68,6 +68,8 @@ class Notification(models.Model):
             temp_key = f'request_pending_sick_leave'
         elif req.request_type == UR.RequestType.DONATION and (req.donor and req.donor == req.requester):
             temp_key = f'request_pending_donation_offered'
+        elif req.request_type == UR.RequestType.DONATION and (req.audience == UR.Audience.ALL_USERS):
+            temp_key = f'request_pending_open_donation_offered'
         elif req.request_type == UR.RequestType.DONATION and (req.donee and req.donee == req.requester):
             temp_key = f'request_pending_donation_asked_for'
         elif req.request_type == UR.RequestType.EXCLUDE:
@@ -76,18 +78,6 @@ class Notification(models.Model):
             temp_key = f'request_pending_inclusion'
         else:
             temp_key = f'request_pending_{UR.request_type}'
-
-
-        # if req.request_type == req.RequestType.DONATION and req.donor == req.requester:
-        #     temp_key = f'request_pending_donation_offered'
-        # elif req.request_type == req.RequestType.DONATION and req.donee == req.requester:
-        #     temp_key = f'request_pending_donation_asked_for'
-        # elif req.request_type == req.RequestType.EXCLUDE:
-        #     temp_key = f'request_pending_exclusion'
-        # elif req.request_type == req.RequestType.INCLUDE:
-        #     temp_key = f'request_pending_inclusion'
-        # else:
-        #     temp_key = f'request_pending_{req.request_type}'
 
         if req.request_type in V.VacationType.values:
             ctx = {

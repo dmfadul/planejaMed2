@@ -137,7 +137,11 @@ class UserRequest(models.Model):
 
         # Minimal per-type rules; adjust to your business logic
         if self.request_type == self.RequestType.DONATION:
-            missing = [f for f in ('donor', 'donee', 'shift') if getattr(self, f) is None]
+            missing = [f for f in ('donor', 'shift') if getattr(self, f) is None]
+
+            if self.audience == self.Audience.INDIVIDUAL and not self.donee:
+                missing.append('donee')
+
             if missing:
                 raise ValidationError({m: "This field is required for a donation." for m in missing})
 
