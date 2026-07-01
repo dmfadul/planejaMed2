@@ -3,8 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     UserRequestAPIView,
     NotificationViewSet,
-    VacationRequest,
-    OpenUserRequestAPIView
+    VacationRequest
 )
 
 
@@ -17,5 +16,4 @@ urlpatterns = [
     path('', include(router.urls)),
     path('vacation-requests/', VacationRequest.as_view(), name='vacation-request'),
     path('user-requests/', UserRequestAPIView.as_view(), name='user-request'),
-    path('open-requests/', OpenUserRequestAPIView.as_view(), name='open-request'),
 ]

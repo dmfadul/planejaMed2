@@ -154,7 +154,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     
 
 class IncomingUserRequestSerializer(serializers.Serializer):
-    ACTIONS = ("ask_for_donation", "offer_donation", "include", "exclude")
+    ACTIONS = ("ask_for_donation", "offer_donation", "open_offer", "include", "exclude")
 
     action = serializers.ChoiceField(choices=ACTIONS)
     cardCRM = serializers.CharField(max_length=10, required=False, allow_blank=True, allow_null=True)
@@ -211,6 +211,10 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         elif action == "offer_donation":
             donor, donee = requester, requestee
             request_type = UserRequest.RequestType.DONATION
+        elif action == "open_offer":
+            donor, donee = requester, None
+            request_type = UserRequest.RequestType.DONATION
+            audience = 'all_users'
         elif action == "exclude":
             donor, donee = other_user, None
             request_type = UserRequest.RequestType.EXCLUDE
