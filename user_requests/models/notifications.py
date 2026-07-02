@@ -66,10 +66,10 @@ class Notification(models.Model):
             temp_key = f'request_pending_regular_vacation'
         elif req.request_type == V.VacationType.SICK:
             temp_key = f'request_pending_sick_leave'
-        elif req.request_type == UR.RequestType.DONATION and (req.donor and req.donor == req.requester):
-            temp_key = f'request_pending_donation_offered'
         elif req.request_type == UR.RequestType.DONATION and (req.audience == UR.Audience.ALL_USERS):
             temp_key = f'request_pending_open_donation_offered'
+        elif req.request_type == UR.RequestType.DONATION and (req.donor and req.donor == req.requester):
+            temp_key = f'request_pending_donation_offered'
         elif req.request_type == UR.RequestType.DONATION and (req.donee and req.donee == req.requester):
             temp_key = f'request_pending_donation_asked_for'
         elif req.request_type == UR.RequestType.EXCLUDE:
@@ -112,7 +112,7 @@ class Notification(models.Model):
                 'date':             req.date.strftime("%d/%m/%y"),
                 'start_hour':       f"{req.start_hour:02d}:00",
                 'end_hour':         f"{req.end_hour:02d}:00",
-                'target_name':      req.target.name,
+                'target_name':      req.target.name if req.target else "open",
                 'request_type':     req.get_request_type_display().upper(),
             }
 
