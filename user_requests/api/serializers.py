@@ -292,7 +292,7 @@ class IncomingUserRequestSerializer(serializers.Serializer):
             "action": action,
         }
 
-        # Test for duplicate open requests of the same type and time for the requester
+        # Test for duplicate requests of the same type and time for the requester
         if request_type == UserRequest.RequestType.INCLUDE:
             if UserRequest.objects.filter(
                 requester=requester,
@@ -301,6 +301,8 @@ class IncomingUserRequestSerializer(serializers.Serializer):
                 include_data__center=center,
                 include_data__month=month_obj,
                 include_data__day=day,
+                start_hour=start_hr,
+                end_hour=end_hr
             ).exists():
                 raise serializers.ValidationError(
                     {"non_field_errors": _("""Você já tem um pedido de inclusão aberto para este centro e dia.
