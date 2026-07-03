@@ -262,4 +262,10 @@ class UserRequest(models.Model):
 
     def notify_request(self):
         from . import Notification
-        Notification.notify_request(self)
+        if not self.audience == self.Audience.ALL_USERS:
+            Notification.notify_request(self)
+        else:
+            users = User.objects.filter(is_active=True, is_invisible=False).exclude(pk=self.requester.pk)
+            for user in users:
+                self.requestee = user
+                Notification.notify_request(self)

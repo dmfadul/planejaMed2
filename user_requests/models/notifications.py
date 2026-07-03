@@ -262,6 +262,14 @@ class Notification(models.Model):
                 "{start_hour} - {end_hour} no centro {center} no dia {date}.",
         },
 
+        'request_pending_open_donation_offered': {
+            'kind': Kind.ACTION,
+            'title': "Oferta de doação aberta pendente",
+            'body':
+                "{sender_name} oferece a doação dos horários: "
+                "{start_hour} - {end_hour} no centro {center} no dia {date}.",
+        },
+
         'request_pending_donation_offered': {
             'kind': Kind.ACTION,
             'title': "Requisição de doação pendente",
