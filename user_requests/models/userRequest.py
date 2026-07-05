@@ -132,7 +132,7 @@ class UserRequest(models.Model):
         if self.audience == self.Audience.INDIVIDUAL and not self.requestee:
             raise ValidationError({'requestee': 'requestee is required for individual requests.'})
 
-        if self.audience in [self.Audience.ADMINS, self.Audience.ALL_USERS] and self.requestee is not None:
+        if self.audience in [self.Audience.ADMINS] and self.requestee is not None:
             raise ValidationError({'requestee': 'requestee must be null for admin/all users requests.'})
 
         # Minimal per-type rules; adjust to your business logic

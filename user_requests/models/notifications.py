@@ -127,14 +127,15 @@ class Notification(models.Model):
             related_obj=req,
         )
 
-        # Send cancelable notification to requester 
-        cls.from_template(
-            template_key='request_received',
-            sender=req.requester,
-            receiver=req.requester,
-            context=ctx,
-            related_obj=req,
-        )
+        # Send cancelable notification to requester if the request is not an open donation offer
+        if not temp_key == 'request_pending_open_donation_offered':
+            cls.from_template(
+                template_key='request_received',
+                sender=req.requester,
+                receiver=req.requester,
+                context=ctx,
+                related_obj=req,
+            )
         return
     
     @classmethod

@@ -75,7 +75,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         
         if user.is_staff or user.is_superuser:
             qs = qs.exclude(
-                Q(kind__in=['cancel', 'info']) &
+                Q(kind__in=['mass_action', 'cancel', 'info']) &
                 Q(receiver__isnull=False) &
                 ~Q(receiver=user)
             )
