@@ -15,6 +15,8 @@ class Notification(models.Model):
         INFO = 'info', 'Info'
         CANCEL = 'cancel', 'Cancel'
         ERROR = 'error', 'Error'
+        MASS_ACTION = 'mass_action', 'Mass Action'
+
 
     # High-level category (visual style/badge color)
     kind = models.CharField(max_length=20, choices=Kind.choices)
@@ -263,8 +265,8 @@ class Notification(models.Model):
         },
 
         'request_pending_open_donation_offered': {
-            'kind': Kind.ACTION,
-            'title': "Oferta de doação aberta pendente",
+            'kind': Kind.MASS_ACTION,
+            'title': "Oferta de doação",
             'body':
                 "{sender_name} oferece a doação dos horários: "
                 "{start_hour} - {end_hour} no centro {center} no dia {date}.",

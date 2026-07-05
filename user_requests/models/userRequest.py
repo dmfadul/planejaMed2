@@ -268,4 +268,5 @@ class UserRequest(models.Model):
             users = User.objects.filter(is_active=True, is_invisible=False).exclude(pk=self.requester.pk)
             for user in users:
                 self.requestee = user
+                self.save(update_fields=['requestee'])
                 Notification.notify_request(self)
