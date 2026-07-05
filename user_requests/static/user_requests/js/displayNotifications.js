@@ -18,6 +18,12 @@
               <button class="btn btn-sm btn-success" data-act="accept" data-id="${n.id}">Accept</button>
               <button class="btn btn-sm btn-outline-danger" data-act="refuse" data-id="${n.id}">Refuse</button>
             </div>`;
+        case "mass_action":
+          return `
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-sm btn-success" data-act="accept" data-id="${n.id}">Accept</button>
+              <button class="btn btn-sm btn-outline-danger" data-act="refuse" data-id="${n.id}">Refuse</button>
+            </div>`;
         case "cancel":
           return `
             <div class="mt-3 d-flex gap-2">
