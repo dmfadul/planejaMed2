@@ -264,9 +264,11 @@ class UserRequest(models.Model):
         from . import Notification
         if not self.audience == self.Audience.ALL_USERS:
             Notification.notify_request(self)
+            Notification.notify_request_received(self)
         else:
             users = User.objects.filter(is_active=True, is_invisible=False).exclude(pk=self.requester.pk)
             for user in users:
                 self.requestee = user
                 self.save(update_fields=['requestee'])
                 Notification.notify_request(self)
+            Notification.notify_request_received(self)

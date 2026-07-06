@@ -127,15 +127,31 @@ class Notification(models.Model):
             related_obj=req,
         )
 
-        # Send cancelable notification to requester if the request is not an open donation offer
-        if not temp_key == 'request_pending_open_donation_offered':
-            cls.from_template(
-                template_key='request_received',
-                sender=req.requester,
-                receiver=req.requester,
-                context=ctx,
-                related_obj=req,
-            )
+        return
+    
+    @classmethod
+    def notify_request_received(cls, req):
+        # Send cancelable notification to requester
+        ctx = {
+            'sender_name':      req.requester.name,
+            'receiver_id':      req.requestee.id if req.requestee else None,
+            'requestee_name':   req.requestee.name if req.requestee else "Admin",
+            'center':           req.center.abbreviation if req.center else "N/A",
+            'date':             req.date.strftime("%d/%m/%y"),
+            'start_hour':       f"{req.start_hour:02d}:00",
+            'end_hour':         f"{req.end_hour:02d}:00",
+            'target_name':      req.target.name if req.target else "open",
+            'request_type':     req.get_request_type_display().upper(),
+        }
+
+        cls.from_template(
+            template_key='request_received',
+            sender=req.requester,
+            receiver=req.requester,
+            context=ctx,
+            related_obj=req,
+        )
+
         return
     
     @classmethod
