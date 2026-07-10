@@ -97,9 +97,9 @@ class NotificationViewSet(viewsets.ModelViewSet):
         # assuming related_obj is a UserRequest or VacationRequest instance
         if response == 'accept':
             flag = notif.related_obj.accept(request.user)
+            if flag:
+                return Response(flag.get('error'), status=status.HTTP_409_CONFLICT)
             notif.archive()
-            if flag == -1:
-                return Response({'error': 'Vacation request conflicts with existing vacations.'}, status=status.HTTP_409_CONFLICT)
         elif response == 'refuse':
             notif.related_obj.refuse(request.user)
             notif.archive()

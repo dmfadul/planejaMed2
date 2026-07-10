@@ -41,7 +41,7 @@ class VacationRequest(models.Model):
         )
         if vacation == -1:
             self.refuse(responder)
-            return -1  # Indicate conflict
+            return {'error': 'Esse pedido de férias entra em conflito com férias existentes.'}
 
         self.close()
         self.is_approved = True
@@ -51,7 +51,7 @@ class VacationRequest(models.Model):
         self.remove_notifications()
         self.notify_response("accept")
 
-        return True
+        return
 
     def refuse(self, responder):
         if not responder.is_superuser:

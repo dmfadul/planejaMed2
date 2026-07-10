@@ -163,15 +163,20 @@ class UserRequest(models.Model):
         if not self.can_be_accepted_by(responder):
             raise PermissionError("Você não tem autorização para responder esta requisição.")
         
+        if self.audience == self.Audience.ALL_USERS:
+            self.donee = responder
+            self.save(update_fields=['donee'])
+
         conflict = Shift.check_conflict(self.donee,
                                         self.month,
                                         self.day,
                                         self.start_hour,
                                         self.end_hour)
+        print("conflict", conflict)
         if (not self.request_type == self.RequestType.EXCLUDE) and conflict:
-            self.refuse(responder)
-            self.notify_conflict(conflict)
-            return
+            # self.refuse(responder)
+            # self.notify_conflict(conflict)
+            return {'error': 'Você está ocupado no horário solicitado. Libere seu horário para aceitar essa requisição.'}
         
         self.responder = responder
         if self.request_type == self.RequestType.DONATION:
