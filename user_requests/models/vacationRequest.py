@@ -92,7 +92,14 @@ class VacationRequest(models.Model):
         related_notifications.update(is_deleted=True)
 
     def notify_request(self):
-        Notification.notify_request(self)
+        from .utils import get_template_key, get_context
+
+        temp_key = get_template_key(self)
+        ctx = get_context(self)
+
+        Notification.notify_request(self, temp_key, ctx)
+        Notification.notify_request(self, "vacation_request_received", ctx, request_received=True)
+
 
     def notify_response(self, response):
         Notification.notify_vacation_response(self, response)

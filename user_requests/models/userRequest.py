@@ -268,12 +268,6 @@ class UserRequest(models.Model):
         temp_key = get_template_key(self)
         ctx = get_context(self)
 
-        if self.request_type in V.VacationType.values:
-            Notification.notify_request(self, temp_key, ctx)
-            Notification.notify_request(self, "vacation_request_received", ctx)
-            return
-  
-
         if not self.audience == self.Audience.ALL_USERS:
             Notification.notify_request(self, temp_key, ctx)
             Notification.notify_request(self, "request_received", ctx, request_received=True)
