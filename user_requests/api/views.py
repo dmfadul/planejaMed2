@@ -94,7 +94,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         notif = self.get_object()
         response = request.data.get('action')
         
-        # assuming related_obj is a UserRequest
+        # assuming related_obj is a UserRequest or VacationRequest instance
         if response == 'accept':
             flag = notif.related_obj.accept(request.user)
             notif.archive()
