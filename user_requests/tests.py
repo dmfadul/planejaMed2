@@ -76,30 +76,29 @@ class UserRequestNotifyTests(TestCase):
         # Order matters (pending first, then submitted)
         mock_from_template.assert_has_calls([pending_call, submitted_call], any_order=False)
 
-#         # Extra safety: inspect the actual kwargs to ensure nothing critical is missing
-#         first_kwargs = mock_from_template.call_args_list[0].kwargs
-#         second_kwargs = mock_from_template.call_args_list[1].kwargs
+        # Extra safety: inspect the actual kwargs to ensure nothing critical is missing
+        first_kwargs = mock_from_template.call_args_list[0].kwargs
+        second_kwargs = mock_from_template.call_args_list[1].kwargs
 
-#         for k in ("template_key", "sender", "receiver", "context", "related_obj"):
-#             self.assertIn(k, first_kwargs)
-#             self.assertIn(k, second_kwargs)
+        for k in ("template_key", "sender", "receiver", "context", "related_obj"):
+            self.assertIn(k, first_kwargs)
+            self.assertIn(k, second_kwargs)
 
-#         self.assertEqual(first_kwargs["template_key"], "request_pending")
-#         self.assertEqual(first_kwargs["receiver"], self.requestee)
+        self.assertEqual(first_kwargs["template_key"], "request_pending_donation_offered")
+        self.assertEqual(first_kwargs["receiver"], self.requestee)
 
-#         self.assertEqual(second_kwargs["template_key"], "request_submitted")
-#         self.assertEqual(second_kwargs["receiver"], self.requester)
+        self.assertEqual(second_kwargs["template_key"], "request_received")
+        self.assertEqual(second_kwargs["receiver"], self.requester)
 
-#         # Context specifics
-#         self.assertEqual(first_kwargs["context"]["request_type"], "Donation")
-#         self.assertEqual(first_kwargs["context"]["start_hour"], 7)
-#         self.assertEqual(first_kwargs["context"]["end_hour"], 19)
-#         self.assertEqual(first_kwargs["context"]["receiver_name"], self.requestee.name)
-#         self.assertEqual(first_kwargs["context"]["shift_label"], str(self.shift))
+        # Context specifics
+        self.assertEqual(first_kwargs["context"]["request_type"], "DOAÇÃO")
+        self.assertEqual(first_kwargs["context"]["start_hour"], '07:00')
+        self.assertEqual(first_kwargs["context"]["end_hour"], '19:00')
+        self.assertEqual(first_kwargs["context"]["requestee_name"], self.requestee.name)
 
-#         # related_obj should be the very UserRequest instance
-#         self.assertIs(first_kwargs["related_obj"], self.ur)
-#         self.assertIs(second_kwargs["related_obj"], self.ur)
+        # related_obj should be the very UserRequest instance
+        self.assertIs(first_kwargs["related_obj"], self.ur)
+        self.assertIs(second_kwargs["related_obj"], self.ur)
 
 #     @patch("user_requests.models.notifications.Notification.from_template")
 #     def test_notify_request_does_not_mutate_request_state(self, mock_from_template):
