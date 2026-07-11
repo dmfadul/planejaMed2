@@ -172,7 +172,7 @@ class UserRequest(models.Model):
                                         self.day,
                                         self.start_hour,
                                         self.end_hour)
-        print("conflict", conflict)
+    
         if (not self.request_type == self.RequestType.EXCLUDE) and conflict:
             # self.refuse(responder)
             # self.notify_conflict(conflict)

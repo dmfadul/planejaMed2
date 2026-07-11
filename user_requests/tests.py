@@ -1,5 +1,5 @@
 from django.test import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, call
 from model_bakery import baker
 
 from user_requests.models import UserRequest
@@ -7,6 +7,7 @@ from user_requests.models import UserRequest
 
 class UserRequestNotifyTests(TestCase):
     def setUp(self):
+        # setting up a UserRequest "request_pending_donation_offered"
         self.requester = baker.make("core.User")
         self.requestee = baker.make("core.User")
         self.donor = baker.make("core.User")
@@ -19,104 +20,61 @@ class UserRequestNotifyTests(TestCase):
             requester=self.requester,
             requestee=self.requestee,
             request_type=UserRequest.RequestType.DONATION,
+            audience=UserRequest.Audience.INDIVIDUAL,
             shift=self.shift,
-            donor=self.donor,
-            donee=self.donee,
+            donor=self.requester,
+            donee=self.requestee,
             start_hour=7,
             end_hour=19,
         )
 
+        self.ur.full_clean()  # Ensure the instance is valid before saving
+        self.ur.save()
+
     @patch("user_requests.models.notifications.Notification.from_template")
-    def test_notify_request_creates_two_notifications(self, mock_from_template):
+    def test_notify_request_sends_two_notifications_with_correct_payload(self, mock_from_template):
+        """
+        notify_request() must:
+        - Send 'request_pending' to the requestee
+        - Send 'request_submitted' to the requester
+        - Include correct context and related_obj in both calls
+        """
         self.ur.notify_request()
 
+        # Should be called exactly twice
         self.assertEqual(mock_from_template.call_count, 2)
 
+        # Expected shared context
+        expected_context = {
+            "sender_name": self.requester.name,
+            "receiver_id": self.requestee.pk,
+            "requestee_name": self.requestee.name,
+            "center": self.shift.center.abbreviation,
+            "date": "10/01/26",
+            "start_hour": "07:00",
+            "end_hour": "19:00",
+            "target_name": self.requestee.name,
+            "request_type": "DOAÇÃO",
+        }
 
+        # Build expected calls
+        pending_call = call(
+            template_key="request_pending_donation_offered",
+            sender=self.requester,
+            receiver=self.requestee,
+            context=expected_context,
+            related_obj=self.ur,
+        )
+        submitted_call = call(
+            template_key="request_received",
+            sender=self.requester,
+            receiver=self.requester,
+            context=expected_context,
+            related_obj=self.ur,
+        )
 
-# from django.test import TestCase
-# from unittest.mock import patch, call
-
-# from user_requests.models import UserRequest
-
-# # Prefer model_bakery for robust factory-free model creation
-# try:
-#     from model_bakery import baker
-#     HAS_BAKERY = True
-# except Exception:
-#     HAS_BAKERY = False
-
-# class UserRequestNotifyTests(TestCase):
-#     def setUp(self):
-#         if not HAS_BAKERY:
-#             self.skipTest("model_bakery is required for these tests (install with `pip install model-bakery`).")
-
-#         # Users
-#         self.requester = baker.make("core.User", name="Requester R")
-#         self.requestee = baker.make("core.User", name="Requestee E")
-#         self.donor = baker.make("core.User", name="Donor D")
-#         self.donee = baker.make("core.User", name="Donee N")
-
-#         # Shift (baker will fill required fields; customize if your Shift enforces specifics)
-#         self.shift = baker.make("shifts.Shift")
-
-#         # Build a valid DONATION request (clean() requires donor, donee, shift)
-#         self.ur: UserRequest = baker.prepare(
-#             "user_requests.UserRequest",
-#             requester=self.requester,
-#             requestee=self.requestee,
-#             request_type=UserRequest.RequestType.DONATION,
-#             shift=self.shift,
-#             start_hour=7,
-#             end_hour=19,
-#             donor=self.donor,
-#             donee=self.donee,
-#             is_open=True,
-#             is_approved=False,
-#         )
-#         # save() will call full_clean(), which enforces `clean()` rules
-#         self.ur.save()
-
-#     @patch("user_requests.models.notifications.Notification.from_template")
-#     def test_notify_request_sends_two_notifications_with_correct_payload(self, mock_from_template):
-#         """
-#         notify_request() must:
-#         - Send 'request_pending' to the requestee
-#         - Send 'request_submitted' to the requester
-#         - Include correct context and related_obj in both calls
-#         """
-#         self.ur.notify_request()
-
-#         # Should be called exactly twice
-#         self.assertEqual(mock_from_template.call_count, 2)
-
-#         # Expected shared context
-#         expected_ctx = {
-#             "request_type": self.ur.get_request_type_display(),  # 'Donation'
-#             "receiver_name": self.requestee.name,                # Requestee's name for both messages (per model code)
-#             "shift_label": str(self.shift),
-#             "start_hour": self.ur.start_hour,
-#             "end_hour": self.ur.end_hour,
-#         }
-
-#         # Build expected calls
-#         pending_call = call(
-#             template_key="request_pending",
-#             sender=self.requester,
-#             receiver=self.requestee,
-#             context=expected_ctx,
-#             related_obj=self.ur,
-#         )
-#         submitted_call = call(
-#             template_key="request_submitted",
-#             sender=self.requester,
-#             receiver=self.requester,
-#             context=expected_ctx,
-#             related_obj=self.ur,
-#         )
-
-#         # Order matters (pending first, then submitted)
-#         mock_from_template.assert_has_calls([pending_call, submitted_call], any_order=False)
+        # Order matters (pending first, then submitted)
+        mock_from_template.assert_has_calls([pending_call, submitted_call], any_order=False)
 
 #         # Extra safety: inspect the actual kwargs to ensure nothing critical is missing
 #         first_kwargs = mock_from_template.call_args_list[0].kwargs
