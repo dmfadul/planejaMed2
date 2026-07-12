@@ -64,3 +64,4 @@ print("User:", user.compliant_since)
 # reorganize the admin functions (make them more intuitive)
 # add an automatic email notification to users when their compliance status changes.
 # add an automatic password reset email functionality.
+# make some kinds of notifications (e.g. 'INFO') be hard-deletable by users

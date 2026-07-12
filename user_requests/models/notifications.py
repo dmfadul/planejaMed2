@@ -7,8 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 
-# TODO: make some kinds of notifications (e.g. 'INFO') be hard-deletable by users
-
 class Notification(models.Model):
     class Kind(models.TextChoices):
         ACTION = 'action', 'Action'
