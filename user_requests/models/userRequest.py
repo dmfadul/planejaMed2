@@ -175,7 +175,7 @@ class UserRequest(models.Model):
     
         if (not self.request_type == self.RequestType.EXCLUDE) and conflict:
             # self.refuse(responder)
-            # self.notify_conflict(conflict)
+            # Notification.notify_conflict(self, conflict)
             return {'error': 'Você está ocupado no horário solicitado. Libere seu horário para aceitar essa requisição.'}
         
         self.responder = responder
@@ -203,17 +203,13 @@ class UserRequest(models.Model):
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The excludee must be the current assignee of the shift.")
 
-            self.notify_response("accept")
+            Notification.notify_response(self, "accept")
             to_delete_shift = self.shift.split(self.start_hour, self.end_hour)
 
             self.shift = None  # avoid FK constraint issues
             self.save(update_fields=['shift'])
 
-            to_delete_shift.delete()
-
-            # No need to delete other requests on same shift
-            # as they are supposed to be cascaded by shift deletion
-            # but there is need to delete related notifications
+            to_delete_shift.delete() # other reqs on same shift will be cascaded by shift deletion, still need to delete related notifications
 
         self.close()
 
@@ -222,15 +218,18 @@ class UserRequest(models.Model):
 
         self.remove_notifications()
         if self.request_type != self.RequestType.EXCLUDE:
-            self.notify_response("accept")
+            Notification.notify_response(self, "accept")
 
     
     def refuse(self, responder):
+        if self.audience == self.Audience.ALL_USERS:
+            return
+
         self.responder = responder
         self.close()
         self.remove_notifications()
 
-        self.notify_response("refuse")
+        Notification.notify_response(self, "refuse")
 
     def cancel(self, canceller):
         self.responder = canceller
@@ -256,14 +255,6 @@ class UserRequest(models.Model):
             is_deleted=False
         )
         related_notifications.update(is_deleted=True)
-
-    def notify_conflict(self, conflict_shift):
-        from . import Notification
-        Notification.notify_conflict(self, conflict_shift)
-    
-    def notify_response(self, response):
-        from . import Notification
-        Notification.notify_response(self, response)
 
     def notify_request(self):
         from . import Notification
