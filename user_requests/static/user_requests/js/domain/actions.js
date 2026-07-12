@@ -26,6 +26,14 @@ export const ACTIONS = {
     hoursCRM: (ctx) => ctx.cardCrm,
     endpointAction: 'offer_donation',
   },
+
+  SCHopenOffer: {
+    title1: "Escolha o Horário que deseja oferecer:",
+    title2: "Estes horário será oferecido para todos, mas você continuará responsável por ele até que alguém aceite a oferta. Deseja continuar?",
+    needsHour: true,
+    hoursCRM: (ctx) => ctx.cardCrm,
+    endpointAction: 'open_offer',
+  },
   
   exclude: {
     title: "Escolha a hora que deseja excluir:",

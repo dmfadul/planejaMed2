@@ -18,6 +18,12 @@
               <button class="btn btn-sm btn-success" data-act="accept" data-id="${n.id}">Accept</button>
               <button class="btn btn-sm btn-outline-danger" data-act="refuse" data-id="${n.id}">Refuse</button>
             </div>`;
+        case "mass_action":
+          return `
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-sm btn-success" data-act="accept" data-id="${n.id}">Accept</button>
+              <button class="btn btn-sm btn-outline-danger" data-act="refuse" data-id="${n.id}">Refuse</button>
+            </div>`;
         case "cancel":
           return `
             <div class="mt-3 d-flex gap-2">
@@ -76,14 +82,93 @@
     }
   }
 
-  async function post(url, payload) {
-    return fetch(url, {
+  async function post(url, payload = {}) {
+  try {
+    const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
       credentials: "same-origin",
-      body: JSON.stringify(payload || {})
+      body: JSON.stringify(payload),
     });
+
+    if (!response.ok) {
+      let errorMessage = "An unexpected error occurred.";
+
+      try {
+        // clone() prevents consuming the original response body
+        const errorData = await response.clone().json();
+        errorMessage = extractErrorMessage(errorData);
+      } catch {
+        // Backend did not return valid JSON
+        const text = await response.clone().text();
+
+        if (text) {
+          errorMessage = text;
+        }
+      }
+
+      showPageMessage(errorMessage, "error");
+    }
+
+    return response;
+  } catch (error) {
+    // Handles network failures, server unreachable, etc.
+    showPageMessage(
+      "Could not connect to the server. Please try again.",
+      "danger"
+    );
+
+    throw error;
   }
+}
+
+function extractErrorMessage(errorData) {
+  if (!errorData) {
+    return "An unexpected error occurred.";
+  }
+
+  // Example: { "detail": "Permission denied." }
+  if (typeof errorData.detail === "string") {
+    return errorData.detail;
+  }
+
+  // Example: { "error": "Something went wrong." }
+  if (typeof errorData.error === "string") {
+    return errorData.error;
+  }
+
+  // Example: { "non_field_errors": ["This request already exists."] }
+  if (Array.isArray(errorData.non_field_errors)) {
+    return errorData.non_field_errors.join(" ");
+  }
+
+  // Example:
+  // {
+  //   "requestee": ["This user is unavailable."],
+  //   "shift": ["This field is required."]
+  // }
+  if (typeof errorData === "object") {
+    return Object.entries(errorData)
+      .map(([field, messages]) => {
+        const formattedField = field
+          .replaceAll("_", " ")
+          .replace(/^\w/, letter => letter.toUpperCase());
+
+        const message = Array.isArray(messages)
+          ? messages.join(" ")
+          : String(messages);
+
+        return `${formattedField}: ${message}`;
+      })
+      .join("\n");
+  }
+
+  return String(errorData);
+}
+
   async function patch(url, payload) {
     return fetch(url, {
       method: "PATCH",

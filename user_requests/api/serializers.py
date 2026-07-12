@@ -154,7 +154,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     
 
 class IncomingUserRequestSerializer(serializers.Serializer):
-    ACTIONS = ("ask_for_donation", "offer_donation", "include", "exclude")
+    ACTIONS = ("ask_for_donation", "offer_donation", "open_offer", "include", "exclude")
 
     action = serializers.ChoiceField(choices=ACTIONS)
     cardCRM = serializers.CharField(max_length=10, required=False, allow_blank=True, allow_null=True)
@@ -211,6 +211,10 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         elif action == "offer_donation":
             donor, donee = requester, requestee
             request_type = UserRequest.RequestType.DONATION
+        elif action == "open_offer":
+            donor, donee = requester, None
+            request_type = UserRequest.RequestType.DONATION
+            audience = 'all_users'
         elif action == "exclude":
             donor, donee = other_user, None
             request_type = UserRequest.RequestType.EXCLUDE
@@ -240,7 +244,6 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         elif not shift_raw == '-':
             start_hr, end_hr = Shift.convert_to_hours(shift_raw)        
 
-        # TODO: Free up the API to allow non-current month shift exchanges
         if shift and not shift.month == Month.get_current():
             raise serializers.ValidationError({"shift": _("Turno não pertence ao mês atual.")})
         
@@ -311,7 +314,6 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         else:    
             if UserRequest.objects.filter(
                 requester=requester,
-                requestee=requestee,
                 request_type=request_type,
                 shift=shift,
                 start_hour=start_hr,

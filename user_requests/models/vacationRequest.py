@@ -41,7 +41,7 @@ class VacationRequest(models.Model):
         )
         if vacation == -1:
             self.refuse(responder)
-            return -1  # Indicate conflict
+            return {'error': 'Esse pedido de férias entra em conflito com férias existentes.'}
 
         self.close()
         self.is_approved = True
@@ -51,7 +51,7 @@ class VacationRequest(models.Model):
         self.remove_notifications()
         self.notify_response("accept")
 
-        return True
+        return
 
     def refuse(self, responder):
         if not responder.is_superuser:
@@ -92,7 +92,14 @@ class VacationRequest(models.Model):
         related_notifications.update(is_deleted=True)
 
     def notify_request(self):
-        Notification.notify_request(self)
+        from .utils import get_template_key, get_context
+
+        temp_key = get_template_key(self)
+        ctx = get_context(self)
+
+        Notification.notify_request(self, temp_key, ctx)
+        Notification.notify_request(self, "vacation_request_received", ctx, request_received=True)
+
 
     def notify_response(self, response):
         Notification.notify_vacation_response(self, response)

@@ -14,14 +14,6 @@ from .serializers import (
     OutUserRequestSerializer
 )
 
-class OpenUserRequestAPIView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request):
-        print("TESTE")
-        return Response([], status=status.HTTP_201_CREATED)
-
-
 
 class UserRequestAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -83,7 +75,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         
         if user.is_staff or user.is_superuser:
             qs = qs.exclude(
-                Q(kind__in=['cancel', 'info']) &
+                Q(kind__in=['mass_action', 'cancel', 'info']) &
                 Q(receiver__isnull=False) &
                 ~Q(receiver=user)
             )
@@ -102,12 +94,12 @@ class NotificationViewSet(viewsets.ModelViewSet):
         notif = self.get_object()
         response = request.data.get('action')
         
-        # assuming related_obj is a UserRequest
+        # assuming related_obj is a UserRequest or VacationRequest instance
         if response == 'accept':
             flag = notif.related_obj.accept(request.user)
+            if flag:
+                return Response(flag.get('error'), status=status.HTTP_409_CONFLICT)
             notif.archive()
-            if flag == -1:
-                return Response({'error': 'Vacation request conflicts with existing vacations.'}, status=status.HTTP_409_CONFLICT)
         elif response == 'refuse':
             notif.related_obj.refuse(request.user)
             notif.archive()

@@ -7,14 +7,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 
-# TODO: make some kinds of notifications (e.g. 'INFO') be hard-deletable by users
-
 class Notification(models.Model):
     class Kind(models.TextChoices):
         ACTION = 'action', 'Action'
         INFO = 'info', 'Info'
         CANCEL = 'cancel', 'Cancel'
         ERROR = 'error', 'Error'
+        MASS_ACTION = 'mass_action', 'Mass Action'
+
 
     # High-level category (visual style/badge color)
     kind = models.CharField(max_length=20, choices=Kind.choices)
@@ -58,92 +58,16 @@ class Notification(models.Model):
     
         
     @classmethod
-    def notify_request(cls, req):
+    def notify_request(cls, req, temp_key, ctx, request_received=False):
         """Notify relevant users about a UserRequest event."""
-        from user_requests.models import UserRequest as UR
-
-        if req.request_type == V.VacationType.REGULAR:
-            temp_key = f'request_pending_regular_vacation'
-        elif req.request_type == V.VacationType.SICK:
-            temp_key = f'request_pending_sick_leave'
-        elif req.request_type == UR.RequestType.DONATION and (req.donor and req.donor == req.requester):
-            temp_key = f'request_pending_donation_offered'
-        elif req.request_type == UR.RequestType.DONATION and (req.donee and req.donee == req.requester):
-            temp_key = f'request_pending_donation_asked_for'
-        elif req.request_type == UR.RequestType.EXCLUDE:
-            temp_key = f'request_pending_exclusion'
-        elif req.request_type == UR.RequestType.INCLUDE:
-            temp_key = f'request_pending_inclusion'
-        else:
-            temp_key = f'request_pending_{UR.request_type}'
-
-
-        # if req.request_type == req.RequestType.DONATION and req.donor == req.requester:
-        #     temp_key = f'request_pending_donation_offered'
-        # elif req.request_type == req.RequestType.DONATION and req.donee == req.requester:
-        #     temp_key = f'request_pending_donation_asked_for'
-        # elif req.request_type == req.RequestType.EXCLUDE:
-        #     temp_key = f'request_pending_exclusion'
-        # elif req.request_type == req.RequestType.INCLUDE:
-        #     temp_key = f'request_pending_inclusion'
-        # else:
-        #     temp_key = f'request_pending_{req.request_type}'
-
-        if req.request_type in V.VacationType.values:
-            ctx = {
-                'sender_name':  req.requester.name,
-                'start_date':  req.start_date.strftime("%d/%m/%y"),
-                'end_date':    req.end_date.strftime("%d/%m/%y"),
-                'vacation_type': "Férias" if req.get_request_type_display() == "REGULAR" else "Licença Médica",
-            }
-
-            cls.from_template(
-                template_key=temp_key,  # your vacation pending template
-                sender=req.requester,
-                receiver=req.requestee,
-                context=ctx,
-                related_obj=req,
-            )
-
-            cls.from_template(
-                template_key="vacation_request_received",  # NEW TEMPLATE
-                sender=req.requester,
-                receiver=req.requester,
-                context=ctx,
-                related_obj=req,
-            )
-            return
-        else:
-            ctx = {
-                'sender_name':      req.requester.name,
-                'receiver_id':      req.requestee.id if req.requestee else None,
-                'requestee_name':   req.requestee.name if req.requestee else "Admin",
-                'center':           req.center.abbreviation if req.center else "N/A",
-                'date':             req.date.strftime("%d/%m/%y"),
-                'start_hour':       f"{req.start_hour:02d}:00",
-                'end_hour':         f"{req.end_hour:02d}:00",
-                'target_name':      req.target.name,
-                'request_type':     req.get_request_type_display().upper(),
-            }
-
-        # Notify the requestee
         cls.from_template(
             template_key=temp_key,
             sender=req.requester,
-            receiver=req.requestee,
+            receiver=req.requester if request_received else req.requestee, # request_received means this is a cancelable notification to the requester
             context=ctx,
             related_obj=req,
         )
 
-        # Send cancelable notification to requester 
-        cls.from_template(
-            template_key='request_received',
-            sender=req.requester,
-            receiver=req.requester,
-            context=ctx,
-            related_obj=req,
-        )
-        return
     
     @classmethod
     def notify_vacation_response(cls, req, response):
@@ -245,7 +169,7 @@ class Notification(models.Model):
         # “Another user sent you a request for X.”
         'request_received': {
             'kind': Kind.CANCEL,
-            'title': "Pending request with {requestee_name}",
+            'title': "Solicitação pendente com {requestee_name}",
             'body': 
                 "Você tem uma SOLICITAÇÃO PENDENTE de {request_type} para {requestee_name} "
                 "dos horários: {start_hour} - {end_hour} "
@@ -269,6 +193,14 @@ class Notification(models.Model):
             'title': "Requisição de doação pendente",
             'body':
                 "{sender_name} solicitou para {{{receiver_id}}} a doação dos horários: "
+                "{start_hour} - {end_hour} no centro {center} no dia {date}.",
+        },
+
+        'request_pending_open_donation_offered': {
+            'kind': Kind.MASS_ACTION,
+            'title': "Oferta de doação",
+            'body':
+                "{sender_name} oferece a doação dos horários: "
                 "{start_hour} - {end_hour} no centro {center} no dia {date}.",
         },
 

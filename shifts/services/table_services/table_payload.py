@@ -116,7 +116,6 @@ def add_shift(state, table_type, center):
                       day=day,
                       start_time=start_time,
                       end_time=end_time)
-            print("adding")
             
             new_shifts = Shift.objects.filter(
                 user=doctor,

@@ -132,12 +132,16 @@ class UserRequest(models.Model):
         if self.audience == self.Audience.INDIVIDUAL and not self.requestee:
             raise ValidationError({'requestee': 'requestee is required for individual requests.'})
 
-        if self.audience in [self.Audience.ADMINS, self.Audience.ALL_USERS] and self.requestee is not None:
+        if self.audience in [self.Audience.ADMINS] and self.requestee is not None:
             raise ValidationError({'requestee': 'requestee must be null for admin/all users requests.'})
 
         # Minimal per-type rules; adjust to your business logic
         if self.request_type == self.RequestType.DONATION:
-            missing = [f for f in ('donor', 'donee', 'shift') if getattr(self, f) is None]
+            missing = [f for f in ('donor', 'shift') if getattr(self, f) is None]
+
+            if self.audience == self.Audience.INDIVIDUAL and not self.donee:
+                missing.append('donee')
+
             if missing:
                 raise ValidationError({m: "This field is required for a donation." for m in missing})
 
@@ -159,15 +163,20 @@ class UserRequest(models.Model):
         if not self.can_be_accepted_by(responder):
             raise PermissionError("Você não tem autorização para responder esta requisição.")
         
+        if self.audience == self.Audience.ALL_USERS:
+            self.donee = responder
+            self.save(update_fields=['donee'])
+
         conflict = Shift.check_conflict(self.donee,
                                         self.month,
                                         self.day,
                                         self.start_hour,
                                         self.end_hour)
+    
         if (not self.request_type == self.RequestType.EXCLUDE) and conflict:
-            self.refuse(responder)
-            self.notify_conflict(conflict)
-            return
+            # self.refuse(responder)
+            # Notification.notify_conflict(self, conflict)
+            return {'error': 'Você está ocupado no horário solicitado. Libere seu horário para aceitar essa requisição.'}
         
         self.responder = responder
         if self.request_type == self.RequestType.DONATION:
@@ -194,17 +203,13 @@ class UserRequest(models.Model):
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The excludee must be the current assignee of the shift.")
 
-            self.notify_response("accept")
+            Notification.notify_response(self, "accept")
             to_delete_shift = self.shift.split(self.start_hour, self.end_hour)
 
             self.shift = None  # avoid FK constraint issues
             self.save(update_fields=['shift'])
 
-            to_delete_shift.delete()
-
-            # No need to delete other requests on same shift
-            # as they are supposed to be cascaded by shift deletion
-            # but there is need to delete related notifications
+            to_delete_shift.delete() # other reqs on same shift will be cascaded by shift deletion, still need to delete related notifications
 
         self.close()
 
@@ -213,15 +218,18 @@ class UserRequest(models.Model):
 
         self.remove_notifications()
         if self.request_type != self.RequestType.EXCLUDE:
-            self.notify_response("accept")
+            Notification.notify_response(self, "accept")
 
     
     def refuse(self, responder):
+        if self.audience == self.Audience.ALL_USERS:
+            return
+
         self.responder = responder
         self.close()
         self.remove_notifications()
 
-        self.notify_response("refuse")
+        Notification.notify_response(self, "refuse")
 
     def cancel(self, canceller):
         self.responder = canceller
@@ -248,14 +256,22 @@ class UserRequest(models.Model):
         )
         related_notifications.update(is_deleted=True)
 
-    def notify_conflict(self, conflict_shift):
-        from . import Notification
-        Notification.notify_conflict(self, conflict_shift)
-    
-    def notify_response(self, response):
-        from . import Notification
-        Notification.notify_response(self, response)
-
     def notify_request(self):
         from . import Notification
-        Notification.notify_request(self)
+        from vacations.models import Vacation as V
+        from .utils import get_template_key, get_context
+
+        temp_key = get_template_key(self)
+        ctx = get_context(self)
+
+        if not self.audience == self.Audience.ALL_USERS:
+            Notification.notify_request(self, temp_key, ctx)
+            Notification.notify_request(self, "request_received", ctx, request_received=True)
+            return
+        
+        users = User.objects.filter(is_active=True, is_invisible=False).exclude(pk=self.requester.pk)
+        for user in users:
+            self.requestee = user
+            self.save(update_fields=['requestee'])
+            Notification.notify_request(self, temp_key, ctx)
+        Notification.notify_request(self, "request_received", ctx, request_received=True)
