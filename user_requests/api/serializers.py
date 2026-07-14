@@ -3,6 +3,7 @@ from core.models import User
 from vacations.models import Vacation
 from rest_framework import serializers
 from shifts.models import Center, Month, Shift
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from user_requests.models import (
@@ -244,8 +245,16 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         elif not shift_raw == '-':
             start_hr, end_hr = Shift.convert_to_hours(shift_raw)        
 
-        if shift and not shift.month == Month.get_current():
+        if not shift:
+            raise serializers.ValidationError({"shift": _("Turno não encontrado.")})
+
+        if not shift.month == Month.get_current():
             raise serializers.ValidationError({"shift": _("Turno não pertence ao mês atual.")})
+        
+        # if (action == "open_offer"):
+        #     print("shift date:", shift.date_time, type(shift.date_time))
+        #     print("timezone now:", timezone.now(), type(timezone.now()))
+        #     print("delta:", shift.date_time - timezone.now())
         
         # conflict check for actions that place someone on a schedule
         if action in ("include", "ask_for_donation", "offer_donation"):

@@ -1,6 +1,7 @@
-from django.db import models, transaction
 from datetime import datetime
+from django.utils import timezone
 from shifts.models.month import Month
+from django.db import models, transaction
 from core.constants import STR_DAY, END_DAY, HOUR_RANGE
 from shifts.models.shift_abstract import AbstractShift
   
@@ -17,6 +18,13 @@ class Shift(AbstractShift):
     def date(self):
         return self.gen_date(self.month, self.day)
     
+    @property
+    def date_time(self):
+        """Returns the date and time of the shift as a datetime object."""
+        naive_datetime = datetime.combine(self.date, datetime.min.time()).replace(hour=self.start_time)
+
+        return timezone.make_aware(naive_datetime)
+
     @transaction.atomic
     def change_user(self, new_user):
         """
