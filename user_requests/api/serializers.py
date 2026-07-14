@@ -251,10 +251,8 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         if not shift.month == Month.get_current():
             raise serializers.ValidationError({"shift": _("Turno não pertence ao mês atual.")})
         
-        # if (action == "open_offer"):
-        #     print("shift date:", shift.date_time, type(shift.date_time))
-        #     print("timezone now:", timezone.now(), type(timezone.now()))
-        #     print("delta:", shift.date_time - timezone.now())
+        if (action == "open_offer") and ((shift.date_time - timezone.now()) < datetime.timedelta(hours=24)):
+            raise serializers.ValidationError({"shift": _("Ofertas abertas devem ser feitas com pelo menos 24 horas de antecedência.")})
         
         # conflict check for actions that place someone on a schedule
         if action in ("include", "ask_for_donation", "offer_donation"):
