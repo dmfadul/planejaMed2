@@ -38,6 +38,7 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
     seen_at = models.DateTimeField(null=True, blank=True)   # optional but handy
+    expires_at = models.DateTimeField(null=True, blank=True)  # optional for open_offer notifications
     is_deleted = models.BooleanField(default=False)         # optional “archive”
 
     class Meta:
