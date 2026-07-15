@@ -233,7 +233,7 @@ class Notification(models.Model):
             'kind': Kind.INFO,
             'title': "Requisição respondida",
             'body':
-                "{sender_name} {response} {{{receiver_id}}} {verb} DE {req_type}."
+                "{sender_name} {response} {{{receiver_id}}} ** {verb} DE {req_type}."
                 "{start_hour} - {end_hour} no centro {center} no dia {date}.",
         },
          
@@ -300,19 +300,27 @@ class Notification(models.Model):
             self.seen_at = timezone.now()
             self.save(update_fields=['is_read', 'seen_at'])
 
+    # TODO: add logic to distinguish between "you" and "your" in the body text, if needed (testing).
     def _personalize_text(self, text: str, viewer_id: int) -> str:
         if not text:
             return text
         viewer_id = int(viewer_id)
         receiver_id = int(self.receiver.id) if self.receiver else None
         receiver_name = self.receiver.name if self.receiver else "Admin"
+        
         # Replace {receiver_id} with "você" if viewer is the receiver
         token = f"{{{receiver_id}}}"
-        replacement = (
-            "você"
-            if viewer_id == receiver_id
-            else receiver_name
-        )
+
+        if (viewer_id == receiver_id) and ("**" in text):
+            replacement = "sua"  # special case for possessive form
+            return text.replace(token, replacement).replace("**", "")
+        
+        if viewer_id == receiver_id:
+            replacement = "você"
+            return text.replace(token, replacement)
+        else:
+            replacement = receiver_name
+        
         return text.replace(token, replacement)
     
     def render(self, viewer_id) -> dict:
