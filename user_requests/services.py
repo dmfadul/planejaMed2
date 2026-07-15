@@ -1,5 +1,6 @@
+import datetime
 from django.db import transaction
-from user_requests.models import UserRequest, IncludeRequestData
+from user_requests.models import UserRequest
 from user_requests.api.serializers import IncludeRequestDataSerializer
 
 @transaction.atomic
@@ -17,6 +18,14 @@ def create_user_request(
     include_payload,
     action,
 ):
+    expires_at = None
+
+    if action == "open_offer":
+        if shift is None:
+            raise ValueError("Shift must be provided for open_offer action.")
+        
+        expires_at = shift.date_time - datetime.timedelta(hours=24)
+
     req = UserRequest.objects.create(
         requester=requester,
         request_type=request_type,
@@ -27,6 +36,7 @@ def create_user_request(
         shift=shift,
         start_hour=start_hour,
         end_hour=end_hour,
+        expires_at=expires_at
     )
 
     if action == "include" and include_payload:
@@ -35,6 +45,7 @@ def create_user_request(
         inc_ser.save(user_request=req)
 
     req.notify_request()
+
     return req
 
 
