@@ -50,6 +50,7 @@ class UserRequest(models.Model):
     responder = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_responded', null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
     is_open = models.BooleanField(default=True)
     is_approved = models.BooleanField(default=False)
     closing_date = models.DateTimeField(null=True, blank=True)
