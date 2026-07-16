@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.utils import timezone
 from django.db import models, transaction
 from django.db.models import Q
 from rest_framework.views import APIView
@@ -71,7 +72,12 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        qs = Notification.objects.filter(is_deleted=False)
+        
+        qs = Notification.objects.filter(
+            Q(expires_at__isnull=True) |
+            Q(expires_at__gt=timezone.now()), 
+            is_deleted=False
+        )
         
         if user.is_staff or user.is_superuser:
             qs = qs.exclude(
