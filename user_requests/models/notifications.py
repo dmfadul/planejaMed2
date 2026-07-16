@@ -67,6 +67,7 @@ class Notification(models.Model):
             receiver=req.requester if request_received else req.requestee, # request_received means this is a cancelable notification to the requester
             context=ctx,
             related_obj=req,
+            expires_at=req.expires_at
         )
 
     
@@ -257,6 +258,7 @@ class Notification(models.Model):
         receiver: User,
         context: dict | None = None,
         related_obj=None,
+        expires_at: timezone.datetime | None = None,
     ) -> "Notification":
         """
         Factory method that:
@@ -284,6 +286,7 @@ class Notification(models.Model):
             context=data,
             title=title,
             body=body,
+            expires_at=expires_at,
         )
 
         if related_obj is not None:

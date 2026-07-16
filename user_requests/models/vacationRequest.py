@@ -17,6 +17,7 @@ class VacationRequest(models.Model):
 
     start_date = models.DateField()
     end_date = models.DateField()
+    expires_at = models.DateTimeField(null=True, blank=True)
     request_type = models.CharField(max_length=20, choices=Vacation.VacationType.choices)
     
     class Meta:
