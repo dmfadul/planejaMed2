@@ -1,4 +1,5 @@
 import datetime
+from django.utils import timezone
 from django.db import transaction
 from user_requests.models import UserRequest
 from user_requests.api.serializers import IncludeRequestDataSerializer
@@ -49,3 +50,13 @@ def create_user_request(
     return req
 
 
+@transaction.atomic
+def close_expired_requests():
+    expired_requests = UserRequest.objects.filter(
+        is_open=True,
+        expires_at__lte=timezone.now(),
+    )
+
+    for req in expired_requests:
+        # TODO: Add logic to notify users about the closure of the request
+        pass
