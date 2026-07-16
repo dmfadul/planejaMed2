@@ -179,6 +179,17 @@ class Notification(models.Model):
                 "Aperte Cancelar para cancelar a solicitação.",
         },
 
+        # “You sent an open request for the community.”
+        'open_request_received': {
+            'kind': Kind.CANCEL,
+            'title': "Solicitação Aberta pendente",
+            'body': 
+                "Você tem uma OFERTA PENDENTE de {request_type} para a comunidade"
+                "dos horários: {start_hour} - {end_hour} "
+                "no centro {center} no dia {date}. "
+                "Aperte Cancelar para cancelar a oferta.",
+        },
+
         # "Your vacation request is received."
         'vacation_request_received': {
             'kind': Kind.CANCEL,

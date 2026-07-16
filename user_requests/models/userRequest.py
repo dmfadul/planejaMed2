@@ -161,9 +161,16 @@ class UserRequest(models.Model):
         return False
     
     def accept(self, responder):
+        # TODO: add confirmation for the user that the req was accepted and the shift was changed
         if not self.can_be_accepted_by(responder):
             raise PermissionError("Você não tem autorização para responder esta requisição.")
         
+        if not self.is_open:
+            raise ValueError("Esta requisição foi fechada.")
+
+        if self.expires_at and (self.expires_at <= timezone.now()):
+            raise ValueError("Esta requisição expirou.")
+
         if self.audience == self.Audience.ALL_USERS:
             self.donee = responder
             self.save(update_fields=['donee'])
@@ -275,4 +282,4 @@ class UserRequest(models.Model):
             self.requestee = user
             self.save(update_fields=['requestee'])
             Notification.notify_request(self, temp_key, ctx)
-        Notification.notify_request(self, "request_received", ctx, request_received=True)
+        Notification.notify_request(self, "open_request_received", ctx, request_received=True)
