@@ -245,10 +245,10 @@ class IncomingUserRequestSerializer(serializers.Serializer):
         elif not shift_raw == '-':
             start_hr, end_hr = Shift.convert_to_hours(shift_raw)        
 
-        if not shift:
+        if not action == 'include' and not shift:
             raise serializers.ValidationError({"shift": _("Turno não encontrado.")})
 
-        if not shift.month == Month.get_current():
+        if not action == 'include' and not shift.month == Month.get_current():
             raise serializers.ValidationError({"shift": _("Turno não pertence ao mês atual.")})
         
         if (action == "open_offer") and ((shift.date_time - timezone.now()) < datetime.timedelta(hours=24)):
