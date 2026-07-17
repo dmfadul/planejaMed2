@@ -92,9 +92,26 @@ class Notification(models.Model):
         )
 
     @classmethod
+    def notify_expiration(cls, req):
+        """Notify relevant users about a UserRequest expiration event."""
+        from user_requests.models import UserRequest as UR
+
+        cls.from_template(
+            template_key="request_expired",
+            sender=req.requester,
+            receiver=req.requester,
+            context={
+                'center':         req.center.abbreviation,
+                'date':           req.date.strftime("%d/%m/%y"),
+                'start_hour':     f"{req.start_hour:02d}:00",
+                'end_hour':       f"{req.end_hour:02d}:00",
+            },
+            related_obj=req,
+        )
+
+    @classmethod
     def notify_response(cls, req, response):
         """Notify relevant users about a UserRequest response event."""
-        # Do I need to add Cancelable notification to requester?
         from user_requests.models import UserRequest as UR
 
         was_solicited = ((req.request_type == UR.RequestType.DONATION) and
@@ -187,6 +204,7 @@ class Notification(models.Model):
                 "Você tem uma OFERTA PENDENTE de {request_type} para a comunidade"
                 "dos horários: {start_hour} - {end_hour} "
                 "no centro {center} no dia {date}. "
+                "Você continua responsável por esse plantão até que alguém aceite a oferta."
                 "Aperte Cancelar para cancelar a oferta.",
         },
 
@@ -241,12 +259,20 @@ class Notification(models.Model):
                 "{start_hour} - {end_hour} no centro {center} no dia {date}.",
         },
 
+        'request_expired': {
+            'kind': Kind.INFO,
+            'title': "Requisição expirada",
+            'body':
+                "Sua oferta do horário {start_hour} - {end_hour} no centro {center} no dia {date} expirou. "
+                "A requisição foi cancelada automaticamente.",
+        },
+
         'request_responded': {
             'kind': Kind.INFO,
             'title': "Requisição respondida",
             'body':
                 "{sender_name} {response} {{{receiver_id}}} ** {verb} DE {req_type}."
-                "{start_hour} - {end_hour} no centro {center} no dia {date}.",
+                "Do horário {start_hour} - {end_hour} no centro {center} no dia {date}.",
         },
          
         'vacation_request_responded': {

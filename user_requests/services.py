@@ -4,6 +4,7 @@ from django.db import transaction
 from user_requests.models import UserRequest
 from user_requests.api.serializers import IncludeRequestDataSerializer
 
+
 @transaction.atomic
 def create_user_request(
     *,
@@ -52,11 +53,17 @@ def create_user_request(
 
 @transaction.atomic
 def close_expired_requests():
+    from user_requests.models.notifications import Notification
     expired_requests = UserRequest.objects.filter(
         is_open=True,
         expires_at__lte=timezone.now(),
     )
 
+    count = 0
     for req in expired_requests:
-        # TODO: Add logic to notify users about the closure of the request
-        pass
+        req.expire()
+        count += 1
+
+    Notification.notify_expiration(req)
+
+    return count

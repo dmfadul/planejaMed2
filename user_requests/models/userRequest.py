@@ -187,6 +187,8 @@ class UserRequest(models.Model):
             return {'error': 'Você está ocupado no horário solicitado. Libere seu horário para aceitar essa requisição.'}
         
         self.responder = responder
+
+        # DONATE: donor = donor / donnee = donee
         if self.request_type == self.RequestType.DONATION:
             if not (self.shift and self.donor) or not self.shift.user == self.donor:
                 raise ValueError("The donor must be the current assignee of the shift.")
@@ -254,6 +256,14 @@ class UserRequest(models.Model):
         self.is_open = False
         self.closing_date = timezone.now()
         self.save(update_fields=['is_open', 'closing_date'])
+
+    def expire(self):
+        """close the request and inform the requester that the request has expired."""
+        self.is_open = False
+        self.closing_date = timezone.now()
+        self.save(update_fields=['is_open', 'closing_date'])
+        # Notification.notify_expired(self)
+        self.remove_notifications()
 
     def remove_notifications(self):
         """Archive related notifications"""
