@@ -32,7 +32,7 @@ def build_user_monthly_hours_payload(user, month):
                 "routine_hours": 0,
                 "urgency_hours": 0,
             },
-                        {
+            {
                 "name": "CCQ",
                 "routine_hours": 0,
                 "urgency_hours": 0,

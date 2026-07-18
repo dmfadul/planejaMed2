@@ -1,5 +1,6 @@
 function setText(id, value) {
     const element = document.getElementById(id);
+
     if (element) {
         element.textContent = value;
     }
@@ -12,18 +13,23 @@ function formatHours(value) {
         return `${number}h`;
     }
 
-    return `${number.toFixed(1).replace(".", ",")}h`;
+    return `${number.toFixed(1)}h`;
+}
+
+function getCenterTotal(center) {
+    return Number(center.routine_hours || 0) + Number(center.urgency_hours || 0);
 }
 
 function renderCenters(centers) {
     const container = document.getElementById("financeCentersList");
-    const empty = document.getElementById("financeModalEmpty");
-
     container.innerHTML = "";
-    empty.classList.add("d-none");
 
-    if (!centers || centers.length === 0) {
-        empty.classList.remove("d-none");
+    if (!centers.length) {
+        container.innerHTML = `
+            <div class="finance-empty-state">
+                No hours found for this month.
+            </div>
+        `;
         return;
     }
 
@@ -33,20 +39,24 @@ function renderCenters(centers) {
         const totalHours = routineHours + urgencyHours;
 
         container.insertAdjacentHTML("beforeend", `
-            <article class="finance-center-card">
-                <div class="finance-center-top">
-                    <h6>${center.name}</h6>
-                    <span class="finance-total-hours">${formatHours(totalHours)}</span>
+            <article class="finance-center-row">
+                <div class="finance-center-main">
+                    <div>
+                        <h6>${center.name}</h6>
+                        <span class="finance-muted-label">Center total</span>
+                    </div>
+
+                    <strong class="finance-center-total">${formatHours(totalHours)}</strong>
                 </div>
 
-                <div class="finance-hours-split">
-                    <div class="finance-hour-box">
-                        <span>Rotina</span>
+                <div class="finance-hours-breakdown">
+                    <div class="finance-hour-pill">
+                        <span>Routine</span>
                         <strong>${formatHours(routineHours)}</strong>
                     </div>
 
-                    <div class="finance-hour-box">
-                        <span>Urgência</span>
+                    <div class="finance-hour-pill">
+                        <span>Urgency</span>
                         <strong>${formatHours(urgencyHours)}</strong>
                     </div>
                 </div>
@@ -56,14 +66,23 @@ function renderCenters(centers) {
 }
 
 function renderFinanceModal(data) {
-    setText("financeModalSubtitle", `${data.doctor || ""} ${data.month ? "— " + data.month : ""}`);
-    renderCenters(data.centers || []);
+    setText("financeModalSubtitle", `${data.doctor || ""} — ${data.month || ""}`);
+
+    const centers = data.centers || [];
+    const totalHours = centers.reduce((sum, center) => {
+        return sum + getCenterTotal(center);
+    }, 0);
+
+    setText("financeTotalHours", formatHours(totalHours));
+
+    renderCenters(centers);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     const button = document.getElementById("openFinanceModal");
 
     if (!button) {
+        console.error("Button with ID 'openFinanceModal' not found.");
         return;
     }
 
@@ -76,12 +95,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const loading = document.getElementById("financeModalLoading");
         const error = document.getElementById("financeModalError");
         const content = document.getElementById("financeModalContent");
-        const empty = document.getElementById("financeModalEmpty");
 
         loading.classList.remove("d-none");
         error.classList.add("d-none");
         content.classList.add("d-none");
-        empty.classList.add("d-none");
 
         modal.show();
 
@@ -93,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (!response.ok) {
-                throw new Error("Não foi possível carregar os horários.");
+                throw new Error("Could not load finance data.");
             }
 
             const data = await response.json();
@@ -102,10 +119,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             loading.classList.add("d-none");
             content.classList.remove("d-none");
-
         } catch (err) {
             loading.classList.add("d-none");
-            error.textContent = err.message;
+            error.textContent = "Could not load finance data.";
             error.classList.remove("d-none");
         }
     });

@@ -1,57 +1,48 @@
-<div class="modal fade" id="monthlyFinanceModal" tabindex="-1" aria-labelledby="monthlyFinanceModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen-sm-down">
-    <div class="modal-content finance-modal-content bg-light text-dark">
+<div class="modal fade" id="monthlyFinanceModal" tabindex="-1" aria-labelledby="monthlyFinanceModalLabel" aria-hidden="true" data-bs-theme="dark">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
+    <div class="modal-content finance-modal-content">
 
-      <div class="modal-header finance-modal-header">
+      <div class="modal-header">
         <div>
           <h5 class="modal-title" id="monthlyFinanceModalLabel">
-            Meus horários
+            My monthly hours
           </h5>
           <small class="text-muted" id="financeModalSubtitle"></small>
         </div>
 
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <div class="modal-body finance-modal-body">
-        <div id="financeModalLoading" class="text-center py-5 d-none">
-          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-          Carregando...
+      <div class="modal-body">
+
+        <div id="financeModalLoading" class="text-center py-4 d-none">
+          Loading...
         </div>
 
         <div id="financeModalError" class="alert alert-danger d-none"></div>
 
-        <div id="financeModalEmpty" class="alert alert-info d-none">
-          Nenhum horário encontrado para este mês.
-        </div>
-
         <div id="financeModalContent" class="d-none">
 
-          <!-- Keep this section isolated forever -->
+          <section class="finance-hours-summary mb-3">
+            <span class="finance-muted-label">Total monthly hours</span>
+            <strong id="financeTotalHours">0h</strong>
+          </section>
+
           <section class="finance-hours-section">
-            <div class="finance-section-heading">
-              <div>
-                <h6>Horas por centro</h6>
-                <p>Resumo de rotina e urgência no mês selecionado.</p>
-              </div>
+            <div class="finance-section-header">
+              <h6>Centers</h6>
+              <span>Routine / urgency</span>
             </div>
 
-            <div id="financeCentersList" class="finance-centers-grid"></div>
+            <div id="financeCentersList" class="finance-centers-list"></div>
           </section>
-
-          <!-- Later, add payments/procedures BELOW this section -->
-          <!--
-          <section class="finance-payments-section mt-4">
-            ...
-          </section>
-          -->
 
         </div>
       </div>
 
-      <div class="modal-footer finance-modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-          Fechar
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
         </button>
       </div>
 
