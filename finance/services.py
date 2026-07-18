@@ -1,101 +1,57 @@
 from decimal import Decimal
 from core.models import User
 from shifts.models import Shift
-from django.db.models import Sum
+from collections import defaultdict
 from core.constants import STR_DAY, END_DAY
 from .models import FinanceConstant, FinanceEntry
 from core.db.sqlite_collations import COLLATION_NAME
-from django.db.models.functions import Collate, Coalesce
-from django.db.models import Sum, Case, When, Value, DecimalField
+from django.db.models.functions import Collate
 
 
 def build_user_monthly_hours_payload(user, month):
-    qs = (
-        Shift.objects
-        .filter(user=user, month=month)
-        .values("center__abbreviation")
-        .annotate(
-            routine_hours=Coalesce(
-                Sum(
-                    Case(
-                        When(is_urgency=False, then="duration_hours"),
-                        default=Value(0),
-                        output_field=DecimalField(),
-                    )
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-            urgency_hours=Coalesce(
-                Sum(
-                    Case(
-                        When(is_urgency=True, then="duration_hours"),
-                        default=Value(0),
-                        output_field=DecimalField(),
-                    )
-                ),
-                Value(0),
-                output_field=DecimalField(),
-            ),
-        )
-        .order_by("center__abbreviation")
-    )
-
-    centers = []
-
-    for row in qs:
-        print(row)
-        # routine = row["routine_hours"] or 0
-        # urgency = row["urgency_hours"] or 0
-
-        # centers.append({
-        #     "name": row["center__name"],
-        #     "routine_hours": float(routine),
-        #     "urgency_hours": float(urgency),
-        #     "total_hours": float(routine + urgency),
-        # })
-
-    return {}
-    # return {
-    #     "doctor": user.name,
-    #     "month": f"{month.number}/{month.year}",
-    #     "centers": centers,
-    # }
-
-def build_user_monthly_hours_payload_(user, month):
     """
     Returns monthly routine/urgency hours grouped by center
     for the logged-in user only. Used for the "My payment" page.
     """
 
-    data = {
+    shifts = (
+        Shift.objects
+        .filter(user=user, month=month)
+        .select_related("center")
+    )
+
+    centers = defaultdict(lambda: {
+        "routine_hours": 0,
+        "overtime_hours": 0,
+    })
+
+    for shift in shifts:
+        counts = shift.get_overtime_count()
+        center_abbreviation = shift.center.abbreviation
+
+        centers[center_abbreviation]["routine_hours"] += counts.get("normal", 0)
+        centers[center_abbreviation]["overtime_hours"] += counts.get("overtime", 0)
+
+    centers_payload = []
+    for abbreviation, hours in centers.items():
+        routine = hours["routine_hours"]
+        overtime = hours["overtime_hours"]
+
+        centers_payload.append({
+            "abbreviation": abbreviation,
+            "routine_hours": routine,
+            "overtime_hours": overtime,
+            "total_hours": routine + overtime,
+        })
+
+    centers_payload.sort(key=lambda x: x["abbreviation"])
+
+    return {
         "doctor": user.name,
-        "month": "June/2026",
-
-        "total_payment": 2.23,
-        "bonuses": 0,
-        "extras": 0,
-
-        "centers": [
-            {
-                "name": "ECO",
-                "routine_hours": 3,
-                "urgency_hours": 0,
-            },
-            {
-                "name": "CCG",
-                "routine_hours": 0,
-                "urgency_hours": 0,
-            },
-            {
-                "name": "CCQ",
-                "routine_hours": 0,
-                "urgency_hours": 0,
-            },
-        ],
+        "month": f"{month.name}/{month.year}",
+        "centers": centers_payload,
     }
 
-    return data
 
 def build_constant_grid(rows, month):
     out_rows = []

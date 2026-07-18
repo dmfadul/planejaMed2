@@ -17,7 +17,7 @@ function formatHours(value) {
 }
 
 function getCenterTotal(center) {
-    return Number(center.routine_hours || 0) + Number(center.urgency_hours || 0);
+    return Number(center.routine_hours || 0) + Number(center.overtime_hours || 0);
 }
 
 function renderCenters(centers) {
@@ -27,7 +27,7 @@ function renderCenters(centers) {
     if (!centers.length) {
         container.innerHTML = `
             <div class="finance-empty-state">
-                No hours found for this month.
+                Horas não encontradas para este mês.
             </div>
         `;
         return;
@@ -35,15 +35,15 @@ function renderCenters(centers) {
 
     centers.forEach(center => {
         const routineHours = Number(center.routine_hours || 0);
-        const urgencyHours = Number(center.urgency_hours || 0);
-        const totalHours = routineHours + urgencyHours;
+        const overtimeHours = Number(center.overtime_hours || 0);
+        const totalHours = routineHours + overtimeHours;
 
         container.insertAdjacentHTML("beforeend", `
             <article class="finance-center-row">
                 <div class="finance-center-main">
                     <div>
-                        <h6>${center.name}</h6>
-                        <span class="finance-muted-label">Center total</span>
+                        <h6>${center.abbreviation}</h6>
+                        <span class="finance-muted-label">Total do Centro</span>
                     </div>
 
                     <strong class="finance-center-total">${formatHours(totalHours)}</strong>
@@ -56,8 +56,8 @@ function renderCenters(centers) {
                     </div>
 
                     <div class="finance-hour-pill">
-                        <span>Urgency</span>
-                        <strong>${formatHours(urgencyHours)}</strong>
+                        <span>Overtime</span>
+                        <strong>${formatHours(overtimeHours)}</strong>
                     </div>
                 </div>
             </article>
