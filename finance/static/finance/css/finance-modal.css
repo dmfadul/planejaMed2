@@ -1,0 +1,118 @@
+.finance-modal-content {
+    border: none;
+    border-radius: 1rem;
+    background: #f8f9fa;
+}
+
+.finance-modal-header,
+.finance-modal-footer {
+    background: #ffffff;
+}
+
+.finance-modal-body {
+    background: #f8f9fa;
+}
+
+.finance-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.finance-section-heading h6 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.finance-section-heading p {
+    margin: 0.25rem 0 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.finance-hours-section {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+.finance-centers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.finance-center-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.9rem;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.finance-center-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 0.85rem;
+    margin-bottom: 0.85rem;
+    border-bottom: 1px solid #edf0f2;
+}
+
+.finance-center-top h6 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.finance-total-hours {
+    font-weight: 800;
+    font-size: 1.15rem;
+    white-space: nowrap;
+}
+
+.finance-hours-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.finance-hour-box {
+    background: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+}
+
+.finance-hour-box span {
+    display: block;
+    color: #6c757d;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.finance-hour-box strong {
+    display: block;
+    font-size: 1.25rem;
+}
+
+@media (max-width: 576px) {
+    .finance-center-card {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .finance-center-top {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .finance-hours-split {
+        grid-template-columns: 1fr 1fr;
+    }
+}

@@ -1,104 +1,57 @@
-<div class="modal fade" id="monthlyFinanceModal" tabindex="-1" aria-labelledby="monthlyFinanceModalLabel" aria-hidden="true" data-bs-theme="dark">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
-    <div class="modal-content">
+<div class="modal fade" id="monthlyFinanceModal" tabindex="-1" aria-labelledby="monthlyFinanceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen-sm-down">
+    <div class="modal-content finance-modal-content bg-light text-dark">
 
-      <div class="modal-header">
+      <div class="modal-header finance-modal-header">
         <div>
           <h5 class="modal-title" id="monthlyFinanceModalLabel">
-            Monthly finances
+            Meus horários
           </h5>
           <small class="text-muted" id="financeModalSubtitle"></small>
         </div>
 
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
 
-      <div class="modal-body">
-        <div id="financeModalLoading" class="text-center py-4 d-none">
-          Loading...
+      <div class="modal-body finance-modal-body">
+        <div id="financeModalLoading" class="text-center py-5 d-none">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+          Carregando...
         </div>
 
         <div id="financeModalError" class="alert alert-danger d-none"></div>
 
+        <div id="financeModalEmpty" class="alert alert-info d-none">
+          Nenhum horário encontrado para este mês.
+        </div>
+
         <div id="financeModalContent" class="d-none">
 
-          <div class="row g-3 mb-4">
-            <div class="col-12 col-md-4">
-              <div class="finance-summary-card">
-                <span class="finance-label">Total payment</span>
-                <strong id="financeTotalPayment">R$ 0,00</strong>
+          <!-- Keep this section isolated forever -->
+          <section class="finance-hours-section">
+            <div class="finance-section-heading">
+              <div>
+                <h6>Horas por centro</h6>
+                <p>Resumo de rotina e urgência no mês selecionado.</p>
               </div>
             </div>
 
-            <div class="col-6 col-md-4">
-              <div class="finance-summary-card">
-                <span class="finance-label">Bonuses</span>
-                <strong id="financeBonuses">R$ 0,00</strong>
-              </div>
-            </div>
+            <div id="financeCentersList" class="finance-centers-grid"></div>
+          </section>
 
-            <div class="col-6 col-md-4">
-              <div class="finance-summary-card">
-                <span class="finance-label">Extras</span>
-                <strong id="financeExtras">R$ 0,00</strong>
-              </div>
-            </div>
-          </div>
-
-          <h6 class="finance-section-title">Centers</h6>
-          <div id="financeCentersList" class="row g-3 mb-4"></div>
-
-          <div class="row g-3 mb-4">
-            <div class="col-12 col-lg-6">
-              <div class="finance-card">
-                <h6>ECO payments</h6>
-                <div class="finance-line"><span>Direct private</span><strong id="ecoDirect">R$ 0,00</strong></div>
-                <div class="finance-line"><span>Unimed</span><strong id="ecoUnimed">R$ 0,00</strong></div>
-                <div class="finance-line"><span>Copan</span><strong id="ecoCopan">R$ 0,00</strong></div>
-              </div>
-            </div>
-
-            <div class="col-12 col-lg-6">
-              <div class="finance-card">
-                <h6>HUAM payments</h6>
-                <div class="finance-line"><span>Direct private</span><strong id="huamDirect">R$ 0,00</strong></div>
-                <div class="finance-line"><span>Unimed</span><strong id="huamUnimed">R$ 0,00</strong></div>
-                <div class="finance-line"><span>Copan</span><strong id="huamCopan">R$ 0,00</strong></div>
-              </div>
-            </div>
-          </div>
-
-          <h6 class="finance-section-title">Procedures</h6>
-          <div class="finance-card">
-            <div class="row g-3">
-              <div class="col-6 col-md-3">
-                <span class="finance-label">Private</span>
-                <strong id="privateProcedures">0</strong>
-              </div>
-
-              <div class="col-6 col-md-3">
-                <span class="finance-label">Insurance</span>
-                <strong id="insuranceProcedures">0</strong>
-              </div>
-
-              <div class="col-6 col-md-3">
-                <span class="finance-label">ER</span>
-                <strong id="erProcedures">0</strong>
-              </div>
-
-              <div class="col-6 col-md-3">
-                <span class="finance-label">Treated AIH</span>
-                <strong id="treatedAih">0</strong>
-              </div>
-            </div>
-          </div>
+          <!-- Later, add payments/procedures BELOW this section -->
+          <!--
+          <section class="finance-payments-section mt-4">
+            ...
+          </section>
+          -->
 
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Close
+      <div class="modal-footer finance-modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Fechar
         </button>
       </div>
 

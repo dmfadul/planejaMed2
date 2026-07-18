@@ -24,36 +24,20 @@ def build_user_monthly_hours_payload(user, month):
         "centers": [
             {
                 "name": "ECO",
-                "routine_hours": 0,
+                "routine_hours": 3,
                 "urgency_hours": 0,
-                "total_payment": 0,
             },
             {
-                "name": "HUAM",
+                "name": "CCG",
                 "routine_hours": 0,
                 "urgency_hours": 0,
-                "total_payment": 0,
+            },
+                        {
+                "name": "CCQ",
+                "routine_hours": 0,
+                "urgency_hours": 0,
             },
         ],
-
-        "eco": {
-            "direct_private": 0,
-            "unimed": 0,
-            "copan": 0,
-        },
-
-        "huam": {
-            "direct_private": 0,
-            "unimed": 0,
-            "copan": 0,
-        },
-
-        "procedures": {
-            "private": 0,
-            "insurance": 0,
-            "er": 0,
-            "treated_aih": 0,
-        },
     }
 
     return data
