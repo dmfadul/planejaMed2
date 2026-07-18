@@ -13,7 +13,7 @@ from shifts.models import Month
 from finance.grids import FINANCE_GRIDS, CONSTANTS_GRIDS
 from finance.models import FinanceConstant, FinanceEntry, FinanceCategory, FinanceSource
 
-from .services import build_finance_grid, build_constant_grid
+from .services import build_finance_grid, build_constant_grid, build_user_monthly_hours_payload
 from .forms import UploadedDocumentForm
 from .models import UploadedDocument
 
@@ -25,48 +25,7 @@ def user_finance_monthly_data(request, month_id=None):
     month = get_object_or_404(Month, id=month_id) if month_id else Month.get_current()
     user = request.user
 
-    data = {
-        "doctor": user.name,
-        "month": "June/2026",
-
-        "total_payment": 0,
-        "bonuses": 0,
-        "extras": 0,
-
-        "centers": [
-            {
-                "name": "ECO",
-                "routine_hours": 0,
-                "urgency_hours": 0,
-                "total_payment": 0,
-            },
-            {
-                "name": "HUAM",
-                "routine_hours": 0,
-                "urgency_hours": 0,
-                "total_payment": 0,
-            },
-        ],
-
-        "eco": {
-            "direct_private": 0,
-            "unimed": 0,
-            "copan": 0,
-        },
-
-        "huam": {
-            "direct_private": 0,
-            "unimed": 0,
-            "copan": 0,
-        },
-
-        "procedures": {
-            "private": 0,
-            "insurance": 0,
-            "er": 0,
-            "treated_aih": 0,
-        },
-    }
+    data = build_user_monthly_hours_payload(user, month)
     return JsonResponse(data)
 
 @login_required

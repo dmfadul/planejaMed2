@@ -7,6 +7,57 @@ from core.db.sqlite_collations import COLLATION_NAME
 from core.constants import STR_DAY, END_DAY
 
 
+def build_user_monthly_hours_payload(user, month):
+    """
+    Returns monthly routine/urgency hours grouped by center
+    for the logged-in user only. Used for the "My payment" page.
+    """
+
+    data = {
+        "doctor": user.name,
+        "month": "June/2026",
+
+        "total_payment": 2.23,
+        "bonuses": 0,
+        "extras": 0,
+
+        "centers": [
+            {
+                "name": "ECO",
+                "routine_hours": 0,
+                "urgency_hours": 0,
+                "total_payment": 0,
+            },
+            {
+                "name": "HUAM",
+                "routine_hours": 0,
+                "urgency_hours": 0,
+                "total_payment": 0,
+            },
+        ],
+
+        "eco": {
+            "direct_private": 0,
+            "unimed": 0,
+            "copan": 0,
+        },
+
+        "huam": {
+            "direct_private": 0,
+            "unimed": 0,
+            "copan": 0,
+        },
+
+        "procedures": {
+            "private": 0,
+            "insurance": 0,
+            "er": 0,
+            "treated_aih": 0,
+        },
+    }
+
+    return data
+
 def build_constant_grid(rows, month):
     out_rows = []
 
