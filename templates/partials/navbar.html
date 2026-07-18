@@ -54,24 +54,22 @@
         </li>
         {% endif %}
 
-        {% if user.is_superuser %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Financeiro
           </a>
           <ul class="dropdown-menu">
+            <li><a
+                href="#"
+                class="dropdown-item"
+                id="openFinanceModal"
+                data-finance-url="{% url 'finance:monthly_finance_data' %}"
+              >
+                Meus Honorários
+            </a></li>
             {% if user.is_staff %}
-              <li><a class="dropdown-item" href="{% url 'finance:spreadsheet' %}">Dashboard</a></li>
-              <li><a class="dropdown-item" href="{% url 'finance:constants' %}">Parâmetros</a></li>
-              <li><a
-                  href="#"
-                  class="dropdown-item"
-                  id="openFinanceModal"
-                  data-finance-url="{% url 'finance:monthly_finance_data' %}"
-                >
-                  Meus Honorários
-              </a></li>
-            {% endif %}
+            <li><a class="dropdown-item" href="{% url 'finance:spreadsheet' %}">Dashboard</a></li>
+            <li><a class="dropdown-item" href="{% url 'finance:constants' %}">Parâmetros</a></li>
             <li><a class="dropdown-item" href="#">Incluir</a></li>
             <li>
             <a class="dropdown-item" href="#"
@@ -80,9 +78,9 @@
               Upload
             </a>
             </li>
+            {% endif %}
           </ul>
         </li>
-        {% endif %}
 
         {% if user.is_superuser %}
         <li class="nav-item dropdown">

@@ -1,13 +1,68 @@
 from decimal import Decimal
-from django.db.models import Sum
-from .models import FinanceConstant, FinanceEntry
 from core.models import User
-from django.db.models.functions import Collate
-from core.db.sqlite_collations import COLLATION_NAME
+from shifts.models import Shift
+from django.db.models import Sum
 from core.constants import STR_DAY, END_DAY
+from .models import FinanceConstant, FinanceEntry
+from core.db.sqlite_collations import COLLATION_NAME
+from django.db.models.functions import Collate, Coalesce
+from django.db.models import Sum, Case, When, Value, DecimalField
 
 
 def build_user_monthly_hours_payload(user, month):
+    qs = (
+        Shift.objects
+        .filter(user=user, month=month)
+        .values("center__abbreviation")
+        .annotate(
+            routine_hours=Coalesce(
+                Sum(
+                    Case(
+                        When(is_urgency=False, then="duration_hours"),
+                        default=Value(0),
+                        output_field=DecimalField(),
+                    )
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            ),
+            urgency_hours=Coalesce(
+                Sum(
+                    Case(
+                        When(is_urgency=True, then="duration_hours"),
+                        default=Value(0),
+                        output_field=DecimalField(),
+                    )
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            ),
+        )
+        .order_by("center__abbreviation")
+    )
+
+    centers = []
+
+    for row in qs:
+        print(row)
+        # routine = row["routine_hours"] or 0
+        # urgency = row["urgency_hours"] or 0
+
+        # centers.append({
+        #     "name": row["center__name"],
+        #     "routine_hours": float(routine),
+        #     "urgency_hours": float(urgency),
+        #     "total_hours": float(routine + urgency),
+        # })
+
+    return {}
+    # return {
+    #     "doctor": user.name,
+    #     "month": f"{month.number}/{month.year}",
+    #     "centers": centers,
+    # }
+
+def build_user_monthly_hours_payload_(user, month):
     """
     Returns monthly routine/urgency hours grouped by center
     for the logged-in user only. Used for the "My payment" page.
