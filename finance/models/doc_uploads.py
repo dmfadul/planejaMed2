@@ -30,6 +30,11 @@ class UploadedDocument(models.Model):
     original_name = models.CharField(max_length=255, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-uploaded_at"]
+        verbose_name = "Uploaded document"
+        verbose_name_plural = "Uploaded documents"
+        
     def save(self, *args, **kwargs):
         if self.file and not self.original_name:
             self.original_name = os.path.basename(self.file.name)
