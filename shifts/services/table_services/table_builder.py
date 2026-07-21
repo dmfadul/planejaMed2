@@ -311,22 +311,23 @@ def build_balance_table_month(table_data, month, filter_type=None, remove_past=T
 
             worked_hours = hours_by_day.get(day, empty_periods())
 
-
             balance_by_day[day_key] = {}
             for period in PERIODS:
-                diff = worked_hours.get(period, 0) - staffing_hours.get(period, 0)
+                if staffing_hours.get(period, 0) == "excluded":
+                    diff = 0
+                else:
+                    diff = worked_hours.get(period, 0) - staffing_hours.get(period, 0)
+                
                 # make diff the closest smaller (to the abs value of the) value divisible by minimum_hours
                 if diff % minimum_hours != 0:
-                    print(diff, diff // minimum_hours, minimum_hours)
                     diff = (diff // minimum_hours) * minimum_hours
 
                 balance_by_day[day_key][period] = diff
 
-
         # must filter before adding to table data, to get to each center's balance separately
         if filter_type:
             balance_by_day = staffing_filter(balance_by_day, filter_type)
-
+    
         table_data["balance"][f"{center.abbreviation}-{month.name}"] = balance_by_day
     
     return table_data

@@ -112,6 +112,14 @@ STAFFING_HOURS = {
     },
     "ECO": {
         "all": {
+            "morning": "excluded",
+            "afternoon": "excluded",
+            "cinderella": "excluded",
+            "vampire": "excluded",
+        },
+    },
+    "ECO_": {
+        "all": {
             "morning": 0,
             "afternoon": 0,
             "cinderella": 0,
