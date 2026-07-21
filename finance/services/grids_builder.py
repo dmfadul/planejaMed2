@@ -3,9 +3,85 @@ from core.models import User
 from shifts.models import Shift
 from collections import defaultdict
 from core.constants import STR_DAY, END_DAY
-from .models import FinanceConstant, FinanceEntry
-from core.db.sqlite_collations import COLLATION_NAME
 from django.db.models.functions import Collate
+from core.db.sqlite_collations import COLLATION_NAME
+from finance.models import FinanceConstant, FinanceEntry
+
+
+def build_finance_grid(month, columns):
+    users = User.objects.filter(is_active=True, is_invisible=False).order_by(Collate("name", COLLATION_NAME), "id")
+    
+    entries = FinanceEntry.objects.filter(month=month).select_related(
+        "user",
+        "category",
+        "source",
+    )
+
+    entry_map = {}
+    for entry in entries:
+        if entry.category:
+            # the combination of user, category, and description should uniquely identify an entry for the grid
+            # which means that the category code + description should uniquely identify a column in the grid
+            entry_map[(entry.user_id, entry.category.code, entry.description)] = entry.amount
+
+    rows = []
+    for user in users:
+        row = {
+            "user": user,
+            "cells": [],
+        }
+
+        for column in columns:
+            value = get_cell_value(
+                user=user,
+                month=month,
+                column=column,
+                entry_map=entry_map,
+            )
+
+            row["cells"].append({
+                "column": column,
+                "value": value,
+                "editable": column.get("editable", False),
+                "protected": not column.get("editable", False)
+            })
+
+        rows.append(row)
+    
+    return {
+        "columns": columns,
+        "rows": rows,
+    }
+
+
+def build_constant_grid(rows, month):
+    out_rows = []
+
+    for row in rows:
+        r = {"cells": []}
+
+        value = get_constant_value(row, month)
+
+        # Column 1: label (not editable)
+        r["cells"].append({
+            "key": row.get("key"),
+            "label": row.get("label", ""),
+            "value": row.get("label", ""),
+            "editable": False,
+            "protected": True,
+        })
+
+        # Column 2: value (editable or not)
+        r["cells"].append({
+            "key": row.get("key"),
+            "value": value,
+            "editable": row.get("editable", False),
+            "protected": not row.get("editable", False),
+        })
+
+        out_rows.append(r)
+
+    return {"rows": out_rows}
 
 
 def build_user_monthly_hours_payload(user, month):
@@ -53,80 +129,28 @@ def build_user_monthly_hours_payload(user, month):
     }
 
 
-def build_constant_grid(rows, month):
-    out_rows = []
+# ========================== Utility functions ==========================
+def get_cell_value(user, month, column, entry_map):
+    key = column["key"]
 
-    for row in rows:
-        r = {"cells": []}
-
-        value = get_constant_value(row, month)
-
-        # Column 1: label (not editable)
-        r["cells"].append({
-            "key": row.get("key"),
-            "label": row.get("label", ""),
-            "value": row.get("label", ""),
-            "editable": False,
-            "protected": True,
-        })
-
-        # Column 2: value (editable or not)
-        r["cells"].append({
-            "key": row.get("key"),
-            "value": value,
-            "editable": row.get("editable", False),
-            "protected": not row.get("editable", False),
-        })
-
-        out_rows.append(r)
-
-    return {"rows": out_rows}
-
-
-def build_finance_grid(month, columns):
-    users = User.objects.filter(is_active=True, is_invisible=False).order_by(Collate("name", COLLATION_NAME), "id")
+    if key == "user_name":
+        return user.name
     
-    entries = FinanceEntry.objects.filter(month=month).select_related(
-        "user",
-        "category",
-        "source",
-    )
-
-    entry_map = {}
-    for entry in entries:
-        if entry.category:
-            # the combination of user, category, and description should uniquely identify an entry for the grid
-            # which means that the category code + description should uniquely identify a column in the grid
-            entry_map[(entry.user_id, entry.category.code, entry.description)] = entry.amount
-
-    rows = []
-    for user in users:
-        row = {
-            "user": user,
-            "cells": [],
-        }
-
-        for column in columns:
-            value = get_cell_value(
-                user=user,
-                month=month,
-                column=column,
-                entry_map=entry_map,
-            )
-
-            row["cells"].append({
-                "column": column,
-                "value": value,
-                "editable": column.get("editable", False),
-                "protected": not column.get("editable", False)
-            })
-
-        rows.append(row)
+    if key == "crm":
+        return getattr(user, "crm", "")
     
-    return {
-        "columns": columns,
-        "rows": rows,
-    }
+    # Protected/calculated HUEM cells
+    # if key.startswith("huem_"):
+    if not column.get("editable", False):
+        return calculate_hours_from_db(user, month, key)
+
+    # Editable financial cells
+    category_code = column.get("category_code")
+    description = f"{column.get('subcategory', '')}_{column['label']}"
+    if category_code:
+        return entry_map.get((user.id, category_code, description), Decimal("0.00"))
+
+    return ""
 
 
 def get_constant_value(row, month):    
@@ -187,28 +211,6 @@ def get_constant_value(row, month):
         return 0
     
     raise ValueError(f"Unknown constant code: {code}")
-
-def get_cell_value(user, month, column, entry_map):
-    key = column["key"]
-
-    if key == "user_name":
-        return user.name
-    
-    if key == "crm":
-        return getattr(user, "crm", "")
-    
-    # Protected/calculated HUEM cells
-    # if key.startswith("huem_"):
-    if not column.get("editable", False):
-        return calculate_hours_from_db(user, month, key)
-
-    # Editable financial cells
-    category_code = column.get("category_code")
-    description = f"{column.get('subcategory', '')}_{column['label']}"
-    if category_code:
-        return entry_map.get((user.id, category_code, description), Decimal("0.00"))
-
-    return ""
 
 
 def calculate_hours_from_db(user, month, key):
