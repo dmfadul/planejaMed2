@@ -60,10 +60,12 @@ def close_expired_requests():
     )
 
     count = 0
+    notified_users = set()
     for req in expired_requests:
         req.expire()
+        notified_users.add(req.requester)
+        if req.requester not in notified_users:
+            Notification.notify_expiration(req)
         count += 1
-
-    Notification.notify_expiration(req)
 
     return count
