@@ -26,22 +26,28 @@ class FinanceEntry(models.Model):
         DEDUCTION = "deduction", "Deduction"
         ADJUSTMENT = "adjustment", "Adjustment"
 
+    # The fiscal month to which this entry belongs.  
     month = models.ForeignKey(
         "shifts.Month",
         on_delete=models.CASCADE,
         related_name="finance_entries"
     )
+
+    # The user to whom this entry belongs.
     user = models.ForeignKey(
         "core.User",
         on_delete=models.CASCADE,
         related_name="finance_entries"
     )
+
+    # The source of this entry. It can be a source of credit or a source of debit, i.e. a payer (like Unimed) or a payee (like Personnel).
     source = models.ForeignKey(
         "FinanceSource",
         on_delete=models.PROTECT,
         related_name="entries"
     )
 
+    # The category of this entry (). This field seems to be the most important.
     category = models.ForeignKey(
         "FinanceCategory",
         null=True,
@@ -49,11 +55,12 @@ class FinanceEntry(models.Model):
         on_delete=models.PROTECT,
     )
 
-    entry_type = models.CharField(max_length=30, choices=EntryType.choices)
-    description = models.CharField(max_length=255, blank=True)
+    entry_type = models.CharField(max_length=30, choices=EntryType.choices) # The type of this entry (CREDIT, DIRECT_RECEIPT, etc.)
+    description = models.CharField(max_length=255, blank=True) # Aditional description for this entry, if needed. 
 
     amount = models.DecimalField(max_digits=12, decimal_places=2)
 
+    # The document from which this entry was imported, if applicable. This field is optional and can be null.
     imported_document = models.ForeignKey(
         "finance.UploadedDocument",
         null=True,

@@ -18,9 +18,9 @@ def process_uploaded_document(document: UploadedDocument) -> None:
     
     sheet = workbook.active
     per_item = {}
-    doc_test = set()
     for row in sheet.iter_rows(values_only=True):
         code, _, _, procedure, doctor_name, payment_description, _, payment = list(row)
+
         if not code:
             continue
 
@@ -30,17 +30,21 @@ def process_uploaded_document(document: UploadedDocument) -> None:
         if not procedure:
             continue
         
-        if procedure not in per_item:
-            per_item[procedure] = {}
+        if payment_description not in per_item:
+            per_item[payment_description] = {}
 
-        doctor_name = " ".join([name.title().strip() for name in doctor_name.split()])
-        if doctor_name not in doc_test:
-            doctor = User.objects.filter(name__iexact=doctor_name).first()
-            doc_test.add((doctor_name, doctor))
+        doctor_name = " ".join([name.casefold().strip() for name in doctor_name.split()])
+        if doctor_name not in per_item[payment_description]:
+            doctor = User.objects.filter(search_name=doctor_name).first()
+            if not doctor:
+                print(f"Doctor not found for name: {doctor_name}")
+                continue
+            per_item[payment_description][doctor.crm] = 0
 
-    
-        # print(code, procedure, doctor_name, payment_description, payment)
-    for item in doc_test:
-        print(item)
+        per_item[payment_description][doctor.crm] += int(payment)
+
+    for payment_description, doctors in per_item.items():
+        for crm, total_payment in doctors.items():
+            print(f"Payment Description: {payment_description}, Doctor CRM: {crm}, Total Payment: {total_payment}")
 
     workbook.close()
