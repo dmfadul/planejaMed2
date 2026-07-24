@@ -6,9 +6,9 @@ def normalize_name_for_search(value: str) -> str:
     Normalize a name for case-insensitive and accent-insensitive searching.
 
     Examples:
-        "João da Silva"   -> "JOAO DA SILVA"
-        "JOÃO  DA SILVA"  -> "JOAO DA SILVA"
-        "  José Luís  "   -> "JOSE LUIS"
+        "João da Silva"   -> "joao da silva"
+        "JOÃO  DA SILVA"  -> "joao da silva"
+        "  José Luís  "   -> "jose luis"
     """
     value = unicodedata.normalize("NFKD", value or "")
 
@@ -18,4 +18,4 @@ def normalize_name_for_search(value: str) -> str:
         if not unicodedata.combining(character)
     )
 
-    return " ".join(value.casefold().upper().split())
+    return " ".join(value.casefold().split())

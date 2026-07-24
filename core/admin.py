@@ -14,14 +14,14 @@ class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
 
-    ordering = ("crm",)
+    ordering = ("name",)
     list_display = ("crm", "name", "email", "is_active", "is_invisible", "is_staff", "is_superuser")
-    search_fields = ("crm", "name", "email")
+    search_fields = ("crm", "search_name", "email")
     list_filter = ("is_active", "is_invisible", "is_staff", "is_superuser", "is_manager")
 
     fieldsets = (
         (None, {"fields": ("crm", "password")}),
-        (_("Personal info"), {"fields": ("name", "alias", "email", "phone", "rqe")}),
+        (_("Personal info"), {"fields": ("name", "search_name", "alias", "email", "phone", "rqe")}),
         (_("Permissions"), {"fields": ("is_active", "is_invisible", "is_staff", "is_superuser", "is_manager", "groups", "user_permissions")}),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
@@ -33,7 +33,7 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
 
-    readonly_fields = ("last_login", "date_joined")
+    readonly_fields = ("search_name", "last_login", "date_joined")
 
 
 @admin.register(MaintenanceMode)
