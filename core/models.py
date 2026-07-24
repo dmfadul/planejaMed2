@@ -1,6 +1,12 @@
 from django.db import models
 from django.utils.timezone import now
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin
+)
+
+from core.utils import normalize_name_for_search
 
 
 class UserManager(BaseUserManager):
@@ -10,12 +16,22 @@ class UserManager(BaseUserManager):
         """Create and return a new user."""
         if not crm:
             raise ValueError('Users must have a crm number')
+        
         if not name:
             raise ValueError('Users must have a name')
         
-        normalized_name = ' '.join([n.capitalize() for n in name.split()])
+        # This is display formatting, not search normalization.
+        display_name = " ".join(
+            part.capitalize()
+            for part in name.split()
+        )
 
-        user = self.model(crm=crm, name=normalized_name, **extra_fields)
+        user = self.model(
+            crm=crm,
+            name=display_name,
+            **extra_fields
+        )
+
         user.set_password(password)
         user.save(using=self._db)
 
@@ -23,9 +39,11 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, crm, password):
         """Create and return a new superuser."""
-        user = self.create_user(crm=crm,
-                                name="Admin",
-                                password=password)
+        user = self.create_user(
+            crm=crm,
+            name="Admin",
+            password=password)
+        
         user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
@@ -37,6 +55,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     """Custom user model that supports using crm instead of email."""
 
     name = models.CharField(max_length=255)
+
+    search_name = models.CharField(
+        max_length=512,
+        blank=True,
+        default='',
+        editable=False,
+        db_index=True,
+    )
+
     alias = models.CharField(max_length=30, blank=True, default='')
     crm = models.CharField(max_length=255, unique=True)
     rqe = models.CharField(max_length=255, blank=True, default='')
@@ -56,6 +83,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'crm'
+
+    def save(self, *args, **kwargs):
+        update_fields = kwargs.get("update_fields")
+
+        # Recalculate only when this is a complete save or name is being saved.
+        if update_fields is None or "name" in update_fields:
+            self.search_name = normalize_name_for_search(self.name)
+
+            if update_fields is not None:
+                kwargs["update_fields"] = set(update_fields) | {
+                    "search_name"
+                }
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
