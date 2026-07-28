@@ -257,13 +257,14 @@ def build_balance_table(table_data, curr_month, filter_type=None):
 
 def build_balance_table_month(table_data, month, filter_type=None, remove_past=True):
     from core.constants import MINIMUM_HOURS_TO_SHOW_BALANCE as minimum_hours
-    PERIODS = ("morning", "afternoon", "cinderella", "vampire")
+    PERIODS = ("morning", "afternoon", "cinderella", "night", "vampire")
 
     def empty_periods():
         return {
             "morning": 0,
             "afternoon": 0,
             "cinderella": 0,
+            "night": 0,
             "vampire": 0,
         }
     
@@ -316,7 +317,7 @@ def build_balance_table_month(table_data, month, filter_type=None, remove_past=T
                 if staffing_hours.get(period, 0) == "excluded":
                     diff = 0
                 else:
-                    diff = worked_hours.get(period, 0) - staffing_hours.get(period, 0)
+                    diff = worked_hours.get(period, 0) - staffing_hours.get(period, 0)                       
                 
                 # make diff the closest smaller (to the abs value of the) value divisible by minimum_hours
                 if diff % minimum_hours != 0:
@@ -324,10 +325,17 @@ def build_balance_table_month(table_data, month, filter_type=None, remove_past=T
 
                 balance_by_day[day_key][period] = diff
 
+        for _, periods in balance_by_day.items():
+            if "night" in periods and "cinderella" in periods:
+                cinderella_hours = periods["cinderella"] - periods["vampire"]
+                periods["night"] -= cinderella_hours
+                periods["vampire"] -= cinderella_hours
+                periods["cinderella"] = cinderella_hours
+
         # must filter before adding to table data, to get to each center's balance separately
         if filter_type:
             balance_by_day = staffing_filter(balance_by_day, filter_type)
-    
+
         table_data["balance"][f"{center.abbreviation}-{month.name}"] = balance_by_day
     
     return table_data

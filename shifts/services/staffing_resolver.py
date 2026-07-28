@@ -38,6 +38,7 @@ def get_staffing_hours(center, weekday_int, holiday) -> dict[str, int]:
             "morning": 0,
             "afternoon": 0,
             "cinderella": 0,
+            "night": 0,
             "vampire": 0,
         }
 

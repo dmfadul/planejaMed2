@@ -18,7 +18,7 @@ function genStartHour(period, value){
     if (period === "morning") {return 7;}
     if (period === "afternoon") {return 13;}
     if (period === "cinderella") {return 19;}
-    if (period === "vampire") {return 1;}
+    if (period === "night") {return 19;}
     return 0; // Default placeholder for unknown period
 }
 
@@ -28,7 +28,7 @@ function genEndHour(period, value){
     if (period === "morning") {return 13;}
     if (period === "afternoon") {return 19;}
     if (period === "cinderella") {return 1;}
-    if (period === "vampire") {return 7;}
+    if (period === "night") {return 7;}
     return 0; // Default placeholder for unknown period
 }
 
@@ -75,7 +75,7 @@ function renderBalanceTable(data, table) {
 
         // Header row
         const headerRow = document.createElement('tr');
-        ['Dia', 'Manhã', 'Tarde', 'Cinderela', 'Madrug'].forEach((label, idx) => {
+        ['Dia', 'Manhã', 'Tarde', 'Cinderela', 'Noite'].forEach((label, idx) => {
             const th = document.createElement('th');
             th.textContent = label;
             th.className = idx === 0
@@ -95,7 +95,7 @@ function renderBalanceTable(data, table) {
             dayTd.className = 'first-col name-col';
             tr.appendChild(dayTd);
 
-            ['morning', 'afternoon', 'cinderella', 'vampire'].forEach(period => {
+            ['morning', 'afternoon', 'cinderella', 'night'].forEach(period => {
                 const td = document.createElement('td');
                 const value = shifts[period];
 
