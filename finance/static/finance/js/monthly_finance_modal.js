@@ -51,12 +51,12 @@ function renderCenters(centers) {
 
                 <div class="finance-hours-breakdown">
                     <div class="finance-hour-pill">
-                        <span>Routine</span>
+                        <span>Rotina</span>
                         <strong>${formatHours(routineHours)}</strong>
                     </div>
 
                     <div class="finance-hour-pill">
-                        <span>Overtime</span>
+                        <span>Urgência</span>
                         <strong>${formatHours(overtimeHours)}</strong>
                     </div>
                 </div>
