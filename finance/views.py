@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest, Http404
@@ -27,8 +28,18 @@ from django.http import JsonResponse
 
 @login_required
 def user_finance_monthly_data(request, month_id=None):
-    month = get_object_or_404(Month, id=month_id) if month_id else Month.get_current()
     user = request.user
+
+    today = datetime.now().date()
+    current_month = Month.get_current()
+    last_month = current_month.get_previous()
+
+    if month_id:
+        month = get_object_or_404(Month, id=month_id)
+    elif today <= current_month.break_date.date():
+        month = last_month
+    else:
+        month = current_month
 
     data = build_user_monthly_hours_payload(user, month)
     return JsonResponse(data)
