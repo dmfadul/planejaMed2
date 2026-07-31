@@ -78,6 +78,8 @@ class HospitalFinancialBatchAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
+        "month__year",
+        "month__number",
         "uploaded_document__file",
     )
 
