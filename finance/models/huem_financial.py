@@ -71,31 +71,31 @@ class HospitalFinancialEntry(models.Model):
         related_name="entries",
     )
 
-    health_plan_name = models.CharField(
+    health_plan_name = models.CharField(  # C/2
         "Nome Convênio",
         max_length=255,
         blank=True,
     )
 
-    procedure_description = models.CharField(
+    procedure_description = models.CharField( # D/3
         "Descrição Procedimento",
         max_length=500,
         blank=True,
     )
 
-    provider_name = models.CharField(
+    provider_name = models.CharField( # E/4
         "Nome Prestador",
         max_length=255,
         blank=True,
     )
 
-    transfer_description = models.CharField(
+    transfer_description = models.CharField( # F/5
         "Descrição Repasse",
         max_length=500,
         blank=True,
     )
 
-    amount = models.DecimalField(
+    amount = models.DecimalField( # H/7
         "Valor",
         max_digits=12,
         decimal_places=2,
