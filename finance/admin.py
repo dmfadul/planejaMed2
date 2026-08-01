@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import (
+    UploadedDocument,
     FinanceConstant,
     FinanceSource,
     FinanceEntry,
@@ -8,6 +9,14 @@ from .models import (
     HospitalFinancialEntry
 )
 
+
+@admin.register(UploadedDocument)
+class UploadedDocumentAdmin(admin.ModelAdmin):
+    list_display = ("month", "file_type", "original_name", "uploaded_at")
+    list_filter = ("file_type", "month")
+    search_fields = ("original_name",)
+    readonly_fields = ("uploaded_at",)
+    
 
 @admin.register(FinanceConstant)
 class FinanceConstantAdmin(admin.ModelAdmin):
