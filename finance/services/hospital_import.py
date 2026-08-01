@@ -36,6 +36,7 @@ def create_original_batch(*, month, document, rows, user):
             health_plan_name=row["Nome Convênio"],
             procedure_description=row["Descrição Procedimento"],
             provider_name=row["Nome Prestador"],
+            doctor=row.get("doctor"),
             transfer_description=row["Descrição Repasse"],
             amount=row["Valor"],
         )

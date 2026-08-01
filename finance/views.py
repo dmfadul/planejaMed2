@@ -12,14 +12,22 @@ from django.contrib import messages
 from core.models import User
 from shifts.models import Month
 from finance.grids import FINANCE_GRIDS, CONSTANTS_GRIDS
-from finance.models import FinanceConstant, FinanceEntry, FinanceCategory, FinanceSource
+
+from finance.models import (
+    FinanceConstant,
+    FinanceEntry,
+    FinanceCategory,
+    FinanceSource
+)
 
 from .services import (
     build_finance_grid,
     build_constant_grid,
     build_user_monthly_hours_payload,
     process_uploaded_document,
+    create_original_batch
     )
+
 from .forms import UploadedDocumentForm
 from .models import UploadedDocument
 
@@ -272,11 +280,17 @@ def upload_document_view(request):
         document = form.save(commit=False)
         document.month = Month.get_current()
         document.save()
-        try:
-            process_uploaded_document(document)
-        except Exception as e:
-            messages.error(request, "The file could not be processed.")
-            return redirect("finance:spreadsheet")
+        # try:
+        rows = process_uploaded_document(document)
+        create_original_batch(
+            month=document.month,
+            document=document,
+            rows=rows,
+            user=request.user
+        )
+        # except Exception as e:
+        #     messages.error(request, "The file could not be processed.")
+        #     return redirect("finance:spreadsheet")
         
         messages.success(request, "Document uploaded successfully.")
     else:

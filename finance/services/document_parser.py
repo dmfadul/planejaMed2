@@ -1,39 +1,31 @@
 import openpyxl
-from django.db import transaction
-from django.db.models import Max
 from core.models import User
-from finance.models import (
-    UploadedDocument,
-    HospitalFinancialBatch,
-    HospitalFinancialEntry,
+from finance.models import UploadedDocument
+from decimal import Decimal, InvalidOperation
+
+
+def parse_decimal(value):
+    if value is None:
+        return None
+
+    text = str(value).strip()
+
+    if not text:
+        return None
+
+    text = (
+        text
+        .replace("R$", "")
+        .replace(".", "")
+        .replace(",", ".")
+        .strip()
     )
 
+    try:
+        return Decimal(text)
+    except InvalidOperation:
+        return None
 
-from django.db import transaction
-from django.db.models import Max
-
-
-@transaction.atomic
-def create_original_batch(month, user):
-    latest_version = (
-        HospitalFinancialBatch.objects
-        .select_for_update()
-        .filter(
-            month=month,
-            batch_type=HospitalFinancialBatch.BatchType.ORIGINAL,
-        )
-        .aggregate(max_version=Max("version"))
-        ["max_version"]
-        or 0
-    )
-
-    return HospitalFinancialBatch.objects.create(
-        month=month,
-        batch_type=HospitalFinancialBatch.BatchType.ORIGINAL,
-        version=latest_version + 1,
-        source_batch=None,
-        created_by=user,
-    )
 
 def process_uploaded_document(document: UploadedDocument) -> None:
     # change after testing to use document.file.path directly
@@ -48,40 +40,29 @@ def process_uploaded_document(document: UploadedDocument) -> None:
         data_only=True,
     )
     
+    rows = []
     sheet = workbook.active
     for row in sheet.iter_rows(values_only=True):
-        code = row[0]
         health_plan_name = row[2]
         procedure_description = row[3]
         provider_name = row[4]
         transfer_description = row[5]
-        payment = row[7]
+        payment = parse_decimal(row[7])
 
-        if not code:
+        if not (provider_name and payment):
             continue
 
-        if not isinstance(code, int) and not code.isdigit():
-            continue
-
-        if not procedure_description:
-            continue
-
+        doctor_name = " ".join([name.casefold().strip() for name in provider_name.split()])
+        doctor = User.objects.filter(search_name=doctor_name).first()
         
-    #     if payment_description not in per_item:
-    #         per_item[payment_description] = {}
-
-    #     doctor_name = " ".join([name.casefold().strip() for name in doctor_name.split()])
-    #     if doctor_name not in per_item[payment_description]:
-    #         doctor = User.objects.filter(search_name=doctor_name).first()
-    #         if not doctor:
-    #             print(f"Doctor not found for name: {doctor_name}")
-    #             continue
-    #         per_item[payment_description][doctor.crm] = 0
-
-    #     per_item[payment_description][doctor.crm] += int(payment)
-
-    # for payment_description, doctors in per_item.items():
-    #     for crm, total_payment in doctors.items():
-    #         print(f"Payment Description: {payment_description}, Doctor CRM: {crm}, Total Payment: {total_payment}")
+        rows.append({
+            "Nome Convênio": health_plan_name or "",
+            "Descrição Procedimento": procedure_description or "",
+            "Nome Prestador": provider_name,
+            "doctor": doctor,
+            "Descrição Repasse": transfer_description or "",
+            "Valor": payment,
+        })
 
     workbook.close()
+    return rows

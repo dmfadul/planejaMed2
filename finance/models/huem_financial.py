@@ -65,6 +65,11 @@ class HospitalFinancialBatch(models.Model):
     
 
 class HospitalFinancialEntry(models.Model):
+    class MatchStatus(models.TextChoices):
+        MATCHED = "matched", "Matched automatically"
+        MANUAL = "manual", "Matched manually"
+        UNMATCHED = "unmatched", "Unmatched"
+
     batch = models.ForeignKey(
         HospitalFinancialBatch,
         on_delete=models.CASCADE,
@@ -77,25 +82,39 @@ class HospitalFinancialEntry(models.Model):
         blank=True,
     )
 
-    procedure_description = models.CharField( # D/3
+    procedure_description = models.CharField(  # D/3
         "Descrição Procedimento",
         max_length=500,
         blank=True,
     )
 
-    provider_name = models.CharField( # E/4
+    provider_name = models.CharField(  # E/4
         "Nome Prestador",
         max_length=255,
         blank=True,
     )
 
-    transfer_description = models.CharField( # F/5
+    doctor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="hospital_financial_entries",
+    )
+
+    match_status = models.CharField(
+        max_length=20,
+        choices=MatchStatus.choices,
+        default=MatchStatus.UNMATCHED,
+    )
+
+    transfer_description = models.CharField(  # F/5
         "Descrição Repasse",
         max_length=500,
         blank=True,
     )
 
-    amount = models.DecimalField( # H/7
+    amount = models.DecimalField(  # H/7
         "Valor",
         max_digits=12,
         decimal_places=2,
@@ -107,7 +126,10 @@ class HospitalFinancialEntry(models.Model):
         blank=True,
         on_delete=models.PROTECT,
         related_name="derived_entries",
-        help_text="Original hospital entry corresponding to this cooperative entry.",
+        help_text=(
+            "Original hospital entry corresponding "
+            "to this cooperative entry."
+        ),
     )
 
     row_number = models.PositiveIntegerField(
