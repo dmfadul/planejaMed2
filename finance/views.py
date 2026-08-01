@@ -262,9 +262,9 @@ def get_row_or_404(grid_key, row_key):
 def upload_document_view(request):
     if not (request.user.is_superuser or request.user.is_staff):
         messages.error(request, "You do not have permission to upload documents.")
-        return redirect("finance:spreadsheet")
+        return redirect("shifts:month_table")
     if request.method != "POST":
-        return redirect("finance:spreadsheet")
+        return redirect("shifts:month_table")
 
     form = UploadedDocumentForm(request.POST, request.FILES)
 
