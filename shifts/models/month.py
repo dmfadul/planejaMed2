@@ -161,52 +161,6 @@ class Month(models.Model):
 
         ShiftSnapshot.take_snapshot(self, ShiftType.ORIGINAL)
 
-    def calculate_vacation_pay(self):
-        from vacations.models.vacations import Vacation
-        from shifts.models import Shift
-
-        vacations = Vacation.objects.filter(
-            start_date__lte=self.end_date,
-            end_date__gte=self.start_date,
-            status__in=[
-                Vacation.VacationStatus.APPROVED,
-                Vacation.VacationStatus.OVERRIDDEN,
-            ]
-        )
-            
-        output = ""
-        for vacation in vacations:
-            str_day = max(vacation.start_date, self.start_date.date()).day
-            end_day = min(vacation.end_date, self.end_date.date()).day
-            output += f"{vacation.user.name}:\n"
-            
-            if str_day <= end_day:
-                shifts = Shift.objects.filter(
-                    month=self,
-                    user=vacation.user,
-                    day__range=(str_day, end_day),
-                )
-            else:
-                shifts = Shift.objects.filter(
-                    month=self,
-                    user=vacation.user,
-                ).filter(
-                    Q(day__gte=str_day) | Q(day__lte=end_day)
-                )
-
-            shifts = shifts.order_by("center__name")
-                   
-            for s in shifts:
-                s_month = f"{s.month.number:02d}"
-                s_weekday = DIAS_SEMANA[s.date.weekday()]
-                s_str_time = f"{s.start_time:02d}:00"
-                s_end_time = f"{s.end_time:02d}:00"
-                
-                output += f"""Dia {s.day}/{s_month} - {s_weekday}- {s_str_time}-{s_end_time} - {s.center.abbreviation} \n"""
-            output += "\n"
-
-        return output
-
 
 class Holiday(models.Model):
     month = models.ForeignKey(Month, on_delete=models.CASCADE, related_name='holidays')

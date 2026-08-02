@@ -1,4 +1,5 @@
 # services/compliance.py
+from django.db.models import Q
 from dataclasses import dataclass
 # from typing import Iterable, List, Tuple, Dict
 # from django.db import transaction
@@ -6,8 +7,53 @@ from dataclasses import dataclass
 # from django.utils import timezone
 
 from core.models import User
+from core.constants import DIAS_SEMANA
+from vacations.models.vacations import Vacation
 from shifts.models import Month, TemplateShift, Shift
+
 # from .models import complianceHistory as ComplianceMonthly
+
+
+def calculate_vacation_pay_for_month(month: Month):
+    vacations = Vacation.objects.filter(
+        start_date__lte=month.end_date,
+        end_date__gte=month.start_date,
+        status__in=[
+            Vacation.VacationStatus.APPROVED,
+            Vacation.VacationStatus.OVERRIDDEN,
+        ]
+    )
+        
+    output = ""
+    for vacation in vacations:
+        str_day = max(vacation.start_date, month.start_date.date()).day
+        end_day = min(vacation.end_date, month.end_date.date()).day
+        output += f"{vacation.user.name}:\n"
+        
+        if str_day <= end_day:
+            shifts = Shift.objects.filter(
+                month=month,
+                user=vacation.user,
+                day__range=(str_day, end_day),
+            )
+        else:
+            shifts = Shift.objects.filter(
+                month=month,
+                user=vacation.user,
+            ).filter(
+                Q(day__gte=str_day) | Q(day__lte=end_day)
+            )
+        shifts = shifts.order_by("center__name")
+               
+        for s in shifts:
+            s_month = f"{s.month.number:02d}"
+            s_weekday = DIAS_SEMANA[s.date.weekday()]
+            s_str_time = f"{s.start_time:02d}:00"
+            s_end_time = f"{s.end_time:02d}:00"
+            
+            output += f"""Dia {s.day}/{s_month} - {s_weekday}- {s_str_time}-{s_end_time} - {s.center.abbreviation} \n"""
+        output += "\n"
+    return output
 
 
 @dataclass
