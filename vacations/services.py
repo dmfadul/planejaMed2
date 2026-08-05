@@ -1,17 +1,79 @@
-# services/compliance.py
 from django.db.models import Q
 from dataclasses import dataclass
-# from typing import Iterable, List, Tuple, Dict
-# from django.db import transaction
-# from django.db.models import Exists, OuterRef
-# from django.utils import timezone
+from collections import defaultdict
 
 from core.models import User
 from core.constants import DIAS_SEMANA
 from vacations.models.vacations import Vacation
 from shifts.models import Month, TemplateShift, Shift
+from shifts.services.month_services import get_planned_shifts
+from dataclasses import replace
+from datetime import timedelta
 
-# from .models import complianceHistory as ComplianceMonthly
+
+def remove_night_hours(shift):
+    """
+    Returns the daytime portions of a shift, between 07:00 and 19:00.
+    May return zero, one, or two shifts.
+    """
+    start = shift.start_time
+    end = shift.end_time
+
+    # Shift crosses midnight
+    if end <= start:
+        end += 24
+
+    daytime_parts = []
+
+    # Check the starting day and the following day
+    for day_offset in (0, 1):
+        daytime_start = day_offset * 24 + 7
+        daytime_end = day_offset * 24 + 19
+
+        clipped_start = max(start, daytime_start)
+        clipped_end = min(end, daytime_end)
+
+        if clipped_start < clipped_end:
+            daytime_parts.append(
+                replace(
+                    shift,
+                    date=shift.date + timedelta(days=day_offset),
+                    start_time=clipped_start - day_offset * 24,
+                    end_time=clipped_end - day_offset * 24,
+                )
+            )
+
+    return daytime_parts
+
+
+def show_vacation_pay_for_month(month: Month):
+    vacation_shifts = calculate_vacation_pay_for_month(month)
+
+    shifts_by_user = defaultdict(list)
+
+    for shift in vacation_shifts:
+        shifts_by_user[shift.user].append(shift)
+
+    output = ""
+
+    for user, shifts in shifts_by_user.items():
+        output += f"{user.name}:\n"
+
+        for shift in shifts:
+            weekday = DIAS_SEMANA[shift.date.weekday()]
+            start_time = f"{shift.start_time:02d}:00"
+            end_time = f"{shift.end_time:02d}:00"
+
+            output += (
+                f"Dia {shift.date:%d/%m} - "
+                f"{weekday} - "
+                f"{start_time}-{end_time} - "
+                f"{shift.center.abbreviation}\n"
+            )
+
+        output += "\n"
+
+    return output
 
 
 def calculate_vacation_pay_for_month(month: Month):
@@ -21,39 +83,40 @@ def calculate_vacation_pay_for_month(month: Month):
         status__in=[
             Vacation.VacationStatus.APPROVED,
             Vacation.VacationStatus.OVERRIDDEN,
-        ]
+        ],
     )
-        
-    output = ""
+
+    all_vacation_shifts = []
+
     for vacation in vacations:
-        str_day = max(vacation.start_date, month.start_date.date()).day
-        end_day = min(vacation.end_date, month.end_date.date()).day
-        output += f"{vacation.user.name}:\n"
-        
-        if str_day <= end_day:
-            shifts = Shift.objects.filter(
-                month=month,
-                user=vacation.user,
-                day__range=(str_day, end_day),
-            )
-        else:
-            shifts = Shift.objects.filter(
-                month=month,
-                user=vacation.user,
-            ).filter(
-                Q(day__gte=str_day) | Q(day__lte=end_day)
-            )
-        shifts = shifts.order_by("center__name")
-               
-        for s in shifts:
-            s_month = f"{s.month.number:02d}"
-            s_weekday = DIAS_SEMANA[s.date.weekday()]
-            s_str_time = f"{s.start_time:02d}:00"
-            s_end_time = f"{s.end_time:02d}:00"
-            
-            output += f"""Dia {s.day}/{s_month} - {s_weekday}- {s_str_time}-{s_end_time} - {s.center.abbreviation} \n"""
-        output += "\n"
-    return output
+        start_date = max(vacation.start_date, month.start_date.date())
+        end_date = min(vacation.end_date, month.end_date.date())
+
+        planned_shifts = get_planned_shifts(
+            month,
+            user=vacation.user,
+        )
+
+        for shift in planned_shifts:
+            for daytime_shift in remove_night_hours(shift):
+                if not start_date <= daytime_shift.date <= end_date:
+                    continue
+
+                if daytime_shift.date.weekday() in (5, 6):
+                    continue
+
+                all_vacation_shifts.append(daytime_shift)
+
+    all_vacation_shifts.sort(
+        key=lambda shift: (
+            shift.user.name.lower(),
+            shift.center.abbreviation,
+            shift.date,
+            shift.start_time,
+        )
+    )
+
+    return all_vacation_shifts
 
 
 @dataclass

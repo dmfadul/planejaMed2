@@ -64,7 +64,7 @@ def get_planned_shifts(month, user=None):
                     user=template.user,
                     center=template.center,
                     month=month,
-                    date=target_date,
+                    date=target_date.date(),
                     start_time=template.start_time,
                     end_time=template.end_time
                 )

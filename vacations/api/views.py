@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from shifts.models.month import Month
-from vacations.services import calculate_vacation_pay_for_month
+from vacations.services import show_vacation_pay_for_month
 
 
 class VacationPay(APIView):
@@ -28,6 +28,6 @@ class VacationPay(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
         
-        pay = calculate_vacation_pay_for_month(month)
+        pay = show_vacation_pay_for_month(month)
 
         return Response(pay)
