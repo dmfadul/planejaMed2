@@ -1,44 +1,97 @@
-from datetime import datetime, timedelta
+from dataclasses import dataclass
 from django.db import transaction
+from datetime import date, datetime, time, timedelta
 
 
-def populate_month(month):
-    from shifts.models import Shift, TemplateShift
-    print(f"Populating month {month}...")
+@dataclass
+class PlannedShift:
+    user: object
+    center: object
+    month: object
+    date: date
+    start_time: time
+    end_time: time
+
+
+def get_planned_shifts(month, user=None):
+    from shifts.models import TemplateShift
 
     year, num = month.year, month.number
+
     first_day = datetime(year, num, 1)
     first_wday = first_day.weekday()
 
-    prv_year, prv_month = month.start_date.year, month.start_date.month
-    prv_first_day = datetime(prv_year, prv_month, 1)
-    prv_first_wday = prv_first_day.weekday()
+    previous_year = month.start_date.year
+    previous_month = month.start_date.month
 
-    templates = TemplateShift.objects.filter(user__is_active=True)
-    shifts_to_create = []
+    previous_first_day = datetime(previous_year, previous_month, 1)
+    previous_first_wday = previous_first_day.weekday()
 
-    for t in templates:
-        day_offset_curr = (t.weekday - first_wday + 7) % 7
-        day_offset_prv = (t.weekday - prv_first_wday + 7) % 7
+    templates = TemplateShift.objects.filter(user__is_active=True, user__is_invisible=False)
+    
+    if user is not None:
+        templates = templates.filter(user=user)
+    
+    planned_shifts = []
 
-        curr_date = first_day + timedelta(days=day_offset_curr) + timedelta(weeks=t.index - 1)
-        prv_date = prv_first_day + timedelta(days=day_offset_prv) + timedelta(weeks=t.index - 1)
+    for template in templates:
+        current_offset = (template.weekday - first_wday + 7) % 7
+        previous_offset = (template.weekday - previous_first_wday + 7) % 7
+
+        current_date = (
+            first_day
+            + timedelta(days=current_offset)
+            + timedelta(weeks=template.index - 1)
+        )
+
+        previous_date = (
+            previous_first_day
+            + timedelta(days=previous_offset)
+            + timedelta(weeks=template.index - 1)
+        )
         
-        targets = []
-        if month.start_date <= prv_date <= month.break_date:
-            targets.append(prv_date)
-        if month.start_date <= curr_date <= month.end_date:
-            targets.append(curr_date)
+        target_dates = []
 
-        for target_date in targets:
-            shifts_to_create.append(Shift(
-                user=t.user,
-                center=t.center,
-                month=month,
-                day=target_date.day,
-                start_time=t.start_time,
-                end_time=t.end_time
-            ))
+        if month.start_date <= previous_date <= month.break_date:
+            target_dates.append(previous_date)
+
+        if month.start_date <= current_date <= month.end_date:
+            target_dates.append(current_date)
+
+        for target_date in target_dates:
+            planned_shifts.append(
+                PlannedShift(
+                    user=template.user,
+                    center=template.center,
+                    month=month,
+                    date=target_date,
+                    start_time=template.start_time,
+                    end_time=template.end_time
+                )
+            )
+
+    return planned_shifts
+
+
+def populate_month(month):
+    from shifts.models import Shift
+
+    print(f"Populating month {month}...")
+
+    planned_shifts = get_planned_shifts(month)
+
+    shifts_to_create = [
+        Shift(
+            user=planned_shift.user,
+            center=planned_shift.center,
+            month=month,
+            day=planned_shift.date.day,
+            start_time=planned_shift.start_time,
+            end_time=planned_shift.end_time
+        )
+        for planned_shift in planned_shifts
+    ]
+    
     with transaction.atomic():
         Shift.objects.bulk_create(shifts_to_create)
 
