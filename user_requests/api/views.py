@@ -70,24 +70,27 @@ class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+class NotificationViewSet(viewsets.ModelViewSet):
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         user = self.request.user
-        
+
         qs = Notification.objects.filter(
             Q(expires_at__isnull=True) |
-            Q(expires_at__gt=timezone.now()), 
-            is_deleted=False
+            Q(expires_at__gt=timezone.now()),
+            is_deleted=False,
         )
-        
-        if user.is_staff or user.is_superuser:
-            qs = qs.exclude(
-                Q(kind__in=['mass_action', 'cancel', 'info']) &
+
+        if user.is_staff or user.is_superuser or user.is_director:
+            return qs.exclude(
+                Q(kind__in=["mass_action", "cancel", "info"]) &
                 Q(receiver__isnull=False) &
                 ~Q(receiver=user)
-            )
-            return qs.order_by('-created_at')
-        
-        return qs.filter(receiver=user).order_by('-created_at')
+            ).order_by("-created_at")
+
+        return qs.filter(receiver=user).order_by("-created_at")
     
     def get_serializer_context(self):
         """Pass viewer_id to serializer for rendering logic."""
