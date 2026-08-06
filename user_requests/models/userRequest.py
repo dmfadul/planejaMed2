@@ -5,6 +5,7 @@ from shifts.models import Shift
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from user_requests.models.notifications import Notification
+from rest_framework.exceptions import PermissionDenied
 
 
 class IncludeRequestData(models.Model):
@@ -151,10 +152,10 @@ class UserRequest(models.Model):
         self.full_clean(exclude=None)
         super().save(*args, **kwargs)
 
-    def can_be_accepted_by(self, user):
+    def can_be_responded_by(self, user):
         if self.audience == self.Audience.INDIVIDUAL:
             return (user == self.requestee) or user.is_superuser
-        if self.audience == self.Audience.ADMINS:
+        if (self.audience == self.Audience.ADMINS) and ():
             return user.is_superuser
         if self.audience == self.Audience.ALL_USERS:
             return True
@@ -162,8 +163,8 @@ class UserRequest(models.Model):
     
     def accept(self, responder):
         # TODO: add confirmation for the user that the req was accepted and the shift was changed
-        if not self.can_be_accepted_by(responder):
-            raise PermissionError("Você não tem autorização para responder esta requisição.")
+        if not self.can_be_responded_by(responder):
+            raise PermissionDenied("Você não tem autorização para responder esta requisição.")
         
         if not self.is_open:
             raise ValueError("Esta requisição foi fechada.")
@@ -232,6 +233,9 @@ class UserRequest(models.Model):
 
     
     def refuse(self, responder):
+        if not self.can_be_responded_by(responder):
+            raise PermissionDenied("Você não tem autorização para responder esta requisição.")
+        
         if self.audience == self.Audience.ALL_USERS:
             return
 
