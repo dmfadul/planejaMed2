@@ -65,10 +65,11 @@ def show_vacation_pay_for_month(month: Month):
             end_time = f"{shift.end_time:02d}:00"
 
             output += (
+                f"{shift.center.abbreviation} - "
                 f"Dia {shift.date:%d/%m} - "
-                f"{weekday} - "
+                f"{weekday[:3]} - "
                 f"{start_time}-{end_time} - "
-                f"{shift.center.abbreviation}\n"
+                f"{(shift.end_time - shift.start_time):02d} horas\n"
             )
 
         output += "\n"
