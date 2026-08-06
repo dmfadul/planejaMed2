@@ -151,6 +151,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             else:
                 break
         return count
+    
+    @property
+    def is_director(self):
+        return self.groups.filter(name="directors").exists()
 
 
 class MaintenanceMode(models.Model):
