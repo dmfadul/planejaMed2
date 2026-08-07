@@ -155,8 +155,8 @@ class UserRequest(models.Model):
     def can_be_responded_by(self, user):
         if self.audience == self.Audience.INDIVIDUAL:
             return (user == self.requestee) or user.is_superuser
-        if (self.audience == self.Audience.ADMINS) and ():
-            return user.is_superuser
+        if self.audience == self.Audience.ADMINS:
+            return user.is_superuser or user.is_director
         if self.audience == self.Audience.ALL_USERS:
             return True
         return False
