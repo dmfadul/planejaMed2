@@ -24,13 +24,9 @@ print("User:", user.compliant_since)
 
 # FINAL TASKS:
 # TODO: add tests
-# TODO: check if admin/root distictions are working properly
-# TODO: add a teamLeader group and give them the ability to authorize inclusions
 
 # VACATIONS:
 # TODO: Fix (?) vacations
-# TODO: translate vacation messages (from english to portuguese)
-# TODO: Remove urgency hours from vacation payment calculation. (only routine hours should be considered)
 # TODO: add alert (have to keep following the vacation compliance rules) to vacation authorization message.
 
 # VACATION COMPLIANCE:
@@ -52,7 +48,6 @@ print("User:", user.compliant_since)
 
 # USER REQUESTS:
 # TODO: user requests for a future month should be allowed
-# TODO: Open requests (requests that are not for an specific user, but can be accepted by anyone)
 
 # FINANCE:
 # TODO: individual view of finance data (for each user)
