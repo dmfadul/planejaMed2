@@ -2,19 +2,35 @@
     border-radius: 1rem;
 }
 
+/* Summary */
+
 .finance-hours-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 1rem;
     padding: 1rem;
     background: rgba(255, 255, 255, 0.06);
 }
 
+.finance-hours-summary > div {
+    min-width: 0;
+}
+
 .finance-hours-summary strong {
     display: block;
-    font-size: 2rem;
-    line-height: 1.1;
-    margin-top: 0.25rem;
+    font-size: 1.35rem;
+    line-height: 1.15;
+    margin-top: 0.2rem;
 }
+
+.finance-rate-box strong {
+    font-size: 1.05rem;
+    color: var(--bs-secondary-color);
+}
+
+/* Section header */
 
 .finance-section-header {
     display: flex;
@@ -34,6 +50,8 @@
     color: var(--bs-secondary-color);
     font-size: 0.82rem;
 }
+
+/* Centers list */
 
 .finance-centers-list {
     display: flex;
@@ -63,10 +81,23 @@
     font-weight: 700;
 }
 
-.finance-center-total {
-    font-size: 1.35rem;
+.finance-center-totals {
+    text-align: right;
     white-space: nowrap;
 }
+
+.finance-center-totals strong {
+    display: block;
+    font-size: 1.25rem;
+}
+
+.finance-center-totals span {
+    display: block;
+    color: var(--bs-secondary-color);
+    font-size: 0.9rem;
+}
+
+/* Hour pills */
 
 .finance-hours-breakdown {
     display: grid;
@@ -88,8 +119,17 @@
 }
 
 .finance-hour-pill strong {
+    display: block;
     font-size: 1.2rem;
 }
+
+.finance-hour-pill small {
+    display: block;
+    margin-top: 0.15rem;
+    color: var(--bs-secondary-color);
+}
+
+/* Empty state */
 
 .finance-empty-state {
     border: 1px dashed rgba(255, 255, 255, 0.2);
@@ -99,16 +139,26 @@
     color: var(--bs-secondary-color);
 }
 
+/* Mobile */
+
 @media (max-width: 576px) {
+    .finance-hours-summary {
+        grid-template-columns: 1fr;
+    }
+
     .finance-hours-summary strong {
-        font-size: 1.6rem;
+        font-size: 1.2rem;
+    }
+
+    .finance-rate-box strong {
+        font-size: 1rem;
     }
 
     .finance-center-row {
         padding: 0.85rem;
     }
 
-    .finance-center-total {
+    .finance-center-totals strong {
         font-size: 1.15rem;
     }
 
