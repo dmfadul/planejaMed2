@@ -1,6 +1,9 @@
 from django.utils import timezone
 from datetime import datetime
 
+ROUTINE_RATE = 142
+OVERTIME_RATE = 142
+
 STR_DAY = 26
 END_DAY = 25
 
