@@ -87,7 +87,7 @@ def build_constant_grid(rows, month):
 
 def build_user_monthly_hours_payload(user, month):
     """
-    Returns monthly routine/urgency hours grouped by center
+    Returns monthly routine/overtime hours grouped by center
     for the logged-in user only. Used for the "My payment" page.
     """
 
@@ -192,7 +192,7 @@ def get_constant_value(row, month):
         # /($CÁLCULOS.$L$3+$CÁLCULOS.$M$3)
         # PROD_TOTAL * (Nº DE HORAS ROTINA / Nº DE HORAS ROTINA + Nº DE HORAS URGÊNCIA)
         return 0
-    if code == "urgency_production":
+    if code == "overtime_production":
         # PROD_TOTAL * (Nº DE HORAS URGÊNCIA / Nº DE HORAS ROTINA + Nº DE HORAS URGÊNCIA)
         # NEXT STEP: ADD A TOTAL_HOURS CALCULATION TO THE FINANCE_ENTRY MODEL AND USE IT HERE
         return 0
@@ -202,15 +202,15 @@ def get_constant_value(row, month):
         return 0
     if code == "routine_production_percentage":
         return 0
-    if code == "urgency_production_percentage":
+    if code == "overtime_production_percentage":
         return 0
     if code == "routine_hour_value":
         return 0
-    if code == "urgency_hour_value":
+    if code == "overtime_hour_value":
         return 0
     if code == "twelve_hours_routine":
         return 0
-    if code == "twelve_hours_urgency":
+    if code == "twelve_hours_overtime":
         return 0
     if code == "billing":
         return 0

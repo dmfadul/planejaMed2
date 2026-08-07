@@ -52,7 +52,7 @@ SUMMARY_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "numberHours_urgency",
+        "key": "numberHours_overtime",
         "category": "",
         "subcategory": "N_horas",
         "label": "Urg",
@@ -68,7 +68,7 @@ SUMMARY_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "routine_urgency_ccg",
+        "key": "routine_overtime_ccg",
         "category": "HOSPITAL",
         "subcategory": "ROT+URG",
         "label": "CCG",
@@ -76,7 +76,7 @@ SUMMARY_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "routine_urgency_cco",
+        "key": "routine_overtime_cco",
         "category": "HOSPITAL",
         "subcategory": "ROT+URG",
         "label": "CCO",
@@ -84,7 +84,7 @@ SUMMARY_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "routine_urgency_ccq",
+        "key": "routine_overtime_ccq",
         "category": "HOSPITAL",
         "subcategory": "ROT+URG",
         "label": "CCQ",
@@ -92,7 +92,7 @@ SUMMARY_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "routine_urgency_sadt",
+        "key": "routine_overtime_sadt",
         "category": "HOSPITAL",
         "subcategory": "ROT+URG",
         "label": "SADT",
@@ -100,7 +100,7 @@ SUMMARY_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "routine_urgency_eco",
+        "key": "routine_overtime_eco",
         "category": "HOSPITAL",
         "subcategory": "ROT+URG",
         "label": "ECO",

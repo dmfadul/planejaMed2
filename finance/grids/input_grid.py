@@ -189,7 +189,7 @@ INPUT_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "inhours_huem_urgency_ccg",
+        "key": "inhours_huem_overtime_ccg",
         "category": "HRS HUEM",
         "subcategory": "URG",
         "label": "CCG",
@@ -205,7 +205,7 @@ INPUT_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "inhours_huem_urgency_cco",
+        "key": "inhours_huem_overtime_cco",
         "category": "HRS HUEM",
         "subcategory": "URG",
         "label": "CCO",
@@ -221,7 +221,7 @@ INPUT_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "inhours_huem_urgency_ccq",
+        "key": "inhours_huem_overtime_ccq",
         "category": "HRS HUEM",
         "subcategory": "URG",
         "label": "CCQ",
@@ -237,7 +237,7 @@ INPUT_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "inhours_huem_urgency_sadt",
+        "key": "inhours_huem_overtime_sadt",
         "category": "HRS HUEM",
         "subcategory": "URG",
         "label": "SADT",
@@ -254,7 +254,7 @@ INPUT_GRID_COLUMNS = [
         "kind": "hours",
     },
     {
-        "key": "inhours_huem_urgency_eco",
+        "key": "inhours_huem_overtime_eco",
         "category": "HRS HUEM",
         "subcategory": "URG",
         "label": "ECO",
@@ -316,7 +316,7 @@ INPUT_GRID_COLUMNS = [
     },
 
     {
-        "key": "adjustments_routine_urgency_ccg",
+        "key": "adjustments_routine_overtime_ccg",
         "category": "AJUSTES",
         "subcategory": "ROT+URG",
         "label": "CCG",
@@ -326,7 +326,7 @@ INPUT_GRID_COLUMNS = [
         "source": "internal",
     },
     {
-        "key": "adjustments_routine_urgency_cco",
+        "key": "adjustments_routine_overtime_cco",
         "category": "AJUSTES",
         "subcategory": "ROT+URG",
         "label": "CCO",
@@ -336,7 +336,7 @@ INPUT_GRID_COLUMNS = [
         "source": "internal",
     },
     {
-        "key": "adjustments_routine_urgency_ccq",
+        "key": "adjustments_routine_overtime_ccq",
         "category": "AJUSTES",
         "subcategory": "ROT+URG",
         "label": "CCQ",
@@ -346,7 +346,7 @@ INPUT_GRID_COLUMNS = [
         "source": "internal",
     },
     {
-        "key": "adjustments_routine_urgency_sadt",
+        "key": "adjustments_routine_overtime_sadt",
         "category": "AJUSTES",
         "subcategory": "ROT+URG",
         "label": "SADT",
@@ -356,7 +356,7 @@ INPUT_GRID_COLUMNS = [
         "source": "internal",
     },
     {
-        "key": "adjustments_routine_urgency_eco",
+        "key": "adjustments_routine_overtime_eco",
         "category": "AJUSTES",
         "subcategory": "ROT+URG",
         "label": "ECO",
