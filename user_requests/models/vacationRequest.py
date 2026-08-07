@@ -2,6 +2,7 @@ from django.db import models
 from core.models import User
 from django.utils import timezone
 from vacations.models import Vacation
+from django.core.exceptions import PermissionDenied
 from user_requests.models.notifications import Notification
 
 
@@ -32,7 +33,8 @@ class VacationRequest(models.Model):
 
     def accept(self, responder):
         if not responder.is_superuser:
-            raise PermissionError("Only admins(superusers) can accept vacation requests.")
+            raise PermissionDenied("Você não tem autorização para responder esta requisição.")
+
         
         vacation = Vacation.create_vacation(
             user=self.requester,
@@ -56,8 +58,8 @@ class VacationRequest(models.Model):
 
     def refuse(self, responder):
         if not responder.is_superuser:
-            raise PermissionError("Only admins(superusers) can refuse vacation requests.")
-        
+            raise PermissionDenied("Você não tem autorização para responder esta requisição.")
+
         self.responder = responder
         self.close()
         self.save(update_fields=['responder'])
@@ -69,8 +71,8 @@ class VacationRequest(models.Model):
 
     def cancel(self, cancellor):
         if not cancellor == self.requester:
-            raise PermissionError("Only the requester can cancel their vacation request.")
-        
+            raise PermissionDenied("Apenas o solicitante pode cancelar sua solicitação de férias.")
+
         self.responder = cancellor # TODO: check if responder really saves or if needs save call
         self.close()
         self.remove_notifications()
