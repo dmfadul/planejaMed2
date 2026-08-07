@@ -8,6 +8,8 @@ from rest_framework.decorators import action
 from user_requests.services import create_user_request
 from rest_framework import viewsets, permissions, status
 from user_requests.models.notifications import Notification
+from user_requests.models import UserRequest
+from django.contrib.contenttypes.models import ContentType
 from .serializers import (
     NotificationSerializer,
     VacationRequestSerializer,
@@ -66,9 +68,6 @@ class VacationRequest(APIView):
 
         return Response({"message": "Vacation request created"}, status=status.HTTP_201_CREATED)
 
-class NotificationViewSet(viewsets.ModelViewSet):
-    serializer_class = NotificationSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
 class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
@@ -83,13 +82,35 @@ class NotificationViewSet(viewsets.ModelViewSet):
             is_deleted=False,
         )
 
-        if user.is_staff or user.is_superuser or user.is_director:
+        if user.is_staff or user.is_superuser:
             return qs.exclude(
                 Q(kind__in=["mass_action", "cancel", "info"]) &
                 Q(receiver__isnull=False) &
                 ~Q(receiver=user)
             ).order_by("-created_at")
-
+        
+        if user.is_director:
+            request_ids = UserRequest.objects.filter(
+                request_type__in=[
+                    UserRequest.RequestType.INCLUDE,
+                    UserRequest.RequestType.EXCLUDE,
+                ]
+            ).values_list("id", flat=True)
+        
+            request_content_type = ContentType.objects.get_for_model(UserRequest)
+        
+            return qs.filter(
+                Q(receiver=user) |
+                (
+                    Q(
+                        related_ct=request_content_type,
+                        related_id__in=request_ids,
+                    )
+                    & ~Q(kind__in=["info", "cancel", "mass_action"])
+                )
+            ).distinct().order_by("-created_at")
+        
+        
         return qs.filter(receiver=user).order_by("-created_at")
     
     def get_serializer_context(self):
@@ -98,28 +119,44 @@ class NotificationViewSet(viewsets.ModelViewSet):
         context['viewer_id'] = self.request.user.id
         return context
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def respond(self, request, pk=None):
         notif = self.get_object()
-        response = request.data.get('action')
-        
-        # assuming related_obj is a UserRequest or VacationRequest instance
-        if response == 'accept':
-            flag = notif.related_obj.accept(request.user)
-            if flag:
-                return Response(flag.get('error'), status=status.HTTP_409_CONFLICT)
+        response_action = request.data.get("action")
+
+        if response_action == "accept":
+            result = notif.related_obj.accept(request.user)
+
+            if result:
+                return Response(
+                    {"error": result.get("error")},
+                    status=status.HTTP_409_CONFLICT,
+                )
+
             notif.archive()
-        elif response == 'refuse':
+            message = "Requisição aceita com sucesso."
+
+        elif response_action == "refuse":
             notif.related_obj.refuse(request.user)
             notif.archive()
-        elif response == 'cancel':
-            notif.related_obj.cancel(request.user)  
+            message = "Requisição recusada com sucesso."
+
+        elif response_action == "cancel":
+            notif.related_obj.cancel(request.user)
             notif.archive()
+            message = "Requisição cancelada com sucesso."
+
         else:
-            return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Ação inválida."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
+        return Response(
+            {"message": message},
+            status=status.HTTP_200_OK,
+        )
+    
     @action(detail=True, methods=['patch'])
     def read(self, request, pk=None):
         notif = self.get_object()
