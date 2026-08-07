@@ -100,7 +100,7 @@ class VacationRequestSerializer(serializers.ModelSerializer):
 
         if duration > VACATION_RULES.get('duration_days'):
             raise serializers.ValidationError(
-                f"Cannot request more than {VACATION_RULES.get('duration_days')} days of vacation."
+                f"Você não pode solicitar mais de {VACATION_RULES.get('duration_days')} dias de férias."
             )
       
         if not requester.has_pre_approved_vacation:
