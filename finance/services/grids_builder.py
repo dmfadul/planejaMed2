@@ -6,6 +6,7 @@ from core.constants import STR_DAY, END_DAY
 from django.db.models.functions import Collate
 from core.db.sqlite_collations import COLLATION_NAME
 from finance.models import FinanceConstant, FinanceEntry
+from core.constants import ROUTINE_RATE, OVERTIME_RATE
 
 
 def build_finance_grid(month, columns):
@@ -125,6 +126,10 @@ def build_user_monthly_hours_payload(user, month):
     return {
         "doctor": user.name,
         "month": f"{month.name}/{month.year}",
+        "rates": {
+            "routine": ROUTINE_RATE,
+            "overtime": OVERTIME_RATE,
+        },
         "centers": centers_payload,
     }
 
