@@ -20,6 +20,23 @@ function getCenterTotal(center) {
     return Number(center.routine_hours || 0) + Number(center.overtime_hours || 0);
 }
 
+function formatCurrency(value) {
+    return Number(value || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    });
+}
+
+function getCenterHoursPayment(center, rates) {
+    const routineHours = Number(center.routine_hours || 0);
+    const urgencyHours = Number(center.urgency_hours || 0);
+
+    const routineRate = Number(rates?.routine || 0);
+    const urgencyRate = Number(rates?.urgency || 0);
+
+    return (routineHours * routineRate) + (urgencyHours * urgencyRate);
+}
+
 function renderCenters(centers) {
     const container = document.getElementById("financeCentersList");
     container.innerHTML = "";
