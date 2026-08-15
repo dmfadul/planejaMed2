@@ -41,7 +41,7 @@ function getCenterHoursPayment(center, rates) {
     return (routineHours * routineRate) + (overtimeHours * overtimeRate);
 }
 
-function renderCenters(centers) {
+function renderCenters(centers, rates) {
     const container = document.getElementById("financeCentersList");
     container.innerHTML = "";
 
@@ -58,6 +58,7 @@ function renderCenters(centers) {
         const routineHours = Number(center.routine_hours || 0);
         const overtimeHours = Number(center.overtime_hours || 0);
         const totalHours = routineHours + overtimeHours;
+        const centerPayment = getCenterHoursPayment(center, rates);
 
         container.insertAdjacentHTML("beforeend", `
             <article class="finance-center-row">
@@ -67,18 +68,23 @@ function renderCenters(centers) {
                         <span class="finance-muted-label">Total do Centro</span>
                     </div>
 
-                    <strong class="finance-center-total">${formatHours(totalHours)}</strong>
+                    <div class="finance-center-totals">
+                        <strong>${formatHours(totalHours)}</strong>
+                        <span>${formatCurrency(centerPayment)}</span>
+                    </div>
                 </div>
 
                 <div class="finance-hours-breakdown">
                     <div class="finance-hour-pill">
                         <span>Rotina</span>
                         <strong>${formatHours(routineHours)}</strong>
+                        <small>${formatCurrency(routineHours * Number(rates?.routine || 0))}</small>
                     </div>
 
                     <div class="finance-hour-pill">
                         <span>Urgência</span>
                         <strong>${formatHours(overtimeHours)}</strong>
+                        <small>${formatCurrency(overtimeHours * Number(rates?.overtime || 0))}</small>
                     </div>
                 </div>
             </article>
@@ -105,7 +111,7 @@ function renderFinanceModal(data) {
     setText("financeRoutineRate", formatCurrencyPerHour(rates.routine));
     setText("financeOvertimeRate", formatCurrencyPerHour(rates.overtime));
 
-    renderCenters(centers);
+    renderCenters(centers, rates);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
