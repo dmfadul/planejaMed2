@@ -27,14 +27,18 @@ function formatCurrency(value) {
     });
 }
 
+function formatCurrencyPerHour(value) {
+    return `${formatCurrency(value)}/h`;
+}
+
 function getCenterHoursPayment(center, rates) {
     const routineHours = Number(center.routine_hours || 0);
-    const urgencyHours = Number(center.urgency_hours || 0);
+    const overtimeHours = Number(center.overtime_hours || 0);
 
     const routineRate = Number(rates?.routine || 0);
-    const urgencyRate = Number(rates?.urgency || 0);
+    const overtimeRate = Number(rates?.overtime || 0);
 
-    return (routineHours * routineRate) + (urgencyHours * urgencyRate);
+    return (routineHours * routineRate) + (overtimeHours * overtimeRate);
 }
 
 function renderCenters(centers) {
@@ -86,11 +90,20 @@ function renderFinanceModal(data) {
     setText("financeModalSubtitle", `${data.doctor || ""} — ${data.month || ""}`);
 
     const centers = data.centers || [];
+    const rates = data.rates || {};
+
     const totalHours = centers.reduce((sum, center) => {
         return sum + getCenterTotal(center);
     }, 0);
 
+    const totalPayment = centers.reduce((sum, center) => {
+        return sum + getCenterHoursPayment(center, rates);
+    }, 0);
+
     setText("financeTotalHours", formatHours(totalHours));
+    setText("financeTotalHoursPayment", formatCurrency(totalPayment));
+    setText("financeRoutineRate", formatCurrencyPerHour(rates.routine));
+    setText("financeOvertimeRate", formatCurrencyPerHour(rates.overtime));
 
     renderCenters(centers);
 }
