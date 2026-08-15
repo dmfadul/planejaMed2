@@ -1,5 +1,7 @@
 from django.db import models
 
+# THIS IS PROBABLY GOING TO BE DEPRECATED IN THE FUTURE, AS IT IS NOT BEING USED ANYWHERE.
+
 
 # Even though this is called "source", it can represent
 # both sources of credit and a "source" (destination) of debit,
