@@ -16,6 +16,9 @@ class MaintenanceMiddleware:
         maintenance_url = reverse('core:maintenance_notice')
         
         if MaintenanceMode.is_enabled():
+            if request.path.startswith(("/admin/", "/static/")):
+                return self.get_response(request)
+            
             if not request.user.is_authenticated or not request.user.is_staff:
                 if not path == maintenance_url:
                     return redirect('core:maintenance_notice')
