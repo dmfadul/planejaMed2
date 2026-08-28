@@ -6,7 +6,7 @@ from finance.grids.constants_grid import CONSTANTS_GRID_ROWS
 
 FINANCE_GRIDS = {
     "input": {
-        "label": "Dados",
+        "label": "Entradas",
         "columns": INPUT_GRID_COLUMNS,
     },
     "summary": {

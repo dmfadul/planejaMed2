@@ -137,7 +137,11 @@ def build_user_monthly_hours_payload(user, month):
 # ========================== Utility functions ==========================
 def get_cell_value(user, month, column, entry_map):
     key = column["key"]
-    print("key", key)
+    print("======================")
+    print("column", column)
+    print("entry_map", entry_map)
+    print("======================")
+
 
     if key == "user_name":
         return user.name
@@ -152,6 +156,7 @@ def get_cell_value(user, month, column, entry_map):
 
     # Editable financial cells
     category_code = column.get("category_code")
+    print("category_code", category_code)
     description = f"{column.get('subcategory', '')}_{column['label']}"
     if category_code:
         return entry_map.get((user.id, category_code, description), Decimal("0.00"))
