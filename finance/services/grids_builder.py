@@ -137,6 +137,7 @@ def build_user_monthly_hours_payload(user, month):
 # ========================== Utility functions ==========================
 def get_cell_value(user, month, column, entry_map):
     key = column["key"]
+    print("key", key)
 
     if key == "user_name":
         return user.name
