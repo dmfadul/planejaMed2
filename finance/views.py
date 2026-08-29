@@ -20,11 +20,13 @@ from finance.models import (
     FinanceSource
 )
 
-from .grids_builder import build_finance_grid
+from .grids_builder import (
+    build_finance_grid,
+    build_constant_grid,
+    # build_user_monthly_hours_payload,
+)
 
 from .services import (
-    build_constant_grid,
-    build_user_monthly_hours_payload,
     process_uploaded_document,
     create_original_batch
     )
