@@ -51,20 +51,17 @@ def user_finance_monthly_data(request, month_id=None):
 
 @login_required
 def finance_spreadsheet(request):  
-    current_month = Month.get_current()
-
     month_year = request.GET.get("month_year")
     if month_year:
         selected_month_number, selected_year = month_year.split("-")
-    else:
-        selected_month_number = current_month.number
-        selected_year = current_month.year
-
-    month = get_object_or_404(
+        
+        month = get_object_or_404(
         Month,
         number=selected_month_number,
         year=selected_year,
-    )
+        )
+    else:
+        month = Month.get_current()
 
     selected_grid_key = request.GET.get("grid", "input")
     selected_grid = FINANCE_GRIDS.get(selected_grid_key)
