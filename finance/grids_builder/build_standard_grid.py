@@ -5,7 +5,7 @@ from django.db.models.functions import Collate
 from core.db.sqlite_collations import COLLATION_NAME
 
 
-def build_finance_grid(month, columns):
+def build_income_grid(month, columns):
     users = User.objects.filter(is_active=True, is_invisible=False).order_by(Collate("name", COLLATION_NAME), "id")
     
     entries = FinanceEntry.objects.filter(month=month).select_related(

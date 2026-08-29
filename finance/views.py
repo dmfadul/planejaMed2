@@ -20,7 +20,7 @@ from finance.models import (
 )
 
 from .grids_builder import (
-    build_finance_grid,
+    build_income_grid,
     build_constant_grid,
     build_user_monthly_hours_payload,
 )
@@ -73,7 +73,7 @@ def finance_spreadsheet(request):
         selected_grid_key = "input"
         selected_grid = FINANCE_GRIDS["input"]
 
-    grid = build_finance_grid(
+    grid = build_income_grid(
         month=month,
         columns=selected_grid["columns"],
     )
