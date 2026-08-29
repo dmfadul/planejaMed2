@@ -1,17 +1,16 @@
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest, Http404
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.db.models.functions import Lower
 from django.contrib import messages
-
 
 from core.models import User
 from shifts.models import Month
 from finance.grids import FINANCE_GRIDS, CONSTANTS_GRIDS
+from finance.forms import UploadedDocumentForm
 
 from finance.models import (
     FinanceConstant,
@@ -30,11 +29,6 @@ from .services import (
     process_uploaded_document,
     create_original_batch
     )
-
-from .forms import UploadedDocumentForm
-from .models import UploadedDocument
-
-from django.http import JsonResponse
 
 
 @login_required
