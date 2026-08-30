@@ -6,8 +6,8 @@ from finance.models import HospitalFinancialEntry
 TRANSFER_CATEGORIES = {
     "aih": ["AIH"],
     "ambulatorial": ["Ambulatorial"],
-    "convenios": ["Convênios"],
-    "particulares": ["Particulares"],
+    "convênios": ["Convênios", "Convenios"],
+    "particular": ["Particulares"],
 }
 
 
