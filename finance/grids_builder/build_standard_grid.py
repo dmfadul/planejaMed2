@@ -3,24 +3,14 @@ from django.db.models.functions import Collate
 from core.db.sqlite_collations import COLLATION_NAME
 
 from core.models import User
+from finance.services import build_hospital_financial_map
 from finance.models import (
+    HospitalFinancialBatch,
     HospitalFinancialEntry
 )
 
 def build_income_grid(month, columns):    
-    # entries = FinanceEntry.objects.filter(month=month).select_related(
-    #     "user",
-    #     "category",
-    #     "source",
-    # )
-
-    # entry_map = {}
-    # for entry in entries:
-    #     if entry.category:
-    #         # the combination of user, category, and description should uniquely identify an entry for the grid
-    #         # which means that the category code + description should uniquely identify a column in the grid
-    #         entry_map[(entry.user_id, entry.category.code, entry.description)] = entry.amount
-    
+    huem_financial_map = build_hospital_financial_map(month, HospitalFinancialBatch.BatchType.ORIGINAL)
     users = User.objects.filter(is_active=True, is_invisible=False).order_by(Collate("name", COLLATION_NAME), "id")
 
     rows = []
