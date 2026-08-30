@@ -10,6 +10,10 @@ TRANSFER_CATEGORIES = {
     "particular": ["Particulares"],
 }
 
+# Used to exclude entries from the financial map, base on procedure descriptions.
+EXCLUDED_CATEGORIES = {
+}
+
 
 def build_hospital_financial_map(month, batch_type):
     entries = (
@@ -32,7 +36,6 @@ def build_hospital_financial_map(month, batch_type):
         category = classify_transfer_description(
             entry["transfer_description"]
         )
-
         if category is None:
             raise ValueError(
                 f"Entry {entry['id']} could not be categorized: "

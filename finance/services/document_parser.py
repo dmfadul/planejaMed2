@@ -8,6 +8,10 @@ def parse_decimal(value):
     if value is None:
         return None
 
+    # Excel numeric cells are already numbers.
+    if isinstance(value, (int, float, Decimal)):
+        return Decimal(str(value)).quantize(Decimal("0.01"))
+
     text = str(value).strip()
 
     if not text:
