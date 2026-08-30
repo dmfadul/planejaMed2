@@ -9,6 +9,7 @@ from finance.models import (
 )
 
 
+# TODO: add a check for new values in procedure_description
 @transaction.atomic
 def create_original_batch(*, month, document, rows, user):
     latest_version = (
