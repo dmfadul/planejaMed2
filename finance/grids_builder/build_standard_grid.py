@@ -1,25 +1,27 @@
 from decimal import Decimal
-from core.models import User
-from finance.models import FinanceEntry
 from django.db.models.functions import Collate
 from core.db.sqlite_collations import COLLATION_NAME
 
+from core.models import User
+from finance.models import (
+    HospitalFinancialEntry
+)
 
-def build_income_grid(month, columns):
-    users = User.objects.filter(is_active=True, is_invisible=False).order_by(Collate("name", COLLATION_NAME), "id")
+def build_income_grid(month, columns):    
+    # entries = FinanceEntry.objects.filter(month=month).select_related(
+    #     "user",
+    #     "category",
+    #     "source",
+    # )
+
+    # entry_map = {}
+    # for entry in entries:
+    #     if entry.category:
+    #         # the combination of user, category, and description should uniquely identify an entry for the grid
+    #         # which means that the category code + description should uniquely identify a column in the grid
+    #         entry_map[(entry.user_id, entry.category.code, entry.description)] = entry.amount
     
-    entries = FinanceEntry.objects.filter(month=month).select_related(
-        "user",
-        "category",
-        "source",
-    )
-
-    entry_map = {}
-    for entry in entries:
-        if entry.category:
-            # the combination of user, category, and description should uniquely identify an entry for the grid
-            # which means that the category code + description should uniquely identify a column in the grid
-            entry_map[(entry.user_id, entry.category.code, entry.description)] = entry.amount
+    users = User.objects.filter(is_active=True, is_invisible=False).order_by(Collate("name", COLLATION_NAME), "id")
 
     rows = []
     for user in users:
@@ -33,7 +35,7 @@ def build_income_grid(month, columns):
                 user=user,
                 month=month,
                 column=column,
-                entry_map=entry_map,
+                # entry_map=entry_map,
             )
 
             row["cells"].append({
@@ -50,20 +52,32 @@ def build_income_grid(month, columns):
         "rows": rows,
     }
 
+
 def calculate_hours_from_db(user, month, key):
     """
     Later this should read from shifts/appointments.
     For now, return 0 or imported value.
     """
-    return Decimal("0.01")
 
-def get_cell_value(user, month, column, entry_map):
+    return Decimal("0.05")
+
+
+def calculate_hours_from_hospital_data(user, month, batch_type, subcategory):
+    """
+    Gets hours from huem_financial, that originates from detailed hospital reports.
+    """
+    print("Calculating hours for user:", user.name, "month:", month, "subcategory:", subcategory)
+    entries = HospitalFinancialEntry.objects.filter(
+        doctor=user,
+        batch__month=month,
+        subcategory=subcategory,
+    )
+
+    return Decimal("0.05")
+
+def get_cell_value(user, month, column, entry_map=None):
     key = column["key"]
-    print("======================(())")
-    print("column", column)
-    print("entry_map", entry_map)
-    print("======================**")
-
+    subcategory = column.get("subcategory", "")
 
     if key == "user_name":
         return user.name
@@ -71,16 +85,20 @@ def get_cell_value(user, month, column, entry_map):
     if key == "crm":
         return getattr(user, "crm", "")
     
-    # Protected/calculated HUEM cells
-    # if key.startswith("huem_"):
-    if not column.get("editable", False):
-        return calculate_hours_from_db(user, month, key)
+    if key.startswith("rp_huem_"):
+        return calculate_hours_from_hospital_data(user, month, "original", subcategory)
 
-    # Editable financial cells
-    category_code = column.get("category_code")
-    print("category_code", category_code)
-    description = f"{column.get('subcategory', '')}_{column['label']}"
-    if category_code:
-        return entry_map.get((user.id, category_code, description), Decimal("0.00"))
+    print("key:", key, "subcategory:", subcategory)
+    return Decimal("0.07")
 
-    return ""
+    
+    # if not column.get("editable", False):
+    #     return calculate_hours_from_db(user, month, key)
+
+    # # Editable financial cells
+    # category_code = column.get("category_code")
+    # description = f"{column.get('subcategory', '')}_{column['label']}"
+    # if category_code:
+    #     return entry_map.get((user.id, category_code, description), Decimal("0.00"))
+
+    # return ""
