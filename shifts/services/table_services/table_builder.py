@@ -19,32 +19,32 @@ def build_alt_table_data():
         },
         {
             "label": "DOMINGO",
-            "number": 2,
+            "number": 1,
             "is_weekend": True,
         },
         {
             "label": "SEGUNDA",
-            "number": 3,
+            "number": 1,
             "is_weekend": False,
         },
         {
             "label": "TERÇA",
-            "number": 4,
+            "number": 1,
             "is_weekend": False,
         },
         {
             "label": "QUARTA",
-            "number": 5,
+            "number": 1,
             "is_weekend": False,
         },
         {
             "label": "QUINTA",
-            "number": 6,
+            "number": 1,
             "is_weekend": False,
         },
         {
             "label": "SEXTA",
-            "number": 7,
+            "number": 1,
             "is_weekend": False,
         },
     ]

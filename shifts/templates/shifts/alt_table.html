@@ -16,22 +16,25 @@
         <thead>
           <tr>
             <th class="blank"></th>
-            <th class="title" colspan="14">
+            <th class="title" colspan="28">
               {{ hospital_name }}
             </th>
           </tr>
 
           <tr>
             <th class="blank"></th>
-            <th class="subtitle" colspan="14">
+            <th class="subtitle" colspan="28">
               {{ group_name }}
             </th>
           </tr>
 
           <tr class="days-row">
             <th class="row-label"></th>
-
+            
             {% for day in days %}
+              <th class="row-label"></th>
+              <th class="row-label"></th>
+              
               <th colspan="2">
                 {{ day.label }}
               </th>
@@ -40,8 +43,10 @@
 
           <tr>
             <th class="row-label"></th>
-
             {% for day in days %}
+              <th class="row-label"></th>
+              <th class="row-label"></th>
+
               <th 
                 colspan="2"
                 class="day-number {% if day.is_weekend %}weekend{% else %}weekday{% endif %}"
@@ -68,7 +73,10 @@
                   {{ day.code }}
                 </td>
 
-                <td class="name {% if not day.name %}empty{% endif %}">
+                <td
+                  colspan="2"
+                  class="name {% if not day.name %}empty{% endif %}"
+                >
                   {{ day.name }}
                 </td>
               {% endfor %}
