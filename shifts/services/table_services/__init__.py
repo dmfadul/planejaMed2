@@ -1,3 +1,4 @@
-from .table_builder import build_table_data, build_alt_table_data
+from .table_builder import build_table_data
 from .table_payload import process_table_payload
 from .table_utils import gen_month_table_printable
+from .alt_table_builder import build_alt_table_data

@@ -44,9 +44,14 @@
           <tr>
             <th class="row-label"></th>
             {% for day in days %}
-              <th class="row-label"></th>
-              <th class="row-label"></th>
-
+              <th 
+                colspan="1"
+                class="day-number {% if day.is_weekend %}weekend{% else %}weekday{% endif %}"
+              ></th>
+              <th 
+                colspan="1"
+                class="day-number {% if day.is_weekend %}weekend{% else %}weekday{% endif %}"
+              ></th>
               <th 
                 colspan="2"
                 class="day-number {% if day.is_weekend %}weekend{% else %}weekday{% endif %}"
