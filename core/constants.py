@@ -59,3 +59,28 @@ BONUS_RULES = {
 }
 
 MINIMUM_HOURS_TO_SHOW_BALANCE = -6
+
+
+NUMBER_OF_ROWS_PER_CENTER = {
+    "m": {
+        "CCG": 10,
+        "SADT": 1,
+        "CCO": 3,
+        "CCQ": 4,
+        "ECO": 1,
+    },
+    "t": {
+        "CCG": 10,
+        "SADT": 1,
+        "CCO": 2,
+        "CCQ": 3,
+        "ECO": 1,
+    },
+    "n": {
+        "CCG": 6,
+        "SADT": 0,
+        "CCO": 1,
+        "CCQ": 0,
+        "ECO": 0,
+    },
+}

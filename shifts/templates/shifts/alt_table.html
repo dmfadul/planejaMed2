@@ -6,96 +6,106 @@
   <meta charset="UTF-8">
   <title>Escala Semanal</title>
 
-  <link rel="stylesheet" href="{% static 'shifts/css/alt_table.css' %}">
+  <link
+    rel="stylesheet"
+    href="{% static 'shifts/css/alt_table.css' %}"
+  >
 </head>
 
 <body>
   <main class="page-container">
-    <div class="sheet-wrapper">
-      <table class="schedule-sheet">
-        <thead>
-          <tr>
-            <th class="blank"></th>
-            <th class="title" colspan="28">
-              {{ hospital_name }}
-            </th>
-          </tr>
 
-          <tr>
-            <th class="blank"></th>
-            <th class="subtitle" colspan="28">
-              {{ group_name }}
-            </th>
-          </tr>
-
-          <tr class="days-row">
-            <th class="row-label"></th>
-            
-            {% for day in days %}
-              <th class="row-label"></th>
-              <th class="row-label"></th>
-              
-              <th colspan="2">
-                {{ day.label }}
-              </th>
-            {% endfor %}
-          </tr>
-
-          <tr>
-            <th class="row-label"></th>
-            {% for day in days %}
-              <th 
-                colspan="1"
-                class="day-number {% if day.is_weekend %}weekend{% else %}weekday{% endif %}"
-              ></th>
-              <th 
-                colspan="1"
-                class="day-number {% if day.is_weekend %}weekend{% else %}weekday{% endif %}"
-              ></th>
-              <th 
-                colspan="2"
-                class="day-number {% if day.is_weekend %}weekend{% else %}weekday{% endif %}"
-              >
-                {{ day.number }}
-              </th>
-            {% endfor %}
-          </tr>
-        </thead>
-
-        <tbody>
-          {% for row in schedule_rows %}
+    {% for week in weeks %}
+      <div class="sheet-wrapper">
+        <table class="schedule-sheet">
+          <thead>
             <tr>
-              <td class="row-label">
-                {{ row.index }}
-              </td>
+              <th class="blank"></th>
 
-              {% for day in row.days %}
-                <td class="code">
-                  t
-                </td>
-                
-                <td class="code">
-                  {{ day.code }}
-                </td>
+              <th class="title" colspan="28">
+                {{ hospital_name }}
+              </th>
+            </tr>
 
-                <td
-                  colspan="2"
-                  class="name {% if not day.name %}empty{% endif %}"
-                >
-                  {{ day.name }}
-                </td>
+            <tr>
+              <th class="blank"></th>
+
+              <th class="subtitle" colspan="28">
+                {{ group_name }}
+              </th>
+            </tr>
+
+            <tr class="days-row">
+              <th class="row-label"></th>
+
+              {% for cell in week.header %}
+                <th class="row-label"></th>
+                <th class="row-label"></th>
+
+                <th colspan="2">
+                  {{ cell.label }}
+                </th>
               {% endfor %}
             </tr>
-          {% empty %}
+
             <tr>
-              <td colspan="15" class="no-data">
-                Nenhuma escala encontrada.
-              </td>
+              <th class="row-label"></th>
+
+              {% for cell in week.subheader %}
+                <th
+                  class="day-number {% if cell.is_weekend %}weekend{% else %}weekday{% endif %}"
+                ></th>
+
+                <th
+                  class="day-number {% if cell.is_weekend %}weekend{% else %}weekday{% endif %}"
+                ></th>
+
+                <th
+                  colspan="2"
+                  class="day-number {% if cell.is_weekend %}weekend{% else %}weekday{% endif %}"
+                >
+                  {{ cell.number }}
+                </th>
+              {% endfor %}
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+
+          <tbody>
+            {% for row in week.schedule_rows %}
+              <tr>
+                <td class="row-label">
+                  {{ row.counter }}
+                </td>
+
+                {% for day in row.days %}
+                  <td class="code">
+                    {{ row.period }}
+                  </td>
+
+                  <td class="code">
+                    {{ day.code }}
+                  </td>
+
+                  <td
+                    colspan="2"
+                    class="name {% if not day.name %}empty{% endif %}"
+                  >
+                    {{ day.name }}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="29" class="no-data">
+                  Nenhuma escala encontrada.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+
   </main>
 </body>
 </html>
