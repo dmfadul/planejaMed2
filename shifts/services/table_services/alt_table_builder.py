@@ -64,14 +64,13 @@ def fill_block(block, shifts):
         )
 
         if available_row is None:
-            raise ValueError(
-                f"Not enough rows for center {center_code}, "
-                f"period {period}, weekday {weekday}."
+            available_row = add_extra_row(
+                block=block,
+                period=period,
+                center_code=center_code,
             )
 
-        available_row["days"][weekday]["name"] = (
-            shift.user.name
-        )
+        available_row["days"][weekday]["name"] = shift.user.name
 
     return block
 
@@ -117,6 +116,36 @@ def gen_header_row():
         day_index = i % 7
         header.append({"label": DIAS_SEMANA[day_index]})
     return header
+
+
+def add_extra_row(block, period, center_code):
+    new_row = {
+        "counter": 0,  # Renumbered below
+        "period": period,
+        "days": [
+            {"code": center_code, "name": ""}
+            for _ in range(7)
+        ],
+    }
+
+    center_row_indexes = [
+        index
+        for index, row in enumerate(block)
+        if row["days"][0]["code"] == center_code
+    ]
+
+    if center_row_indexes:
+        # Keep all rows belonging to the same center together.
+        insertion_index = center_row_indexes[-1] + 1
+        block.insert(insertion_index, new_row)
+    else:
+        block.append(new_row)
+
+    # Row insertion may change the subsequent counters.
+    for counter, row in enumerate(block, start=1):
+        row["counter"] = counter
+
+    return new_row
 
 
 def build_alt_template_table_data():

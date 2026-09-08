@@ -63,14 +63,14 @@ MINIMUM_HOURS_TO_SHOW_BALANCE = -6
 
 NUMBER_OF_ROWS_PER_CENTER = {
     "m": {
-        "CCG": 10,
+        "CCG": 9,
         "SADT": 1,
-        "CCO": 3,
-        "CCQ": 4,
+        "CCO": 2,
+        "CCQ": 3,
         "ECO": 1,
     },
     "t": {
-        "CCG": 10,
+        "CCG": 9,
         "SADT": 1,
         "CCO": 2,
         "CCQ": 3,
