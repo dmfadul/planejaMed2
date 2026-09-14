@@ -1,7 +1,5 @@
-from shifts.models import Month, Shift, TemplateShift
+from shifts.models import TemplateShift
 from core.constants import SHIFTS_MAP, DIAS_SEMANA, NUMBER_OF_ROWS_PER_CENTER
-from django.shortcuts import get_object_or_404
-from .alt_month_table_builder import build_alt_month_table_data
 
 
 def get_interval_hours(start, end):
@@ -190,11 +188,3 @@ def build_alt_template_table_data():
         "group_name": "GRUPO DE ANESTESIA MACKENZIE - CCG",
         "weeks": weeks,
     }
-   
-
-def build_alt_table_data(month_num=None, year=None):
-    if month_num is not None and year is not None:
-        month = get_object_or_404(Month, number=month_num, year=year)
-        return build_alt_month_table_data(month)
-    else:
-        return build_alt_template_table_data()
