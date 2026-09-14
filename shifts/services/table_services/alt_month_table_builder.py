@@ -1,9 +1,6 @@
 from datetime import date, timedelta
 from shifts.models import Shift
-from .alt_table_builder import (
-    shift_occupies_period,
-    create_block,
-)
+from .alt_table_builder import shift_occupies_period
 
 from core.constants import (
     DIAS_SEMANA,
@@ -121,6 +118,25 @@ def fill_month_block(block, shifts, week_dates):
 
     return block
 
+def create_block(period, period_dict, number_of_days=7):
+    block = []
+    counter = 1
+
+    for center_abbr, num_rows in period_dict.items():
+        for _ in range(num_rows):
+            row = {
+                "counter": counter,
+                "period": period,
+                "days": [
+                    {"code": center_abbr, "name": ""}
+                    for _ in range(number_of_days)
+                ],
+            }
+
+            block.append(row)
+            counter += 1
+
+    return block
 
 def add_extra_row(block, period, center_code, number_of_days=None):
     if number_of_days is None:
