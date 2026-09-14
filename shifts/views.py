@@ -218,9 +218,7 @@ def unlock_month(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def report(request, month_num=None, year=None):
-    print("test22", month_num, year)
-
-    context = build_alt_table_data()    
+    context = build_alt_table_data(month_num=month_num, year=year)
     return render(request, "shifts/alt_table.html", context)
 
 

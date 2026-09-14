@@ -1,6 +1,7 @@
 from core.models import User
 from shifts.models import Center, Month, Shift, TemplateShift
 from core.constants import SHIFTS_MAP, DIAS_SEMANA, NUMBER_OF_ROWS_PER_CENTER
+from django.shortcuts import get_object_or_404
 
 
 def get_interval_hours(start, end):
@@ -191,5 +192,51 @@ def build_alt_template_table_data():
     }
 
 
-def build_alt_table_data():
-    return build_alt_template_table_data()
+def build_alt_month_table_data(month):
+    shifts = list(
+        TemplateShift.objects
+        .filter(index__range=(1, 5))
+        .select_related("user", "center")
+        .order_by(
+            "index",
+            "weekday",
+            "center__abbreviation",
+            "start_time",
+            "user__name",
+        )
+    )
+
+    weeks = []
+    for week_index in range(1, 6):
+        week_shifts = [
+            shift
+            for shift in shifts
+            if shift.index == week_index
+        ]
+
+        schedule_rows = []
+
+        for period, period_dict in NUMBER_OF_ROWS_PER_CENTER.items():
+            block = create_block(period, period_dict)
+            fill_block(block, week_shifts)
+            schedule_rows.extend(block)
+
+        weeks.append({
+            "index": week_index,
+            "header": gen_header_row(),
+            "subheader": gen_subheader_row(week_index),
+            "schedule_rows": schedule_rows,
+        })
+
+    return {
+        "hospital_name": "HOSPITAL UNIVERSITÁRIO EVANGÉLICO MACKENZIE",
+        "group_name": "GRUPO DE ANESTESIA MACKENZIE - CCG",
+        "weeks": weeks,
+    }
+
+def build_alt_table_data(month_num=None, year=None):
+    if month_num is not None and year is not None:
+        month = get_object_or_404(Month, number=month_num, year=year)
+        return build_alt_month_table_data(month)
+    else:
+        return build_alt_template_table_data()
