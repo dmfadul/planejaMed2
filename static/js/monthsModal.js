@@ -5,13 +5,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const confirmBtn   = document.getElementById("submitMonthsBtn");
   const centerGroup  = centerSelect.closest(".mb-3");
 
+  const modesWithoutCenter = ["sum-doctors", "generalReport"];
   let currentMode = "monthtable"; // default
 
   // Track which mode opened the modal (controls whether center is required/visible)
   document.querySelectorAll(".open-month-modal").forEach(el => {
     el.addEventListener("click", function () {
       currentMode = this.getAttribute("data-mode");
-      centerGroup.style.display = (currentMode === "sum-doctors") ? "none" : "";
+
+      const needsCenter = !modesWithoutCenter.includes(currentMode);
+      centerGroup.style.display = needsCenter ? "" : "none";
     });
   });
 
@@ -124,6 +127,12 @@ document.addEventListener("DOMContentLoaded", function () {
         url = `${window.location.origin}/shifts/monthtable/${center}/${month}/${year}/`;
       } else if (currentMode === "sum-doctors") {
         url = `${window.location.origin}/shifts/sum-doctors/${month}/${year}/`;
+      } else if (currentMode === "generalReport") {
+        url = `${window.location.origin}/shifts/report/${month}/${year}/`;
+      } else {
+        console.log("Unknown mode:", currentMode);
+        alert("Unknown mode.");
+        return;
       }
       window.location.href = url;
     } else {
