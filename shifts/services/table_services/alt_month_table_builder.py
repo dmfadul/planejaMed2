@@ -224,7 +224,7 @@ def add_extra_row(
 def build_alt_month_table_data(month):
     shifts = list(
         Shift.objects
-        .filter(month=month)
+        .filter(month=month, user__is_active=True, user__is_invisible=False)
         .select_related("user", "center")
         .order_by(
             "day",
