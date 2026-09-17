@@ -150,7 +150,7 @@ def add_extra_row(block, period, center_code):
 def build_alt_template_table_data():
     shifts = list(
         TemplateShift.objects
-        .filter(index__range=(1, 5))
+        .filter(index__range=(1, 5), user__is_active=True, user__is_invisible=False)
         .select_related("user", "center")
         .order_by(
             "index",
