@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+
 from shifts.models import Shift
 from .alt_table_builder import shift_occupies_period
 
@@ -35,43 +36,81 @@ def get_month_table_dates(month):
 
 
 def split_into_weeks(dates):
-    """Split the dates into groups of at most seven days."""
+    """
+    Split dates into Saturday-to-Friday weeks.
+
+    Empty columns before the first date and after the final date
+    are represented by None.
+    """
+    if not dates:
+        return []
+
+    saturday_index = 5
+
+    leading_empty_columns = (
+        dates[0].weekday() - saturday_index
+    ) % 7
+
+    padded_dates = [None] * leading_empty_columns + dates
+
+    trailing_empty_columns = (-len(padded_dates)) % 7
+    padded_dates.extend([None] * trailing_empty_columns)
+
     return [
-        dates[index:index + 7]
-        for index in range(0, len(dates), 7)
+        padded_dates[index:index + 7]
+        for index in range(0, len(padded_dates), 7)
     ]
 
 
-def gen_month_header_row(week_dates):
+def gen_month_header_row():
     """
-    Generate the weekday-name header for one week.
+    Generate the weekday-name header from Saturday to Friday.
 
     datetime.weekday():
         Monday = 0
         Tuesday = 1
         ...
+        Saturday = 5
         Sunday = 6
-
-    This assumes DIAS_SEMANA follows the same order.
     """
+    weekday_indexes = [5, 6, 0, 1, 2, 3, 4]
+
     return [
         {
-            "label": DIAS_SEMANA[current_date.weekday()],
+            "label": DIAS_SEMANA[weekday_index],
         }
-        for current_date in week_dates
+        for weekday_index in weekday_indexes
     ]
 
 
 def gen_month_subheader_row(week_dates):
-    """Generate the numeric day header for one week."""
+    """
+    Generate the numeric day header.
+
+    Empty positions are used to complete Saturday-to-Friday weeks.
+    """
     return [
         {
-            "label": DIAS_SEMANA[current_date.weekday()],
-            "number": current_date.day,
-            "is_weekend": current_date.weekday() in (5, 6),
+            "label": (
+                DIAS_SEMANA[current_date.weekday()]
+                if current_date is not None
+                else ""
+            ),
+            "number": (
+                current_date.day
+                if current_date is not None
+                else ""
+            ),
+            "is_weekend": (
+                current_date.weekday() in (5, 6)
+                if current_date is not None
+                else False
+            ),
+            "is_empty": current_date is None,
         }
         for current_date in week_dates
     ]
+
 
 def fill_month_block(block, shifts, week_dates):
     if not block:
@@ -82,6 +121,7 @@ def fill_month_block(block, shifts, week_dates):
     date_column_map = {
         current_date: column_index
         for column_index, current_date in enumerate(week_dates)
+        if current_date is not None
     }
 
     for shift in shifts:
@@ -89,7 +129,6 @@ def fill_month_block(block, shifts, week_dates):
             continue
 
         shift_date = shift.date.date()
-
         column_index = date_column_map.get(shift_date)
 
         if column_index is None:
@@ -118,6 +157,7 @@ def fill_month_block(block, shifts, week_dates):
 
     return block
 
+
 def create_block(period, period_dict, number_of_days=7):
     block = []
     counter = 1
@@ -128,7 +168,10 @@ def create_block(period, period_dict, number_of_days=7):
                 "counter": counter,
                 "period": period,
                 "days": [
-                    {"code": center_abbr, "name": ""}
+                    {
+                        "code": center_abbr,
+                        "name": "",
+                    }
                     for _ in range(number_of_days)
                 ],
             }
@@ -138,7 +181,13 @@ def create_block(period, period_dict, number_of_days=7):
 
     return block
 
-def add_extra_row(block, period, center_code, number_of_days=None):
+
+def add_extra_row(
+    block,
+    period,
+    center_code,
+    number_of_days=None,
+):
     if number_of_days is None:
         number_of_days = len(block[0]["days"]) if block else 7
 
@@ -146,7 +195,10 @@ def add_extra_row(block, period, center_code, number_of_days=None):
         "counter": 0,
         "period": period,
         "days": [
-            {"code": center_code, "name": ""}
+            {
+                "code": center_code,
+                "name": "",
+            }
             for _ in range(number_of_days)
         ],
     }
@@ -168,6 +220,7 @@ def add_extra_row(block, period, center_code, number_of_days=None):
 
     return new_row
 
+
 def build_alt_month_table_data(month):
     shifts = list(
         Shift.objects
@@ -187,7 +240,11 @@ def build_alt_month_table_data(month):
     weeks = []
 
     for week_index, week_dates in enumerate(date_weeks, start=1):
-        week_date_set = set(week_dates)
+        week_date_set = {
+            current_date
+            for current_date in week_dates
+            if current_date is not None
+        }
 
         week_shifts = [
             shift
@@ -201,7 +258,7 @@ def build_alt_month_table_data(month):
             block = create_block(
                 period=period,
                 period_dict=period_dict,
-                number_of_days=len(week_dates),
+                number_of_days=7,
             )
 
             fill_month_block(
@@ -214,13 +271,15 @@ def build_alt_month_table_data(month):
 
         weeks.append({
             "index": week_index,
-            "header": gen_month_header_row(week_dates),
+            "header": gen_month_header_row(),
             "subheader": gen_month_subheader_row(week_dates),
             "schedule_rows": schedule_rows,
         })
 
     return {
-        "hospital_name": "HOSPITAL UNIVERSITÁRIO EVANGÉLICO MACKENZIE",
+        "hospital_name": (
+            "HOSPITAL UNIVERSITÁRIO EVANGÉLICO MACKENZIE"
+        ),
         "group_name": "GRUPO DE ANESTESIA MACKENZIE - CCG",
         "month": month,
         "weeks": weeks,
