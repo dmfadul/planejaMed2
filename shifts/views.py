@@ -1,21 +1,24 @@
+import json
+import logging
 from io import BytesIO
 from datetime import date
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from weasyprint import HTML
 
-import json
-import logging
-from core.models import User
+
 from django.db import transaction
-import core.constants as constants
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from shifts.models import ShiftType, ShiftSnapshot, TemplateShift, Shift, Center, Month
+from django.template.loader import render_to_string
+
+from core.models import User
+from shifts.models import Center, Month
 from shifts.services.table_services import (
     process_table_payload,
     build_table_data,
@@ -221,6 +224,40 @@ def report(request, month_num=None, year=None):
     context = build_alt_table_data(month_num=month_num, year=year)
     return render(request, "shifts/alt_table.html", context)
 
+
+@user_passes_test(lambda u: u.is_superuser)
+def report_(request, month_num=None, year=None):
+    context = build_alt_table_data(
+        month_num=month_num,
+        year=year,
+    )
+
+    html_string = render_to_string(
+        "shifts/alt_table.html",
+        context=context,
+        request=request,
+    )
+
+    pdf_bytes = HTML(
+        string=html_string,
+        base_url=request.build_absolute_uri("/"),
+    ).write_pdf()
+
+    if month_num and year:
+        filename = f"escala_{month_num:02d}_{year}.pdf"
+    else:
+        filename = "escala_base.pdf"
+
+    response = HttpResponse(
+        pdf_bytes,
+        content_type="application/pdf",
+    )
+
+    response["Content-Disposition"] = (
+        f'attachment; filename="{filename}"'
+    )
+
+    return response
 
 @user_passes_test(lambda u: u.is_superuser)
 def print_table(request, center_abbr, month_num, year):

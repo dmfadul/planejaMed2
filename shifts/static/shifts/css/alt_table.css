@@ -111,3 +111,32 @@ body {
   font-style: italic;
   background: #ffffff;
 }
+
+@page {
+    size: A4 landscape;
+    margin: 6mm;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+thead {
+    display: table-header-group;
+}
+
+tr {
+    break-inside: avoid;
+}
+
+.no-print {
+    display: none;
+}
