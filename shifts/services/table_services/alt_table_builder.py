@@ -2,6 +2,11 @@ from shifts.models import TemplateShift
 from core.constants import SHIFTS_MAP, DIAS_SEMANA, NUMBER_OF_ROWS_PER_CENTER
 
 
+# DIAS_SEMANA is assumed to be:
+# Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+DISPLAY_WEEKDAY_ORDER = [5, 6, 0, 1, 2, 3, 4]
+
+
 def get_interval_hours(start, end):
     """
     Return the hours occupied by a shift.
@@ -38,6 +43,7 @@ def shift_occupies_period(shift, period):
 
     return not shift_hours.isdisjoint(period_hours)
 
+
 def fill_block(block, shifts):
     if not block:
         return block
@@ -51,7 +57,6 @@ def fill_block(block, shifts):
         center_code = shift.center.abbreviation
         weekday = shift.weekday
 
-        # Find the first available row belonging to this center.
         available_row = next(
             (
                 row
@@ -75,7 +80,6 @@ def fill_block(block, shifts):
 
 
 def create_block(period, period_dict):
-    weekdays = range(7)
     block = []
     counter = 1
 
@@ -86,7 +90,7 @@ def create_block(period, period_dict):
                 "period": period,
                 "days": [
                     {"code": center_abbr, "name": ""}
-                    for _ in weekdays
+                    for _ in range(7)
                 ],
             }
 
@@ -97,29 +101,26 @@ def create_block(period, period_dict):
 
 
 def gen_subheader_row(week_index):
-    subheader = []
-
-    for day_index in range(7):
-        subheader.append({
+    return [
+        {
             "label": DIAS_SEMANA[day_index],
             "number": week_index,
-            "is_weekend": day_index in [5, 6],
-        })
-
-    return subheader
+            "is_weekend": day_index in (5, 6),
+        }
+        for day_index in DISPLAY_WEEKDAY_ORDER
+    ]
 
 
 def gen_header_row():
-    header = []
-    for i in range(5, 12):
-        day_index = i % 7
-        header.append({"label": DIAS_SEMANA[day_index]})
-    return header
+    return [
+        {"label": DIAS_SEMANA[day_index]}
+        for day_index in DISPLAY_WEEKDAY_ORDER
+    ]
 
 
 def add_extra_row(block, period, center_code):
     new_row = {
-        "counter": 0,  # Renumbered below
+        "counter": 0,
         "period": period,
         "days": [
             {"code": center_code, "name": ""}
@@ -134,13 +135,11 @@ def add_extra_row(block, period, center_code):
     ]
 
     if center_row_indexes:
-        # Keep all rows belonging to the same center together.
         insertion_index = center_row_indexes[-1] + 1
         block.insert(insertion_index, new_row)
     else:
         block.append(new_row)
 
-    # Row insertion may change the subsequent counters.
     for counter, row in enumerate(block, start=1):
         row["counter"] = counter
 
@@ -150,7 +149,11 @@ def add_extra_row(block, period, center_code):
 def build_alt_template_table_data():
     shifts = list(
         TemplateShift.objects
-        .filter(index__range=(1, 5), user__is_active=True, user__is_invisible=False)
+        .filter(
+            index__range=(1, 5),
+            user__is_active=True,
+            user__is_invisible=False,
+        )
         .select_related("user", "center")
         .order_by(
             "index",
@@ -162,6 +165,7 @@ def build_alt_template_table_data():
     )
 
     weeks = []
+
     for week_index in range(1, 6):
         week_shifts = [
             shift
