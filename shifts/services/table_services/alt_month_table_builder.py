@@ -158,11 +158,13 @@ def fill_month_block(block, shifts, week_dates):
     return block
 
 
-def create_block(period, period_dict, number_of_days=7):
+def create_block(period, period_dict, number_of_days=7, exclude_eco=False):
     block = []
     counter = 1
 
     for center_abbr, num_rows in period_dict.items():
+        if exclude_eco and center_abbr == "ECO":
+            continue
         for _ in range(num_rows):
             row = {
                 "counter": counter,
@@ -221,12 +223,24 @@ def add_extra_row(
     return new_row
 
 
-def build_alt_month_table_data(month):
-    shifts = list(
+def build_alt_month_table_data(month, exclude_eco=False):
+    shifts_queryset = (
         Shift.objects
-        .filter(month=month, user__is_active=True, user__is_invisible=False)
+        .filter(
+            month=month,
+            user__is_active=True,
+            user__is_invisible=False,
+        )
         .select_related("user", "center")
-        .order_by(
+    )
+
+    if exclude_eco:
+        shifts_queryset = shifts_queryset.exclude(
+            center__abbreviation="ECO"
+        )
+
+    shifts = list(
+        shifts_queryset.order_by(
             "day",
             "center__abbreviation",
             "start_time",
@@ -259,6 +273,7 @@ def build_alt_month_table_data(month):
                 period=period,
                 period_dict=period_dict,
                 number_of_days=7,
+                exclude_eco=exclude_eco
             )
 
             fill_month_block(

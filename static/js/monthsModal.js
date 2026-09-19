@@ -6,137 +6,247 @@ document.addEventListener("DOMContentLoaded", function () {
   const centerGroup  = centerSelect.closest(".mb-3");
 
   const modesWithoutCenter = ["sum-doctors", "generalReport"];
-  let currentMode = "monthtable"; // default
+  let currentMode = "monthtable";
 
-  // Track which mode opened the modal (controls whether center is required/visible)
-  document.querySelectorAll(".open-month-modal").forEach(el => {
-    el.addEventListener("click", function () {
-      currentMode = this.getAttribute("data-mode");
+// Create the "Excluir ECO" checkbox.
+const excludeEcoGroup = document.createElement("div");
+excludeEcoGroup.className = "form-check border rounded p-3 mb-3 bg-light";
+excludeEcoGroup.style.display = "none";
 
-      const needsCenter = !modesWithoutCenter.includes(currentMode);
-      centerGroup.style.display = needsCenter ? "" : "none";
-    });
+excludeEcoGroup.innerHTML = `
+  <input
+    class="form-check-input border border-dark"
+    type="checkbox"
+    id="excludeEcoCheckbox"
+    style="
+      width: 1.25rem;
+      height: 1.25rem;
+      cursor: pointer;
+      accent-color: #0d6efd;
+    "
+  >
+  <label
+    class="form-check-label fw-semibold ms-2"
+    for="excludeEcoCheckbox"
+    style="cursor: pointer;"
+  >
+    Excluir ECO
+  </label>
+`;
+
+// Place it after the last selection field.
+const yearGroup = yearSelect.closest(".mb-3");
+yearGroup.insertAdjacentElement("afterend", excludeEcoGroup);
+
+const excludeEcoCheckbox = document.getElementById(
+  "excludeEcoCheckbox"
+);
+
+// Track which mode opened the modal.
+ document.querySelectorAll(".open-month-modal").forEach(el => {
+  el.addEventListener("click", function () {
+    currentMode = this.getAttribute("data-mode");
+
+    const needsCenter = !modesWithoutCenter.includes(currentMode);
+    const isGeneralReport = currentMode === "generalReport";
+
+    centerGroup.style.display = needsCenter ? "" : "none";
+    excludeEcoGroup.style.display = isGeneralReport ? "" : "none";
+
+    // Prevent a previous selection from remaining active.
+    if (!isGeneralReport) {
+      excludeEcoCheckbox.checked = false;
+    }
+  });
+});
+
+// Helper: populate a <select>.
+const populateSelect = (
+  selectElement,
+  data,
+  valueKey,
+  textKey,
+  currentKey = "current"
+) => {
+  selectElement.innerHTML = "";
+  let anySelected = false;
+
+   data.forEach(item => {
+    const option = document.createElement("option");
+    option.value = String(item[valueKey]);
+    option.textContent = item[textKey];
+
+     if (item[currentKey]) {
+      option.selected = true;
+      anySelected = true;
+    }
+
+     selectElement.appendChild(option);
   });
 
-  // Helper: populate a <select>
-  const populateSelect = (selectElement, data, valueKey, textKey, currentKey = "current") => {
-    selectElement.innerHTML = "";
-    let anySelected = false;
-
-    data.forEach(item => {
-      const option = document.createElement("option");
-      option.value = String(item[valueKey]);
-      option.textContent = item[textKey];
-      if (item[currentKey]) {
-        option.selected = true;
-        anySelected = true;
-      }
-      selectElement.appendChild(option);
-    });
-
-    if (!anySelected && selectElement.options.length > 0) {
-      selectElement.options[0].selected = true;
-    }
-  };
+   if (!anySelected && selectElement.options.length > 0) {
+    selectElement.options[0].selected = true;
+  }
+};
 
   const selectOptionByValue = (selectEl, value) => {
-    const v = String(value);
-    for (const opt of selectEl.options) {
-      opt.selected = (opt.value === v);
+    const normalizedValue = String(value);
+
+    for (const option of selectEl.options) {
+      option.selected = option.value === normalizedValue;
     }
   };
 
-  // ---- Static defaults ----
+  // Static defaults.
   const now = new Date();
-  const defaultMonth = now.getMonth() + 1; // 1-12
+  const defaultMonth = now.getMonth() + 1;
   const defaultYear  = now.getFullYear();
 
-  const yearsData = Array.from({ length: (2031 - 2025 + 1) }, (_, i) => {
-    const y = 2025 + i;
-    return { year: y, current: y === defaultYear };
-  });
+  const yearsData = Array.from(
+    { length: 2031 - 2025 + 1 },
+    (_, index) => {
+      const year = 2025 + index;
+
+      return {
+        year,
+        current: year === defaultYear
+      };
+    }
+  );
 
   const monthNamesPt = [
-    "janeiro","fevereiro","março","abril","maio","junho",
-    "julho","agosto","setembro","outubro","novembro","dezembro"
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro"
   ];
-  const monthsData = monthNamesPt.map((name, idx) => ({
-    number: idx + 1,
+
+  const monthsData = monthNamesPt.map((name, index) => ({
+    number: index + 1,
     name,
-    current: (idx + 1) === defaultMonth
+    current: index + 1 === defaultMonth
   }));
 
-  const defaultCenters = ["CCG", "CCO", "CCQ"].map((abbr, idx) => ({
+  const defaultCenters = ["CCG", "CCO", "CCQ"].map((abbr, index) => ({
     abbr,
-    current: idx === 0
+    current: index === 0
   }));
 
-  // Populate with defaults first
+  // Populate with defaults first.
   populateSelect(centerSelect, defaultCenters, "abbr", "abbr");
-  populateSelect(monthSelect,   monthsData,    "number", "name");
-  populateSelect(yearSelect,    yearsData,     "year",   "year");
+  populateSelect(monthSelect, monthsData, "number", "name");
+  populateSelect(yearSelect, yearsData, "year", "year");
 
-  // ---- Try to override with backend data ----
+  // Try to override defaults with backend data.
   (async () => {
-    // 1) centers
     try {
-      const res = await fetch("/api/centers/");
-      if (res.ok) {
-        const centers = await res.json();
+      const response = await fetch("/api/centers/");
+
+      if (response.ok) {
+        const centers = await response.json();
+
         if (Array.isArray(centers) && centers.length > 0) {
-          // Accept both {abbr} or {name} shapes; default to abbr if present
-          const normalized = centers.map((c, idx) => {
-            const code = c.abbr ?? c.code ?? c.name ?? c.slug ?? "";
-            return { abbr: String(code), current: idx === 0 };
-          }).filter(c => c.abbr);
+          const normalized = centers
+            .map((center, index) => {
+              const code =
+                center.abbr ??
+                center.code ??
+                center.name ??
+                center.slug ??
+                "";
+
+              return {
+                abbr: String(code),
+                current: index === 0
+              };
+            })
+            .filter(center => center.abbr);
+
           if (normalized.length > 0) {
             populateSelect(centerSelect, normalized, "abbr", "abbr");
           }
         }
       }
-    } catch (e) {
-      console.warn("Centers fetch failed; keeping defaults.", e);
+    } catch (error) {
+      console.warn(
+        "Centers fetch failed; keeping defaults.",
+        error
+      );
     }
 
-    // 2) current month/year (from Month model serializer)
     try {
-      const res = await fetch("/api/months/current");
-      if (res.ok) {
-        const cur = await res.json();
-        if (cur && typeof cur.number === "number" && typeof cur.year === "number") {
-          // Ensure those values exist in the lists (they should)
-          selectOptionByValue(monthSelect, cur.number);
-          selectOptionByValue(yearSelect,  cur.year);
+      const response = await fetch("/api/months/current");
+
+      if (response.ok) {
+        const currentMonth = await response.json();
+
+        if (
+          currentMonth &&
+          typeof currentMonth.number === "number" &&
+          typeof currentMonth.year === "number"
+        ) {
+          selectOptionByValue(monthSelect, currentMonth.number);
+          selectOptionByValue(yearSelect, currentMonth.year);
         }
       }
-    } catch (e) {
-      console.warn("Current month fetch failed; keeping defaults.", e);
+    } catch (error) {
+      console.warn(
+        "Current month fetch failed; keeping defaults.",
+        error
+      );
     }
   })();
 
-  // Confirm button → redirect based on mode
+  // Confirm button: redirect based on mode.
   confirmBtn.addEventListener("click", function () {
     const center = centerSelect.value;
     const month  = monthSelect.value;
     const year   = yearSelect.value;
 
-    const centerOk = (currentMode === "sum-doctors") || !!center;
-    if (month && year && centerOk) {
-      let url;
-      if (currentMode === "monthtable") {
-        url = `${window.location.origin}/shifts/monthtable/${center}/${month}/${year}/`;
-      } else if (currentMode === "sum-doctors") {
-        url = `${window.location.origin}/shifts/sum-doctors/${month}/${year}/`;
-      } else if (currentMode === "generalReport") {
-        url = `${window.location.origin}/shifts/report/${month}/${year}/`;
-      } else {
-        console.log("Unknown mode:", currentMode);
-        alert("Unknown mode.");
-        return;
-      }
-      window.location.href = url;
-    } else {
+    const needsCenter = !modesWithoutCenter.includes(currentMode);
+    const centerOk = !needsCenter || Boolean(center);
+
+    if (!month || !year || !centerOk) {
       alert("Please select all fields.");
+      return;
     }
+
+    let url;
+
+    if (currentMode === "monthtable") {
+      url = new URL(
+        `/shifts/monthtable/${center}/${month}/${year}/`,
+        window.location.origin
+      );
+    } else if (currentMode === "sum-doctors") {
+      url = new URL(
+        `/shifts/sum-doctors/${month}/${year}/`,
+        window.location.origin
+      );
+    } else if (currentMode === "generalReport") {
+      url = new URL(
+        `/shifts/report/${month}/${year}/`,
+        window.location.origin
+      );
+
+      url.searchParams.set(
+        "exclude_eco",
+        excludeEcoCheckbox.checked ? "1" : "0"
+      );
+    } else {
+      console.log("Unknown mode:", currentMode);
+      alert("Unknown mode.");
+      return;
+    }
+
+    window.location.href = url.toString();
   });
 });
