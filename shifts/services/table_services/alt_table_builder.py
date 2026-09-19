@@ -74,7 +74,7 @@ def fill_block(block, shifts):
                 center_code=center_code,
             )
 
-        available_row["days"][weekday]["name"] = shift.user.name
+        available_row["days"][weekday]["name"] = shift.user.alias or shift.user.name
 
     return block
 

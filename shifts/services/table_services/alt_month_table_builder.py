@@ -153,7 +153,7 @@ def fill_month_block(block, shifts, week_dates):
                 center_code=center_code,
             )
 
-        available_row["days"][column_index]["name"] = shift.user.name
+        available_row["days"][column_index]["name"] = shift.user.alias or shift.user.name
 
     return block
 
