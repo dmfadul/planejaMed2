@@ -22,6 +22,8 @@ user = User.objects.filter(crm="40506").first()
 print("User:", user.compliant_since)
 
 
+# TODO: remove doctor from wrong month from medico-horas
+
 # FINAL TASKS:
 # TODO: add tests
 

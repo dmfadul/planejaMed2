@@ -6,6 +6,11 @@ from core.constants import SHIFTS_MAP, DIAS_SEMANA, NUMBER_OF_ROWS_PER_CENTER
 # Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
 DISPLAY_WEEKDAY_ORDER = [5, 6, 0, 1, 2, 3, 4]
 
+WEEKDAY_TO_COLUMN = {
+    weekday: column
+    for column, weekday in enumerate(DISPLAY_WEEKDAY_ORDER)
+}
+
 
 def get_interval_hours(start, end):
     """
@@ -55,14 +60,19 @@ def fill_block(block, shifts):
             continue
 
         center_code = shift.center.abbreviation
-        weekday = shift.weekday
+
+        # Convert the model weekday index
+        # (Monday=0 ... Sunday=6)
+        # into the displayed column index
+        # (Saturday=0, Sunday=1, Monday=2, ...)
+        display_column = WEEKDAY_TO_COLUMN[shift.weekday]
 
         available_row = next(
             (
                 row
                 for row in block
-                if row["days"][weekday]["code"] == center_code
-                and not row["days"][weekday]["name"]
+                if row["days"][display_column]["code"] == center_code
+                and not row["days"][display_column]["name"]
             ),
             None,
         )
@@ -74,7 +84,9 @@ def fill_block(block, shifts):
                 center_code=center_code,
             )
 
-        available_row["days"][weekday]["name"] = shift.user.alias or shift.user.name
+        available_row["days"][display_column]["name"] = (
+            shift.user.alias or shift.user.name
+        )
 
     return block
 
