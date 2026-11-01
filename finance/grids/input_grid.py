@@ -59,7 +59,17 @@ INPUT_GRID_COLUMNS = [
     {
         "key": "individual_particular_consult",
         "category": "INDIVIDUAL",
-        "subcategory": "Particular",
+        "subcategory": "Cons Part",
+        "label": "",
+        "editable": True,
+        "entry_type": "credit",
+        "category_code": "individual",
+        "source": "client",
+    },
+    {
+        "key": "individual_convenios_consult",
+        "category": "INDIVIDUAL",
+        "subcategory": "Cons Conv",
         "label": "",
         "editable": True,
         "entry_type": "credit",
@@ -69,7 +79,17 @@ INPUT_GRID_COLUMNS = [
     {
         "key": "individual_sus_ambulatoryconsult",
         "category": "INDIVIDUAL",
-        "subcategory": "SUS",
+        "subcategory": "Cons SUS Ambu",
+        "label": "",
+        "editable": True,
+        "entry_type": "credit",
+        "category_code": "individual",
+        "source": "client",
+    },
+    {
+        "key": "individual_sus_aihconsult",
+        "category": "INDIVIDUAL",
+        "subcategory": "Cons SUS AIH",
         "label": "",
         "editable": True,
         "entry_type": "credit",
@@ -77,7 +97,7 @@ INPUT_GRID_COLUMNS = [
         "source": "client",
     },
 
- {
+    {
         "key": "eco_particular_direct",
         "category": "R. ECO",
         "subcategory": "Particular",
