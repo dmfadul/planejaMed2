@@ -52,9 +52,9 @@ def get_cell_value(user, column, hospital_map):
     if key == "crm":
         return getattr(user, "crm", "")
     
-    if key.startswith("rp_huem_"):
+    if key.startswith("rp_huem_") or key.startswith("individual_"):
         return hospital_map.get(
-            (user.id, subcategory.casefold()),
+            (user.id, key.casefold()),
             Decimal("0.00"),
         )
  
