@@ -58,4 +58,5 @@ def get_cell_value(user, column, hospital_map):
             Decimal("0.00"),
         )
  
+    print(f"Unknown column key: {key}")
     return Decimal("0.07")
