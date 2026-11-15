@@ -97,10 +97,17 @@ def edit_cell(request, grid_key, month_id, user_id, column_key):
     
     category = FinanceCategory.objects.filter(code=column["category_code"]).first()
 
+    source = FinanceSource.objects.filter(name=column["source"]).first()   
+    if source is None:
+        return HttpResponseBadRequest("Invalid source")
+
     entry = FinanceEntry.objects.filter(
         month=month,
         user=user,
         category=category,
+        description=f"{column['subcategory']}_{column['label']}",
+        entry_type=column["entry_type"],
+        source=source,
     ).first()
 
     value = entry.amount if entry else Decimal("0.00")
