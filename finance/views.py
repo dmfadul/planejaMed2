@@ -28,7 +28,7 @@ from .grids_builder import (
 from .services import (
     process_uploaded_document,
     create_original_batch
-    )
+)
 
 
 @login_required
