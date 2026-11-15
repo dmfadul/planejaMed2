@@ -279,7 +279,7 @@ def upload_document_view(request):
 
     if form.is_valid():
         document = form.save(commit=False)
-        document.month = Month.get_current()
+        document.month = Month.get_current().get_previous()
         document.save()
         # try:
         rows = process_uploaded_document(document)
