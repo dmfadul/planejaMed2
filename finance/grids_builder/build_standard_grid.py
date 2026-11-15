@@ -55,10 +55,10 @@ def build_income_grid(month, columns):
 
 
 def get_editable_cell_value(user, column, month, raw_value=0):
-    category = FinanceCategory.objects.get(
+    category = FinanceCategory.objects.filter(
         name=column["category"],
         code=column["category_code"],
-    )
+    ).first()
 
     source = FinanceSource.objects.filter(name=column["source"]).first()   
     if source is None:
