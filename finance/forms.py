@@ -10,10 +10,10 @@ class UploadedDocumentForm(forms.ModelForm):
 
     def clean_file(self):
         f = self.cleaned_data["file"]
-        allowed_extensions = [".pdf", ".xlsx", ".xls"]
+        allowed_extensions = [".xlsx"]
         name = f.name.lower()
 
         if not any(name.endswith(ext) for ext in allowed_extensions):
-            raise forms.ValidationError("Only PDF and spreadsheet files are allowed.")
+            raise forms.ValidationError("Apenas arquivos .xlsx são permitidos.")
 
         return f
