@@ -137,10 +137,19 @@ def update_cell(request, grid_key, month_id, user_id, column_key):
         amount = Decimal(raw_value)
     except InvalidOperation:
         return HttpResponseBadRequest("Invalid number")
-
+    
+    print("column:", column)
+    # {'key': 'eco_particular_direct',
+    
+    # 'subcategory': 'Particular',
+    # 'label': '',
+    # 'editable': True,
+    # 'entry_type': 'credit',
+    
+    # 'source': 'eco'}
     category, _ = FinanceCategory.objects.get_or_create(
-        name=column["category"],
-        code=column["category_code"],
+        name=column["category"], # 'category': 'R. ECO',
+        code=column["category_code"], # 'category_code': 'realized_in_eco',
     )
 
     source = FinanceSource.objects.filter(name=column["source"]).first()   
